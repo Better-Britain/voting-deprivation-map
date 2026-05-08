@@ -1,0 +1,24 @@
+{
+  "updated_at_utc": "2026-05-08T12:46:06.460Z",
+  "source": {
+    "service": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Authority_Districts_December_2024_Boundaries_UK_BGC/FeatureServer/0/query",
+    "dataset": "ONS LAD December 2024 Boundaries UK BGC"
+  },
+  "filter": {
+    "lad24_codes": [
+      "E08000001",
+      "E08000002",
+      "E08000003",
+      "E08000004",
+      "E08000005",
+      "E08000006",
+      "E08000007",
+      "E08000008",
+      "E08000009",
+      "E08000010"
+    ]
+  },
+  "counts": {
+    "councils": 10
+  }
+}

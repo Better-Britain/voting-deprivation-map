@@ -1,0 +1,17 @@
+{
+  "feature_count": 2186,
+  "missing_deprivation_rows": 0,
+  "missing_deprivation_codes_sample": [],
+  "bbox_wgs84": [
+    -2.63909,
+    53.2677,
+    -1.86513,
+    53.7412
+  ],
+  "sources": {
+    "deprivation_release_page": "https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025",
+    "deprivation_csv": "https://assets.publishing.service.gov.uk/media/691ded56d140bbbaa59a2a7d/File_7_IoD2025_All_Ranks_Scores_Deciles_Population_Denominators.csv",
+    "boundary_about": "https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2021-boundaries-ew-bsc-v4/about",
+    "boundary_query": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_December_2021_Boundaries_EW_BSC_V4/FeatureServer/0/query"
+  }
+}

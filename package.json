@@ -1,0 +1,19 @@
+{
+  "name": "nhs-complaint-local-site",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "dev": "vite --config vite.config.mjs",
+    "build": "vite build --config vite.config.mjs",
+    "preview": "vite preview --config vite.config.mjs",
+    "updates:maintenance": "node ./scripts/updates-maintenance.mjs",
+    "updates:maintenance:refresh-all-wards": "node ./scripts/updates-maintenance.mjs --refresh-all-wards",
+    "deprivation:index:update": "node ./scripts/build-ward-deprivation-vote-index.mjs",
+    "winners:update:manual": "node ./scripts/update-ward-winners-manual.mjs"
+  },
+  "devDependencies": {
+    "flag-icons": "^7.3.2",
+    "playwright": "^1.54.2",
+    "vite": "latest"
+  }
+}

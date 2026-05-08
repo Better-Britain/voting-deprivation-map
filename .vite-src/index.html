@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voter Deprivation Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="page">
+    <div class="map-stage" id="map-stage">
+      <aside class="legend">
+        <div class="legend-header">
+          <h1>Voter Deprivation Map</h1>
+          <button type="button" class="legend-collapse" id="legend-collapse" aria-pressed="false" title="Collapse sidebar">&lsaquo;</button>
+        </div>
+        <p class="hint">2026 local election winners over the Deprivation Index.</p>
+
+        <div class="control-group">
+          <h2>Layers</h2>
+          <label class="overlay-toggle-label" for="deprivation-toggle">
+            <input type="checkbox" id="deprivation-toggle" checked>
+            <span>Show deprivation (IMD 2025)</span>
+          </label>
+          <p class="hint" id="deprivation-status">Loading deprivation layer...</p>
+        </div>
+
+        <div class="control-group">
+          <h2>Election Result Layers</h2>
+          <label class="overlay-toggle-label" for="council-results-toggle">
+            <input type="checkbox" id="council-results-toggle" checked>
+            <span>Show council control layer</span>
+          </label>
+          <label class="overlay-toggle-label" for="ward-results-toggle">
+            <input type="checkbox" id="ward-results-toggle" checked>
+            <span>Show ward winners layer</span>
+          </label>
+          <label class="overlay-toggle-label" for="ward-fill-toggle">
+            <input type="checkbox" id="ward-fill-toggle">
+            <span>Fill wards</span>
+          </label>
+          <p class="hint" id="ward-hover-status"></p>
+        </div>
+
+        <div class="control-group">
+          <h2>Current Data</h2>
+          <p class="hint" id="deprivation-stats">Waiting for data...</p>
+        </div>
+      </aside>
+      <div id="map" aria-label="Map"></div>
+      <div id="hover-info-panel" class="hover-info-panel" hidden aria-live="polite"></div>
+    </div>
+
+    <div class="insights">
+      <section class="panel">
+        <h2>Ward Deprivation Stacks</h2>
+        <p id="ward-deprivation-summary">Loading ward deprivation vote index...</p>
+        <div id="ward-deprivation-bars"></div>
+      </section>
+      <section class="panel">
+        <h2>Ward Deprivation Table</h2>
+        <div id="ward-deprivation-table"></div>
+      </section>
+    </div>
+
+
+  </div>
+  <footer class="insights" aria-label="Sources">
+    <section class="panel">
+      <h2>Sources</h2>
+      <p>
+        <a href="https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2024_Boundaries_UK_BGC/FeatureServer/0/query" target="_blank" rel="noopener noreferrer">ONS Wards 2024 boundaries</a><br>
+        <a href="https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Authority_Districts_December_2024_Boundaries_UK_BGC/FeatureServer/0/query" target="_blank" rel="noopener noreferrer">ONS Council boundaries (LAD)</a><br>
+        <a href="https://candidates.democracyclub.org.uk/api/next/results/?election_date=2026-05-07" target="_blank" rel="noopener noreferrer">Democracy Club results API (ward winners)</a><br>
+        <a href="https://candidates.democracyclub.org.uk/api/next/ballots/?election_date=2026-05-07" target="_blank" rel="noopener noreferrer">Democracy Club ballots API</a><br>
+        <a href="https://static.files.bbci.co.uk/elections/data/news/election/2026/england/councils" target="_blank" rel="noopener noreferrer">BBC councils feed (control)</a><br>
+        <a href="https://opencouncildata.co.uk/csv2.php?y=2025" target="_blank" rel="noopener noreferrer">Open Council Data (incumbents)</a>
+      </p>
+    </section>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

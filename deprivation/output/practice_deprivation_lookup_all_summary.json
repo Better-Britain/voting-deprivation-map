@@ -1,0 +1,30 @@
+{
+  "practice_count": 7599,
+  "reused_cached_count": 614,
+  "recomputed_count": 6985,
+  "status_counts": {
+    "matched_imd_2025_england": 6173,
+    "no_polygon_match": 10,
+    "matched_polygon_no_deprivation_index": 318,
+    "unsupported_nation": 1098
+  },
+  "nation_counts": {
+    "england": 6182,
+    "scotland": 849,
+    "wales": 319,
+    "northern_ireland": 249
+  },
+  "sources": {
+    "deprivation_csv": "https://assets.publishing.service.gov.uk/media/691ded56d140bbbaa59a2a7d/File_7_IoD2025_All_Ranks_Scores_Deciles_Population_Denominators.csv",
+    "boundary_query": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Lower_layer_Super_Output_Areas_December_2021_Boundaries_EW_BSC_V4/FeatureServer/0/query",
+    "boundary_about": "https://geoportal.statistics.gov.uk/datasets/ons::lower-layer-super-output-areas-december-2021-boundaries-ew-bsc-v4/about",
+    "gm_dataset_json": "/home/bobbigmac/projects/nhs-complaint-dec-2024/datasets/output/gtd-greater-manchester-gp-practice-reviews-2026-03-09/gtd_greater_manchester_gp_practices.json",
+    "national_input_csv": "/home/bobbigmac/projects/nhs-complaint-dec-2024/datasets/national-practices/output/uk_gp_practices_not_in_current_dataset.csv",
+    "national_google_json": "/home/bobbigmac/projects/nhs-complaint-dec-2024/datasets/national-practices/output/google_maps_recent_reviews.json"
+  },
+  "notes": [
+    "English IMD 2025 values are joined to ONS EW 2021 LSOA polygons by point-in-polygon using practice coordinates.",
+    "Welsh matches currently retain polygon identity but do not yet have a comparable deprivation index wired in.",
+    "Scotland and Northern Ireland are retained with unsupported_nation status until equivalent polygon/index sources are added."
+  ]
+}

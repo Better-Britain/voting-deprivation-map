@@ -1,0 +1,546 @@
+{
+  "captured_at_utc": "2026-05-08T04:57:44.499Z",
+  "source_url": "https://www.bbc.co.uk/news/election/2026/england/results",
+  "engine": "firefox",
+  "payload_capture_count": 107,
+  "discovered_endpoints": [
+    {
+      "url": "https://www.bbc.co.uk/news/election/2026/england/results",
+      "status": 200,
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-gel.ad70426946194e2e18db.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-framework.120e61fd498ea2bbcc47.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-pwa.2f61cf3503700e01cbbb.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-button.f8a405464df0ba954344.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-call-to-action-link.71f9d993372e231ad055.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/embed/css/inline.css??v=0.0.202605072058.undefined",
+      "status": 200,
+      "contentType": "text/css"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-global-navigation.05a79d6641fdefcc0421.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/img/warning.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-global-navigation.6a43ef81ed3600ff9e35.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-image.22701150e2ffcc2d5c35.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-product-navigation.7748afdf7e3a5153bf31.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-masthead.67255d0aa6c5874933bc.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/labour.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-product-navigation.d0288571ddd4afa404d0.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-rich-text.87988e6cbca4a0524204.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/liberal_democrat.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-results-bar.a59b1b92eefb0224354b.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-winner-flash.6cf7fe86b2c36e530301.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/conservative.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-election-banner.b8d4968d2b741ddcc97f.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/election-logo-cutout-en.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-editorial-text.5acf5d3d538e36e1772d.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/reformuk.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-editorial-text.b4394e48875f4ae450f3.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/green.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-information-panel.403a4b1925b579a840a3.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2021/logos/independent.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-tag-list.983c7ca2c6532c0a543b.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/ra.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-page-link.1a2578ad8e864dd3a530.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/images/uk2026/logos/aspire.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-include.e56eeae60dc66ca73133.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-information-wrapper.a1583fc3375c0228cf0a.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-drawer.e2467b5f51af8130520b.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-scorecard.77396a3f0c6ed1db7e15.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-score-table.7c2cfe0b46a49cc6bbd8.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-elections-table.7a7620c14124d055f591.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-stage-by-stage.db35451f3e52d921bbb0.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-scoreboard.5ad6401d321427a5c8f5.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-links-group.3f4fc3511ec10b116c4f.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-metadata-snippet.8540b36445225de2c2bf.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-metadata-strip.2c0707bff4fefe0da1bf.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-contributor.a2c8d060da4daf1200f2.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-page-type-indicator.b4c2aad9207ca2dd6b1a.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-promo.661dc4aa3215eb7f9a35.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-additional-links.f14d0592ab1a0a246925.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-error-message.e3f4a66794c5a9fe4ab3.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-uas-button.bb666ee9a2ad78c14afb.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-sport-badge.fb6f49bc6f1bcc77e3b9.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-media-player.f3e895ad0a1ea9c014ff.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-follow.cbd4a2de4d7304689810.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-index-promo.be379d5db8638ae2edd7.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-in-situ-media-promo.b2dd7607d45a0f3b8fb8.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-promo-with-ranking.da5417b5d10c1b140646.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-live-preview-promo.e456c55d14934ecdf206.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-high-impact-promo.79b1765a75e7262448e5.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-short-form-promo.f87275c7335c433a128f.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-portrait-video-promo.c32f7d8040302bc887f5.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-onward-journeys.845effd57d1112ba773b.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-collection-header.d4b263f3ecb906b0820f.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-quick-user-actions-menu.d3439afaca067c220f04.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-simple-promo-collection.36d7f694b2f53f47258d.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-promo-carousel.40ecd3084f817fce489f.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-simple-promo-collection.39e1b138842c98d4dcda.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-global-footer.4bb0b21ba3f0e5d82dcd.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-vendor-optimizely.82575de06971d0f3f386.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-default-vendors.4a05092896ca1eb52c25.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-tabs.885b126c92bf146673c3.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-base-website.d76bf9835b7c67ebe994.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-website.b321bba781a82c006e9b.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/svg/external-link.svg",
+      "status": 200,
+      "contentType": "image/svg+xml"
+    },
+    {
+      "url": "https://idcta.api.bbc.co.uk/idcta/config",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8"
+    },
+    {
+      "url": "https://nav.files.bbci.co.uk/orbit/2.0.0-502.c3ab836/js/require.min.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-component-consent-banner.fa7aa53926c3a78bad19.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/core/bundle-consent-banner.3d1535edf8255ca5f2cd.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://www.bbc.co.uk/userinfo",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/embed/js/embed-init.js??v=0.0.202605072058.undefined",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/embed/js/shadow-wrapper.js?v=0.0.202605072058.undefined",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://bag.api.bbc.co.uk/v2/event",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/js/vendor/news-vj-ati-event-tracking-2.0.20.js",
+      "status": 200,
+      "contentType": "application/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/embed/css/app.css?v=0.0.202605072058.undefined",
+      "status": 200,
+      "contentType": "text/css"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/english/app-es6.js?v=0.0.202605072058.undefined",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/sj_master_key.min.json",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/elex_hist.min.json",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/party_hex.min.json",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/council_links.json",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/eng_councils--simplified-0.45-precision-5.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/eng_mayors.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/eng_county_councils.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/scot_c--simplified-0.35-precision-5.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/scot_r--simplified-0.30-precision-5.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/wales_constituencies--simplified-0.7-precision-5.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/GB_landmass.topo.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/assets/app-project-assets/data/maps/uk.style.json?v=1",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/data/news/election/2026/england/councils",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/data/news/election/2026/england/results",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/data/news/election/2026/scotland/constituencies",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/data/news/election/2026/wales/constituencies/results-summary",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://static.files.bbci.co.uk/elections/data/news/election/2026/scotland/regions/results-summary",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://www.bbc.co.uk/wc-data/container/simple-promo-collection?enablePromoTimestamps=false&home=news&isPersonalised=true&isUk=true&language=en-GB&lazyLoadImages=true&personalisedEnv=live&suppressMediaTypeIndicators=true&title=Your%20Ticket%20to%20Amandaland&tracking=%7B%22groupName%22%3A%22Your%20Ticket%20to%20Amandaland%22%2C%22groupType%22%3A%22footer%20promos%22%2C%22groupResourceId%22%3A%22urn%3Abbc%3Atipo%3Alist%3A05cf1ce3-1812-4c75-ba38-3800dccd6de4%22%2C%22groupPosition%22%3A0%7D&urn=urn%3Abbc%3Atipo%3Alist%3A05cf1ce3-1812-4c75-ba38-3800dccd6de4&withIndexPromos=true",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/english/app-dependency.77.0aaa4dc9f3d864adaddd-es6.js",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/english/app-dependency.160.661fd75b6340610f8d24-es6.js",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/41045-uk-local-elections-2026/english/app-dependency.727.1ae52a84e35176855156-es6.js",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/map-assets/tiles/v1/5/15/10.pbf",
+      "status": 200,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/map-assets/tiles/v1/5/16/10.pbf",
+      "status": 200,
+      "contentType": "application/octet-stream"
+    },
+    {
+      "url": "https://news.files.bbci.co.uk/include/newsspec/map-assets/fonts/v1/ReithSansBold/0-255.pbf",
+      "status": 200,
+      "contentType": "application/octet-stream"
+    }
+  ],
+  "candidate_count": 0,
+  "updated_wards": 0,
+  "candidates": []
+}

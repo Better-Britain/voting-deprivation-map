@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voter Deprivation Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="map.css">
+</head>
+<body>
+  <div class="page">
+    <div class="map-stage" id="map-stage">
+      <aside class="legend">
+        <div class="legend-header">
+          <h1>Voter Deprivation Tool</h1>
+          <button type="button" class="legend-collapse" id="legend-collapse" aria-pressed="false" title="Collapse sidebar">&lsaquo;</button>
+        </div>
+        <p class="hint">Standalone base app for election overlays. This version intentionally removes GP markers, catchments, and score filters.</p>
+
+        <div class="control-group">
+          <h2>Layers</h2>
+          <label class="overlay-toggle-label" for="deprivation-toggle">
+            <input type="checkbox" id="deprivation-toggle" checked>
+            <span>Show deprivation (IMD 2025)</span>
+          </label>
+          <p class="hint" id="deprivation-status">Loading deprivation layer...</p>
+        </div>
+
+        <div class="control-group">
+          <h2>Sector Effect Layers</h2>
+          <p class="hint">Experimental overlays for possible wealth extraction/development effects. Each layer is self-contained so you can swap datasets quickly.</p>
+          <div id="information-layer-controls" class="layer-list" aria-live="polite"></div>
+          <p class="hint" id="information-layer-status">Loading sector layers...</p>
+        </div>
+
+        <div class="control-group">
+          <h2>Current Data</h2>
+          <p class="hint" id="deprivation-stats">Waiting for data...</p>
+        </div>
+      </aside>
+      <div id="map" aria-label="Map"></div>
+    </div>
+
+    <div class="insights">
+      <section class="panel">
+        <h2>Upcoming: Ward Count Overlay</h2>
+        <p>Next step: load ward boundaries for ongoing UK local elections and style each ward by count status as results are returned.</p>
+      </section>
+      <section class="panel">
+        <h2>Upcoming: Turnout vs Deprivation</h2>
+        <p>Placeholder for turnout and swing analysis split by ward deprivation profile.</p>
+      </section>
+      <section class="panel">
+        <h2>Upcoming: Live Results Segments</h2>
+        <p>Placeholder for per-ward cards and count progress summaries while declarations come in.</p>
+      </section>
+      <section class="panel">
+        <h2>Upcoming: Sector vs Vote Patterning</h2>
+        <p>Placeholder for comparing election outcomes with the experimental sector-effect overlays above.</p>
+      </section>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="map-app.js"></script>
+</body>
+</html>
