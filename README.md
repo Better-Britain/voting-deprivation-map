@@ -1,4 +1,4 @@
-# Voter Deprivation Map
+# Voting Deprivation Map
 
 I hear a lot of people say these stupid poor people should stop voting for Reform, and I wondered if it really was mainly the poor.
 
