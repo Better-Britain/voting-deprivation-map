@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, ".vite-src");
+const root = process.env.VITE_ROOT || path.resolve(__dirname, "src");
 
 export default defineConfig({
   root,
