@@ -6,10 +6,10 @@ import { area, bbox, featureCollection, intersect } from "@turf/turf";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 
-const WARDS_GEOJSON_PATH = path.resolve(projectRoot, ".vite-src/data/greater-manchester-wards.geojson");
-const ELECTION_STATE_PATH = path.resolve(projectRoot, ".vite-src/data/greater-manchester-ward-election-state.json");
+const WARDS_GEOJSON_PATH = path.resolve(projectRoot, "src/data/greater-manchester-wards.geojson");
+const ELECTION_STATE_PATH = path.resolve(projectRoot, "src/data/greater-manchester-ward-election-state.json");
 const DEPRIVATION_GEOJSON_PATH = path.resolve(projectRoot, "deprivation/output/catchment_lsoa_imd_2025.geojson");
-const OUTPUT_PATH = path.resolve(projectRoot, ".vite-src/data/ward-deprivation-vote-index.json");
+const OUTPUT_PATH = path.resolve(projectRoot, "src/data/ward-deprivation-vote-index.json");
 
 function bboxesOverlap(a, b) {
   return !(a[0] > b[2] || a[2] < b[0] || a[1] > b[3] || a[3] < b[1]);

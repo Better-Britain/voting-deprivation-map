@@ -21,7 +21,7 @@ const GREATER_MANCHESTER_LAD24_CODES = [
   "E08000010"  // Wigan
 ];
 
-const OUTPUT_DIR = path.resolve(projectRoot, ".vite-src/data");
+const OUTPUT_DIR = path.resolve(projectRoot, "src/data");
 const OUTPUT_GEOJSON = path.resolve(OUTPUT_DIR, "greater-manchester-wards.geojson");
 const OUTPUT_SUMMARY = path.resolve(OUTPUT_DIR, "greater-manchester-wards.summary.json");
 

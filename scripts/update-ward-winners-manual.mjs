@@ -13,8 +13,8 @@ const RESULTS_URL = process.env.RESULTS_URL || "https://www.bbc.co.uk/news/elect
 const ENGINE = String(process.env.BROWSER_ENGINE || "firefox").toLowerCase();
 const PROFILE_PATH = process.env.BROWSER_PROFILE_PATH || "";
 
-const ELECTION_STATE_PATH = path.resolve(projectRoot, ".vite-src/data/greater-manchester-ward-election-state.json");
-const CAPTURE_DEBUG_PATH = path.resolve(projectRoot, ".vite-src/data/manual-election-capture.json");
+const ELECTION_STATE_PATH = path.resolve(projectRoot, "src/data/greater-manchester-ward-election-state.json");
+const CAPTURE_DEBUG_PATH = path.resolve(projectRoot, "src/data/manual-election-capture.json");
 
 const PARTY_LOOKUP = {
   lab: "Labour",

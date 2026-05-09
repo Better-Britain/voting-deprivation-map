@@ -12,8 +12,8 @@ const DEMOCRACY_CLUB_BALLOTS_BASE_URL = "https://candidates.democracyclub.org.uk
 const ELECTION_DATE = process.env.ELECTION_DATE || "2026-05-07";
 const REFRESH_ALL_WARDS = /^(1|true|yes)$/i.test(String(process.env.REFRESH_ALL_WARDS || ""));
 const CHECK_PENDING_WARDS = /^(1|true|yes)$/i.test(String(process.env.CHECK_PENDING_WARDS || "1"));
-const WARDS_GEOJSON_PATH = path.resolve(projectRoot, ".vite-src/data/greater-manchester-wards.geojson");
-const OUTPUT_JSON_PATH = path.resolve(projectRoot, ".vite-src/data/greater-manchester-ward-election-state.json");
+const WARDS_GEOJSON_PATH = path.resolve(projectRoot, "src/data/greater-manchester-wards.geojson");
+const OUTPUT_JSON_PATH = path.resolve(projectRoot, "src/data/greater-manchester-ward-election-state.json");
 
 const GM_AUTHORITIES = new Set([
   "Bolton",

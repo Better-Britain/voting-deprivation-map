@@ -1,7 +1,7 @@
 {
-  "updated_at_utc": "2026-05-08T12:50:28.908Z",
+  "updated_at_utc": "2026-05-09T02:12:38.710Z",
   "sources": {
-    "wards_geojson": "/home/bobbigmac/projects/toys/voter-deprivation/.vite-src/data/greater-manchester-wards.geojson",
+    "wards_geojson": "/home/bobbigmac/projects/voting-deprivation-map/src/data/greater-manchester-wards.geojson",
     "incumbents_csv": "https://opencouncildata.co.uk/csv2.php?y=2025",
     "bbc_england_councils": "https://static.files.bbci.co.uk/elections/data/news/election/2026/england/councils",
     "democracy_club_results": "https://candidates.democracyclub.org.uk/api/next/results/?election_date=2026-05-07",
@@ -11,8 +11,8 @@
     "wards_total": 215,
     "incumbents_matched": 215,
     "incumbents_unmatched": 0,
-    "councils_declared": 7,
-    "wards_declared": 132
+    "councils_declared": 10,
+    "wards_declared": 153
   },
   "wards": [
     {
@@ -1494,9 +1494,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1522,9 +1522,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1550,9 +1550,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1578,9 +1578,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1606,9 +1606,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1634,9 +1634,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1662,9 +1662,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1690,9 +1690,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1718,9 +1718,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1746,9 +1746,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1774,9 +1774,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1802,9 +1802,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1830,9 +1830,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1858,9 +1858,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1886,9 +1886,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1914,9 +1914,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1942,9 +1942,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1970,9 +1970,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -1998,9 +1998,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2026,9 +2026,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2054,9 +2054,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2082,9 +2082,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2110,9 +2110,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2138,9 +2138,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2166,9 +2166,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2194,9 +2194,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2222,9 +2222,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2250,9 +2250,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2278,9 +2278,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2306,9 +2306,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2334,9 +2334,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2362,9 +2362,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2390,9 +2390,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2418,9 +2418,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2446,9 +2446,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2474,9 +2474,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -2502,9 +2502,9 @@
       "winner_party": null,
       "winner_status": "pending",
       "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5467,12 +5467,12 @@
           "party": "Green Party (E&W)"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5495,12 +5495,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour and Co-operative Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5523,12 +5523,12 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5551,12 +5551,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5579,12 +5579,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5607,12 +5607,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5635,12 +5635,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5663,12 +5663,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5691,12 +5691,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5719,12 +5719,12 @@
           "party": "Green Party (E&W)"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5747,12 +5747,12 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5775,12 +5775,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5803,12 +5803,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5831,12 +5831,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5859,12 +5859,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5887,12 +5887,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5915,12 +5915,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5943,12 +5943,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5971,12 +5971,12 @@
           "party": "Liberal Democrats"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Liberal Democrats",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -5999,12 +5999,12 @@
           "party": "Liberal Democrats"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Liberal Democrats",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     },
     {
@@ -6027,12 +6027,12 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
-      "council_winner_party": null,
-      "council_winner_party_code": null,
-      "council_result_declared": false,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
+      "council_winner_party": "Labour",
+      "council_winner_party_code": "LAB",
+      "council_result_declared": true,
       "council_result_source": "bbc_councils_feed"
     }
   ]
