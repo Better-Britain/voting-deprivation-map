@@ -754,8 +754,8 @@ function renderWardDeprivationTable(payload) {
   //const topParties = parties.slice(0, 8);
   const topParties = [...parties]
     .sort((a, b) =>
-      Number(b.deprivation_weighted_mean_decile || 0) -
-      Number(a.deprivation_weighted_mean_decile || 0)
+      Number(a.deprivation_weighted_mean_decile || 0) -
+      Number(b.deprivation_weighted_mean_decile || 0)
     );
     // .slice(0, 8);
   const summary = payload?.summary || {};
@@ -810,10 +810,10 @@ function renderWardDeprivationTable(payload) {
     '<table class="simple-table">',
     "<thead><tr><th>Party</th><th>Wards Won</th><th>Weighted Decile</th></tr></thead>",
     "<tbody>",
-    ...topParties.map((row) => (
-      `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}</td></tr>`
+    ...topParties.map((row, rownum) => (
+      `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}${rownum===0?' (poorest)':(rownum===10?' (richest)':'')}</td></tr>`
     )),
-    "</tbody></table>"
+    "</tbody></table><br/><p class='hint'>TODO: Rendering distribution, rather than averages, might illustrate this better</p>"
   ].join("");
 }
 
