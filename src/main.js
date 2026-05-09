@@ -484,12 +484,12 @@ function buildHoverInfoLines(latlng, hoveredFeature) {
       lines.push(`D${p.imd_decile ?? "?"}`);
     }
   }
-  if (effectsToggle.checked) {
-    const effectMatches = findEffectsAt(latlng);
-    if (effectMatches.length) {
-      lines.push(`${effectMatches.slice(0, 2).join(" · ")}`);
-    }
-  }
+  // if (effectsToggle.checked) {
+  //   const effectMatches = findEffectsAt(latlng);
+  //   if (effectMatches.length) {
+  //     lines.push(`${effectMatches.slice(0, 2).join(" · ")}`);
+  //   }
+  // }
   return lines;
 }
 
