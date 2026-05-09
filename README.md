@@ -9,5 +9,6 @@ The map is at [https://better-britain.github.io/voting-deprivation-map/](https:/
 ## TODO
 
 - Expand to England-wide (not sure if other nations have IMD)
-- Tranche and update update scripts
+- Tranche and update map loader to cope with lots more overlay paths
+    - May server-render deprivation tiles, but then lose direct queries
 - Stacks chart by council/region
