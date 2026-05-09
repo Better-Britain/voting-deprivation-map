@@ -751,7 +751,13 @@ function renderWardDeprivationTable(payload) {
   if (!wardDeprivationSummary || !wardDeprivationTable || !wardDeprivationBars) return;
   const parties = Array.isArray(payload?.parties) ? payload.parties : [];
   const wards = Array.isArray(payload?.wards) ? payload.wards : [];
-  const topParties = parties.slice(0, 8);
+  //const topParties = parties.slice(0, 8);
+  const topParties = [...parties]
+    .sort((a, b) =>
+      Number(b.deprivation_weighted_mean_decile || 0) -
+      Number(a.deprivation_weighted_mean_decile || 0)
+    );
+    // .slice(0, 8);
   const summary = payload?.summary || {};
   wardDeprivationSummary.textContent =
     `Declared wards: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`;
@@ -793,7 +799,7 @@ function renderWardDeprivationTable(payload) {
       )
       .join("");
     stackedRows.push(
-      `<div class="stacked-row"><div class="stacked-label">Decile ${d}</div><div class="stacked-track">${segmentHtml}</div></div>`
+      `<div class="stacked-row"><div class="stacked-label">${d === 10 ? "Richest" : d === 1 ? "Poorest" : "Decile " + d}</div><div class="stacked-track">${segmentHtml}</div></div>`
     );
   }
   const legendItems = [...topParties.map((p) => p.party), "Other"]
