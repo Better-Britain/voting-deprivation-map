@@ -811,7 +811,7 @@ function renderWardDeprivationTable(payload) {
     "<thead><tr><th>Party</th><th>Wards Won</th><th>Weighted Decile</th></tr></thead>",
     "<tbody>",
     ...topParties.map((row, rownum) => (
-      `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}${rownum===0?' (poorest)':(rownum===10?' (richest)':'')}</td></tr>`
+      `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}${rownum===0?' (poorest)':(rownum===(topParties.length-1)?' (richest)':'')}</td></tr>`
     )),
     "</tbody></table><br/><p class='hint'>TODO: Rendering distribution, rather than averages, might illustrate this better</p>"
   ].join("");
