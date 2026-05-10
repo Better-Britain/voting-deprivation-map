@@ -635,7 +635,7 @@ function updateWardStatusDefault() {
 
 function applyWardLayerVisibility() {
   const zoom = map.getZoom();
-  const allowCouncilResultsAtZoom = zoom >= COUNCIL_RESULTS_MIN_ZOOM;
+  const allowCouncilResultsAtZoom = false;//zoom >= COUNCIL_RESULTS_MIN_ZOOM;
   const allowWardResultsAtZoom = zoom >= WARD_RESULTS_MIN_ZOOM;
   if (declaredCouncilResultsLayer) {
     if (councilResultsToggle?.checked && allowCouncilResultsAtZoom && declaredCouncilCount > 0) {
