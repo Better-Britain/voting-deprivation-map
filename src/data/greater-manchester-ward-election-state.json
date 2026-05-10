@@ -1,5 +1,5 @@
 {
-  "updated_at_utc": "2026-05-10T01:54:33.946Z",
+  "updated_at_utc": "2026-05-10T14:12:24.363Z",
   "sources": {
     "wards_geojson": "/home/bobbigmac/projects/voting-deprivation-map/src/data/greater-manchester-wards.geojson",
     "incumbents_csv": "https://opencouncildata.co.uk/csv2.php?y=2025",

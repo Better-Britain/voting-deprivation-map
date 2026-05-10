@@ -1,5 +1,5 @@
 {
-  "updated_at_utc": "2026-05-10T01:54:53.493Z",
+  "updated_at_utc": "2026-05-10T14:12:41.646Z",
   "sources": {
     "wards_geojson": "/home/bobbigmac/projects/voting-deprivation-map/src/data/greater-manchester-wards.geojson",
     "deprivation_geojson": "/home/bobbigmac/projects/voting-deprivation-map/deprivation/output/catchment_lsoa_imd_2025.geojson",
