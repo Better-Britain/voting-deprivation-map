@@ -1,5 +1,5 @@
 {
-  "updated_at_utc": "2026-05-09T02:12:38.710Z",
+  "updated_at_utc": "2026-05-10T01:54:33.946Z",
   "sources": {
     "wards_geojson": "/home/bobbigmac/projects/voting-deprivation-map/src/data/greater-manchester-wards.geojson",
     "incumbents_csv": "https://opencouncildata.co.uk/csv2.php?y=2025",
@@ -12,7 +12,7 @@
     "incumbents_matched": 215,
     "incumbents_unmatched": 0,
     "councils_declared": 10,
-    "wards_declared": 153
+    "wards_declared": 214
   },
   "wards": [
     {
@@ -35,9 +35,9 @@
           "party": "Liberal Democrats"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -63,9 +63,9 @@
           "party": "Independent / Other"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -91,9 +91,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -203,9 +203,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -231,9 +231,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -259,9 +259,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -371,9 +371,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour and Co-operative Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -511,9 +511,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -567,9 +567,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -595,9 +595,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -623,9 +623,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -651,9 +651,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -679,9 +679,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -791,9 +791,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -819,9 +819,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -987,9 +987,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1015,9 +1015,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1043,9 +1043,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1127,9 +1127,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1155,9 +1155,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Independent",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1211,9 +1211,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Green Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1267,9 +1267,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1407,9 +1407,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1435,9 +1435,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1463,9 +1463,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1491,9 +1491,9 @@
           "party": "Reform UK"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1519,9 +1519,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1547,9 +1547,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1575,9 +1575,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Workers Party of Britain",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1603,9 +1603,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1631,9 +1631,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1659,9 +1659,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1687,9 +1687,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1715,9 +1715,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1743,9 +1743,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Workers Party of Britain",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1771,9 +1771,9 @@
           "party": "Liberal Democrats"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1799,9 +1799,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Conservative and Unionist Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1827,9 +1827,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1855,9 +1855,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1883,9 +1883,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Liberal Democrats",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1911,9 +1911,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1939,9 +1939,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1967,9 +1967,9 @@
           "party": "Independent / Other"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -1995,9 +1995,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2023,9 +2023,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2051,9 +2051,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour and Co-operative Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2079,9 +2079,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2107,9 +2107,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2135,9 +2135,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2163,9 +2163,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2219,9 +2219,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2247,9 +2247,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2275,9 +2275,9 @@
           "party": "Radcliffe First"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Radcliffe First",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2303,9 +2303,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2331,9 +2331,9 @@
           "party": "Radcliffe First"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Radcliffe First",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2359,9 +2359,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2387,9 +2387,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Workers Party of Britain",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2415,9 +2415,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2443,9 +2443,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Labour Party",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2471,9 +2471,9 @@
           "party": "Conservative and Unionist"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Independent",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,
@@ -2499,9 +2499,9 @@
           "party": "Labour Party"
         }
       ],
-      "winner_party": null,
-      "winner_status": "pending",
-      "winner_source": null,
+      "winner_party": "Reform UK",
+      "winner_status": "declared",
+      "winner_source": "democracy_club_results_api",
       "council_winner_party": "Labour",
       "council_winner_party_code": "LAB",
       "council_result_declared": true,

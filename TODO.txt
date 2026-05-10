@@ -1,0 +1,5 @@
+
+
+- council boundaries and their controlling council should be separate queries in the update (currently using old data)
+
+- Where are the good/bad doctors? copy in from nhs project
