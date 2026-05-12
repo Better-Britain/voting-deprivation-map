@@ -1,5 +1,6 @@
 node_modules/
 local-dist/
+__pycache__/
 .vite/
 .DS_Store
 Thumbs.db

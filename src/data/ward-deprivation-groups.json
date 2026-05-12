@@ -1,0 +1,522 @@
+{
+  "updated_at_utc": "2026-05-12T13:25:38.319Z",
+  "sources": {
+    "ward_deprivation_index": "/home/bobbigmac/projects/voting-deprivation-map/src/data/ward-deprivation-vote-index.json",
+    "wards_geojson": "/home/bobbigmac/projects/voting-deprivation-map/src/data/england-wards.geojson",
+    "lad_to_region_lookup_csv": "https://open-geography-portalx-ons.hub.arcgis.com/api/download/v1/items/3959874c514b470e9dd160acdc00c97a/csv?layers=0"
+  },
+  "summary": {
+    "wards_total": 6817,
+    "wards_with_declared_winner": 2081,
+    "density_radius_km": 15
+  },
+  "global_profile": {
+    "label": "All declared wards",
+    "ward_count": 2081,
+    "deprivation_weighted_mean_decile": 5.489,
+    "deprivation_dominant_decile": "3",
+    "deprivation_dominant_share": 0.1163,
+    "deprivation_area_share_by_decile": {
+      "1": 0.0897,
+      "2": 0.0987,
+      "3": 0.1163,
+      "4": 0.1059,
+      "5": 0.0987,
+      "6": 0.0982,
+      "7": 0.0912,
+      "8": 0.1029,
+      "9": 0.0985,
+      "10": 0.0998
+    }
+  },
+  "group_sets": [
+    {
+      "id": "official-region",
+      "label": "Official Regions",
+      "description": "Declared wards grouped by the ONS English region of their local authority.",
+      "groups": [
+        {
+          "id": "north-east",
+          "label": "North East",
+          "ward_count": 32,
+          "deprivation_weighted_mean_decile": 5.274,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.194,
+          "deprivation_area_share_by_decile": {
+            "1": 0.194,
+            "2": 0.0919,
+            "3": 0.1072,
+            "4": 0.0494,
+            "5": 0.0856,
+            "6": 0.0261,
+            "7": 0.0921,
+            "8": 0.1572,
+            "9": 0.0737,
+            "10": 0.1226
+          }
+        },
+        {
+          "id": "north-west",
+          "label": "North West",
+          "ward_count": 362,
+          "deprivation_weighted_mean_decile": 4.779,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.2006,
+          "deprivation_area_share_by_decile": {
+            "1": 0.2006,
+            "2": 0.1193,
+            "3": 0.1109,
+            "4": 0.0847,
+            "5": 0.0675,
+            "6": 0.0783,
+            "7": 0.079,
+            "8": 0.0959,
+            "9": 0.0973,
+            "10": 0.0665
+          }
+        },
+        {
+          "id": "yorkshire-and-the-humber",
+          "label": "Yorkshire and The Humber",
+          "ward_count": 94,
+          "deprivation_weighted_mean_decile": 5.013,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.226,
+          "deprivation_area_share_by_decile": {
+            "1": 0.226,
+            "2": 0.1003,
+            "3": 0.0742,
+            "4": 0.0709,
+            "5": 0.0594,
+            "6": 0.0837,
+            "7": 0.0862,
+            "8": 0.1044,
+            "9": 0.1056,
+            "10": 0.0892
+          }
+        },
+        {
+          "id": "east-midlands",
+          "label": "East Midlands",
+          "ward_count": 12,
+          "deprivation_weighted_mean_decile": 4.425,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.2128,
+          "deprivation_area_share_by_decile": {
+            "1": 0.2128,
+            "2": 0.1256,
+            "3": 0.1118,
+            "4": 0.0388,
+            "5": 0.1274,
+            "6": 0.0837,
+            "7": 0.139,
+            "8": 0.1099,
+            "9": 0.0307,
+            "10": 0.0203
+          }
+        },
+        {
+          "id": "west-midlands",
+          "label": "West Midlands",
+          "ward_count": 198,
+          "deprivation_weighted_mean_decile": 4.724,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.2013,
+          "deprivation_area_share_by_decile": {
+            "1": 0.2013,
+            "2": 0.1138,
+            "3": 0.0963,
+            "4": 0.1029,
+            "5": 0.0831,
+            "6": 0.0975,
+            "7": 0.0663,
+            "8": 0.0905,
+            "9": 0.0764,
+            "10": 0.0718
+          }
+        },
+        {
+          "id": "east-of-england",
+          "label": "East of England",
+          "ward_count": 305,
+          "deprivation_weighted_mean_decile": 6.516,
+          "deprivation_dominant_decile": "10",
+          "deprivation_dominant_share": 0.1399,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0248,
+            "2": 0.0513,
+            "3": 0.0656,
+            "4": 0.0929,
+            "5": 0.1196,
+            "6": 0.1228,
+            "7": 0.1139,
+            "8": 0.1332,
+            "9": 0.1359,
+            "10": 0.1399
+          }
+        },
+        {
+          "id": "london",
+          "label": "London",
+          "ward_count": 678,
+          "deprivation_weighted_mean_decile": 5.123,
+          "deprivation_dominant_decile": "3",
+          "deprivation_dominant_share": 0.1719,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0346,
+            "2": 0.1292,
+            "3": 0.1719,
+            "4": 0.1421,
+            "5": 0.1175,
+            "6": 0.0979,
+            "7": 0.0858,
+            "8": 0.0825,
+            "9": 0.0743,
+            "10": 0.0643
+          }
+        },
+        {
+          "id": "south-east",
+          "label": "South East",
+          "ward_count": 347,
+          "deprivation_weighted_mean_decile": 6.494,
+          "deprivation_dominant_decile": "10",
+          "deprivation_dominant_share": 0.1696,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0308,
+            "2": 0.0544,
+            "3": 0.0849,
+            "4": 0.092,
+            "5": 0.0993,
+            "6": 0.1122,
+            "7": 0.1087,
+            "8": 0.1276,
+            "9": 0.1205,
+            "10": 0.1696
+          }
+        },
+        {
+          "id": "south-west",
+          "label": "South West",
+          "ward_count": 53,
+          "deprivation_weighted_mean_decile": 6.58,
+          "deprivation_dominant_decile": "10",
+          "deprivation_dominant_share": 0.2204,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0481,
+            "2": 0.0697,
+            "3": 0.0961,
+            "4": 0.0772,
+            "5": 0.077,
+            "6": 0.0789,
+            "7": 0.0873,
+            "8": 0.0861,
+            "9": 0.1592,
+            "10": 0.2204
+          }
+        }
+      ]
+    },
+    {
+      "id": "macro-region",
+      "label": "North / Midlands / South / London",
+      "description": "Declared wards grouped into broad English blocs derived from official regions.",
+      "groups": [
+        {
+          "id": "north",
+          "label": "North",
+          "ward_count": 488,
+          "deprivation_weighted_mean_decile": 4.857,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.2051,
+          "deprivation_area_share_by_decile": {
+            "1": 0.2051,
+            "2": 0.1139,
+            "3": 0.1036,
+            "4": 0.0797,
+            "5": 0.0671,
+            "6": 0.0759,
+            "7": 0.0812,
+            "8": 0.1016,
+            "9": 0.0974,
+            "10": 0.0746
+          }
+        },
+        {
+          "id": "midlands",
+          "label": "Midlands",
+          "ward_count": 210,
+          "deprivation_weighted_mean_decile": 4.707,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.202,
+          "deprivation_area_share_by_decile": {
+            "1": 0.202,
+            "2": 0.1145,
+            "3": 0.0972,
+            "4": 0.0993,
+            "5": 0.0856,
+            "6": 0.0967,
+            "7": 0.0705,
+            "8": 0.0916,
+            "9": 0.0738,
+            "10": 0.0689
+          }
+        },
+        {
+          "id": "south",
+          "label": "South",
+          "ward_count": 705,
+          "deprivation_weighted_mean_decile": 6.51,
+          "deprivation_dominant_decile": "10",
+          "deprivation_dominant_share": 0.1606,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0295,
+            "2": 0.0542,
+            "3": 0.0774,
+            "4": 0.0913,
+            "5": 0.1064,
+            "6": 0.1143,
+            "7": 0.1093,
+            "8": 0.1269,
+            "9": 0.1301,
+            "10": 0.1606
+          }
+        },
+        {
+          "id": "london",
+          "label": "London",
+          "ward_count": 678,
+          "deprivation_weighted_mean_decile": 5.123,
+          "deprivation_dominant_decile": "3",
+          "deprivation_dominant_share": 0.1719,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0346,
+            "2": 0.1292,
+            "3": 0.1719,
+            "4": 0.1421,
+            "5": 0.1175,
+            "6": 0.0979,
+            "7": 0.0858,
+            "8": 0.0825,
+            "9": 0.0743,
+            "10": 0.0643
+          }
+        }
+      ]
+    },
+    {
+      "id": "settlement-extremes",
+      "label": "Settlement Extremes",
+      "description": "Declared wards split by nearby ward-centroid density within 15 km; bottom fifth is Rural / Sparse and top fifth is Urban / Dense.",
+      "groups": [
+        {
+          "id": "urban-dense",
+          "label": "Urban / Dense",
+          "ward_count": 975,
+          "deprivation_weighted_mean_decile": 4.932,
+          "deprivation_dominant_decile": "3",
+          "deprivation_dominant_share": 0.1509,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0924,
+            "2": 0.1294,
+            "3": 0.1509,
+            "4": 0.1276,
+            "5": 0.1082,
+            "6": 0.0916,
+            "7": 0.0805,
+            "8": 0.0778,
+            "9": 0.0752,
+            "10": 0.0665
+          }
+        },
+        {
+          "id": "rural-sparse",
+          "label": "Rural / Sparse",
+          "ward_count": 80,
+          "deprivation_weighted_mean_decile": 6.615,
+          "deprivation_dominant_decile": "8",
+          "deprivation_dominant_share": 0.2207,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0447,
+            "2": 0.03,
+            "3": 0.0376,
+            "4": 0.0591,
+            "5": 0.0999,
+            "6": 0.1425,
+            "7": 0.1696,
+            "8": 0.2207,
+            "9": 0.1053,
+            "10": 0.0906
+          }
+        }
+      ]
+    },
+    {
+      "id": "city-regions",
+      "label": "City Regions",
+      "description": "Declared wards grouped into the NHS map's English city catchments.",
+      "groups": [
+        {
+          "id": "manchester",
+          "label": "Manchester",
+          "ward_count": 76,
+          "deprivation_weighted_mean_decile": 4.11,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.2318,
+          "deprivation_area_share_by_decile": {
+            "1": 0.2318,
+            "2": 0.1567,
+            "3": 0.1075,
+            "4": 0.1107,
+            "5": 0.1012,
+            "6": 0.0579,
+            "7": 0.0676,
+            "8": 0.0707,
+            "9": 0.052,
+            "10": 0.0438
+          }
+        },
+        {
+          "id": "london",
+          "label": "London",
+          "ward_count": 392,
+          "deprivation_weighted_mean_decile": 4.647,
+          "deprivation_dominant_decile": "3",
+          "deprivation_dominant_share": 0.1811,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0451,
+            "2": 0.1541,
+            "3": 0.1811,
+            "4": 0.162,
+            "5": 0.1194,
+            "6": 0.106,
+            "7": 0.085,
+            "8": 0.071,
+            "9": 0.0578,
+            "10": 0.0187
+          }
+        },
+        {
+          "id": "liverpool",
+          "label": "Liverpool",
+          "ward_count": 1,
+          "deprivation_weighted_mean_decile": 6.561,
+          "deprivation_dominant_decile": "6",
+          "deprivation_dominant_share": 0.2925,
+          "deprivation_area_share_by_decile": {
+            "1": 0,
+            "2": 0.0003,
+            "3": 0,
+            "4": 0.1455,
+            "5": 0,
+            "6": 0.2925,
+            "7": 0.2715,
+            "8": 0.2903,
+            "9": 0,
+            "10": 0
+          }
+        },
+        {
+          "id": "leeds",
+          "label": "Leeds",
+          "ward_count": 27,
+          "deprivation_weighted_mean_decile": 5.427,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.1654,
+          "deprivation_area_share_by_decile": {
+            "1": 0.1654,
+            "2": 0.1115,
+            "3": 0.0928,
+            "4": 0.0839,
+            "5": 0.0457,
+            "6": 0.057,
+            "7": 0.0743,
+            "8": 0.1036,
+            "9": 0.1527,
+            "10": 0.1131
+          }
+        },
+        {
+          "id": "sheffield",
+          "label": "Sheffield",
+          "ward_count": 25,
+          "deprivation_weighted_mean_decile": 5.051,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.2138,
+          "deprivation_area_share_by_decile": {
+            "1": 0.2138,
+            "2": 0.1202,
+            "3": 0.0747,
+            "4": 0.0642,
+            "5": 0.0692,
+            "6": 0.0821,
+            "7": 0.0843,
+            "8": 0.0601,
+            "9": 0.107,
+            "10": 0.1243
+          }
+        },
+        {
+          "id": "birmingham",
+          "label": "Birmingham",
+          "ward_count": 63,
+          "deprivation_weighted_mean_decile": 2.995,
+          "deprivation_dominant_decile": "1",
+          "deprivation_dominant_share": 0.4549,
+          "deprivation_area_share_by_decile": {
+            "1": 0.4549,
+            "2": 0.1233,
+            "3": 0.0818,
+            "4": 0.0883,
+            "5": 0.0687,
+            "6": 0.0783,
+            "7": 0.0265,
+            "8": 0.0286,
+            "9": 0.0281,
+            "10": 0.0214
+          }
+        },
+        {
+          "id": "newcastle",
+          "label": "Newcastle",
+          "ward_count": 7,
+          "deprivation_weighted_mean_decile": 5.075,
+          "deprivation_dominant_decile": "2",
+          "deprivation_dominant_share": 0.1633,
+          "deprivation_area_share_by_decile": {
+            "1": 0.071,
+            "2": 0.1633,
+            "3": 0.1541,
+            "4": 0.0834,
+            "5": 0.159,
+            "6": 0,
+            "7": 0.0843,
+            "8": 0.1127,
+            "9": 0.1261,
+            "10": 0.046
+          }
+        },
+        {
+          "id": "oxford",
+          "label": "Oxford",
+          "ward_count": 25,
+          "deprivation_weighted_mean_decile": 7.221,
+          "deprivation_dominant_decile": "10",
+          "deprivation_dominant_share": 0.246,
+          "deprivation_area_share_by_decile": {
+            "1": 0.0191,
+            "2": 0.0255,
+            "3": 0.0732,
+            "4": 0.0447,
+            "5": 0.1201,
+            "6": 0.0667,
+            "7": 0.1308,
+            "8": 0.0891,
+            "9": 0.1848,
+            "10": 0.246
+          }
+        }
+      ]
+    }
+  ]
+}

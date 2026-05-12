@@ -1,0 +1,105 @@
+{
+  "updated_at_utc": "2026-05-12T12:32:10Z",
+  "sources": {
+    "ethnicity": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts021.zip",
+    "country_of_birth": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts004.zip",
+    "national_identity": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts027.zip",
+    "religion": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts030.zip",
+    "age": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts007a.zip",
+    "tenure": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts054.zip",
+    "nssec": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts062.zip",
+    "qualifications": "https://www.nomisweb.co.uk/output/census/2021/census2021-ts067.zip"
+  },
+  "feature_catalog": [
+    {
+      "id": "white_british_pct",
+      "label": "White British",
+      "description": "Share of usual residents identifying as White British."
+    },
+    {
+      "id": "uk_born_pct",
+      "label": "UK-born",
+      "description": "Share of usual residents born in the United Kingdom."
+    },
+    {
+      "id": "english_only_identity_pct",
+      "label": "English Identity Only",
+      "description": "Share of usual residents reporting English only national identity."
+    },
+    {
+      "id": "english_or_british_only_identity_pct",
+      "label": "English/British Identity",
+      "description": "Share of usual residents reporting English only, British only, or English and British only identity."
+    },
+    {
+      "id": "christian_pct",
+      "label": "Christian",
+      "description": "Share of usual residents reporting Christian religion."
+    },
+    {
+      "id": "no_religion_pct",
+      "label": "No Religion",
+      "description": "Share of usual residents reporting no religion."
+    },
+    {
+      "id": "muslim_pct",
+      "label": "Muslim",
+      "description": "Share of usual residents reporting Muslim religion."
+    },
+    {
+      "id": "age_50plus_pct",
+      "label": "Age 50+",
+      "description": "Share of usual residents aged 50 and over."
+    },
+    {
+      "id": "age_65plus_pct",
+      "label": "Age 65+",
+      "description": "Share of usual residents aged 65 and over."
+    },
+    {
+      "id": "owner_occupied_pct",
+      "label": "Owner Occupied",
+      "description": "Share of households owner occupied."
+    },
+    {
+      "id": "private_rented_pct",
+      "label": "Private Rented",
+      "description": "Share of households privately rented."
+    },
+    {
+      "id": "social_rented_pct",
+      "label": "Social Rented",
+      "description": "Share of households socially rented."
+    },
+    {
+      "id": "nssec_managerial_professional_pct",
+      "label": "Managerial/Professional",
+      "description": "Share of residents aged 16+ in higher or lower managerial, administrative and professional NS-SeC groups."
+    },
+    {
+      "id": "nssec_working_class_pct",
+      "label": "Semi-routine/Routine",
+      "description": "Share of residents aged 16+ in semi-routine or routine NS-SeC groups."
+    },
+    {
+      "id": "degree_pct",
+      "label": "Degree Level",
+      "description": "Share of residents aged 16+ with level 4 qualifications and above."
+    },
+    {
+      "id": "no_qualifications_pct",
+      "label": "No Qualifications",
+      "description": "Share of residents aged 16+ with no qualifications."
+    }
+  ],
+  "counts": {
+    "lsoas": 33755
+  },
+  "sample_lsoa_codes": [
+    "E01000001",
+    "E01000002",
+    "E01000003",
+    "E01000005",
+    "E01000006"
+  ]
+}

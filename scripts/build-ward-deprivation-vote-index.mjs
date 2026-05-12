@@ -1,14 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { area, bbox, featureCollection, intersect } from "@turf/turf";
+import { area, bbox, booleanPointInPolygon, centroid, featureCollection, intersect } from "@turf/turf";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 
-const WARDS_GEOJSON_PATH = path.resolve(projectRoot, "src/data/greater-manchester-wards.geojson");
-const ELECTION_STATE_PATH = path.resolve(projectRoot, "src/data/greater-manchester-ward-election-state.json");
-const DEPRIVATION_GEOJSON_PATH = path.resolve(projectRoot, "deprivation/output/catchment_lsoa_imd_2025.geojson");
+const WARDS_GEOJSON_PATH = path.resolve(projectRoot, "src/data/england-wards.geojson");
+const ELECTION_STATE_PATH = path.resolve(projectRoot, "src/data/england-ward-election-state.json");
+const DEPRIVATION_GEOJSON_PATH = path.resolve(projectRoot, "deprivation/output/england-lsoa-imd-2025.geojson");
 const OUTPUT_PATH = path.resolve(projectRoot, "src/data/ward-deprivation-vote-index.json");
 
 function bboxesOverlap(a, b) {
@@ -23,6 +23,19 @@ function emptyDeciles() {
 
 function rounded(value, dp = 4) {
   return Number(Number(value || 0).toFixed(dp));
+}
+
+function estimateOverlapArea(wardFeature, depFeature) {
+  try {
+    const clipped = intersect(featureCollection([wardFeature, depFeature]));
+    return clipped ? area(clipped) : 0;
+  } catch (_error) {
+    const depCentroid = centroid(depFeature);
+    if (booleanPointInPolygon(depCentroid, wardFeature)) {
+      return area(depFeature);
+    }
+    return 0;
+  }
 }
 
 const [wardsRaw, deprivationRaw, electionRaw] = await Promise.all([
@@ -47,10 +60,18 @@ const depPreindexed = deprivationFeatures
     return {
       feature,
       decile: String(Math.round(decile)),
-      bbox: bbox(feature)
+      bbox: bbox(feature),
+      authorityCode: String(feature?.properties?.lad24cd || "")
     };
   })
   .filter(Boolean);
+const depByAuthorityCode = new Map();
+for (const dep of depPreindexed) {
+  const key = dep.authorityCode || "__unknown__";
+  const rows = depByAuthorityCode.get(key) || [];
+  rows.push(dep);
+  depByAuthorityCode.set(key, rows);
+}
 
 const partyDecileArea = new Map();
 const wardsOut = [];
@@ -62,15 +83,15 @@ for (const wardFeature of wardFeatures) {
   const wardCode = String(props.WD24CD || "");
   const election = electionByWardCode.get(wardCode) || null;
   const winnerParty = election?.winner_party || null;
+  const authorityCode = String(props.LAD24CD || "");
   const wardBox = bbox(wardFeature);
   const wardArea = area(wardFeature);
   const decileArea = emptyDeciles();
 
-  const candidates = depPreindexed.filter((dep) => bboxesOverlap(wardBox, dep.bbox));
+  const authorityCandidates = depByAuthorityCode.get(authorityCode) || depPreindexed;
+  const candidates = authorityCandidates.filter((dep) => bboxesOverlap(wardBox, dep.bbox));
   for (const dep of candidates) {
-    const clipped = intersect(featureCollection([wardFeature, dep.feature]));
-    if (!clipped) continue;
-    const overlapArea = area(clipped);
+    const overlapArea = estimateOverlapArea(wardFeature, dep.feature);
     if (overlapArea <= 0) continue;
     decileArea[dep.decile] += overlapArea;
   }

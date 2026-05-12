@@ -15,7 +15,7 @@
           <h1>Voter Deprivation Map</h1>
           <button type="button" class="legend-collapse" id="legend-collapse" aria-pressed="false" title="Collapse sidebar">&lsaquo;</button>
         </div>
-        <p class="hint">2026 local election winners over the Deprivation Index.</p>
+        <p class="hint">2026 English local election winners over the Deprivation Index.</p>
 
         <div class="control-group">
           <h2>Layers</h2>
@@ -39,27 +39,63 @@
             <input type="checkbox" id="ward-fill-toggle">
             <span>Fill wards</span>
           </label>
+          <label class="overlay-toggle-label" for="gp-ratings-toggle">
+            <input type="checkbox" id="gp-ratings-toggle">
+            <span>Show GP ratings</span>
+          </label>
           <p class="hint" id="ward-hover-status"></p>
+          <p class="hint" id="gp-ratings-status">Loading GP ratings layer...</p>
         </div>
 
         <div class="control-group">
           <h2>Current Data</h2>
           <p class="hint" id="deprivation-stats">Waiting for data...</p>
         </div>
+
+        <div class="control-group">
+          <h2>Loading Status</h2>
+          <div class="load-status-panel" id="load-status-panel" aria-live="polite">
+            <p class="load-status-summary" id="load-status-summary">Preparing data sources...</p>
+            <div class="load-status-list" id="load-status-list"></div>
+          </div>
+        </div>
       </aside>
       <div id="map" aria-label="Map"></div>
+      <div id="map-warning-panel" class="map-warning-panel" hidden aria-live="polite"></div>
       <div id="hover-info-panel" class="hover-info-panel" hidden aria-live="polite"></div>
     </div>
 
     <div class="insights">
       <section class="panel">
-        <h2>How do people (in Manchester) vote per deprivation level?</h2>
+        <h2>How do people in England vote per deprivation level?</h2>
         <p id="ward-deprivation-summary">Loading ward deprivation vote index...</p>
         <div id="ward-deprivation-bars"></div>
       </section>
       <section class="panel">
+        <h2>How Do Regions Group By Deprivation?</h2>
+        <label class="select-label" for="grouped-deprivation-select">View:</label>
+        <select id="grouped-deprivation-select"></select>
+        <p id="grouped-deprivation-summary">Loading grouped deprivation profiles...</p>
+        <div id="grouped-deprivation-bars"></div>
+      </section>
+      <section class="panel">
         <h2>Deprivation decile per party</h2>
         <div id="ward-deprivation-table"></div>
+      </section>
+      <section class="panel">
+        <h2>Census Signals</h2>
+        <p id="census-signals-summary">Loading census summaries...</p>
+        <div id="census-signals-table"></div>
+      </section>
+      <section class="panel">
+        <h2>Party Census Means</h2>
+        <div id="census-party-table"></div>
+      </section>
+      <section class="panel">
+        <h2>GP Ratings By Party</h2>
+        <p id="gp-party-summary">Loading GP practice summaries...</p>
+        <div id="gp-party-chart"></div>
+        <div id="gp-party-table"></div>
       </section>
     </div>
 
@@ -70,11 +106,12 @@
       <h2>Sources</h2>
       <p>
         <a href="https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2024_Boundaries_UK_BGC/FeatureServer/0/query" target="_blank" rel="noopener noreferrer">ONS Wards</a><br />
-        <a href="https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Authority_Districts_December_2024_Boundaries_UK_BGC/FeatureServer/0/query" target="_blank" rel="noopener noreferrer"></a><br />
+        <a href="https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Authority_Districts_December_2024_Boundaries_UK_BGC/FeatureServer/0/query" target="_blank" rel="noopener noreferrer">ONS Local Authority Districts</a><br />
         <a href="https://candidates.democracyclub.org.uk/api/next/results/?election_date=2026-05-07" target="_blank" rel="noopener noreferrer">Democracy Club results API (ward winners)</a><br/>
         <a href="https://candidates.democracyclub.org.uk/api/next/ballots/?election_date=2026-05-07" target="_blank" rel="noopener noreferrer">Democracy Club ballots API</a><br/>
-        <a href="https://static.files.bbci.co.uk/elections/data/news/election/2026/england/councils" target="_blank" rel="noopener noreferrer">BBC councils feed (control)</a><br/>
-        <a href="https://opencouncildata.co.uk/csv2.php?y=2025" target="_blank" rel="noopener noreferrer">Open Council Data (incumbents)</a>
+        <a href="https://opencouncildata.co.uk/csv2.php?y=2026" target="_blank" rel="noopener noreferrer">Open Council Data (incumbents and chamber composition)</a><br/>
+        <a href="https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025" target="_blank" rel="noopener noreferrer">English Indices of Deprivation 2025</a><br/>
+        <a href="https://open-geography-portalx-ons.hub.arcgis.com/datasets/ons::local-authority-district-to-region-december-2024-lookup-in-en" target="_blank" rel="noopener noreferrer">ONS LAD to Region lookup</a>
       </p>
     </section>
     <section class="panel">

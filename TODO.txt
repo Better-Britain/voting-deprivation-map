@@ -1,5 +1,9 @@
 
 
-- council boundaries and their controlling council should be separate queries in the update (currently using old data)
-
-- Where are the good/bad doctors? copy in from nhs project
+- Queryable zone (like variable range circle filter) for regional comparison to national stacked chart
+- order and colour census signals by delta
+- in the Deprivation decile per party table, hide options below 3 wards, and add an 'expand to show x hidden small parties'
+- Adding a party (major parties) selector for Census Signals panel might be useful
+- on How do people in England vote per deprivation level? combine the same set of hidden parties into Other, and observe the same expansion toggle.
+- the font choice is kinda small and elegant. Punch up the style of the page generally, to something more modern feeling. Tidy up labels and footnotes properly.
+- the wards won in some tables varies, so we need to be clear with the labels about what each one means, because it's sometimes referring to different things

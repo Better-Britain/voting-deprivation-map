@@ -9,6 +9,9 @@
     "updates:maintenance": "node ./scripts/updates-maintenance.mjs",
     "updates:maintenance:refresh-all-wards": "node ./scripts/updates-maintenance.mjs --refresh-all-wards",
     "deprivation:index:update": "node ./scripts/build-ward-deprivation-vote-index.mjs",
+    "deprivation:groups:update": "node ./scripts/build-ward-deprivation-groups.mjs",
+    "census:update": "python3 ./census/build_england_census_lsoa_summary.py && node ./scripts/build-ward-census-demographics.mjs",
+    "gp:import": "node ./scripts/import-gp-ratings-from-nhs.mjs",
     "winners:update:manual": "node ./scripts/update-ward-winners-manual.mjs"
   },
   "devDependencies": {

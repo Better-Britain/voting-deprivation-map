@@ -8,37 +8,24 @@ const projectRoot = path.resolve(__dirname, "..");
 const WARDS_QUERY_URL =
   "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Wards_December_2024_Boundaries_UK_BGC/FeatureServer/0/query";
 
-const GREATER_MANCHESTER_LAD24_CODES = [
-  "E08000001", // Bolton
-  "E08000002", // Bury
-  "E08000003", // Manchester
-  "E08000004", // Oldham
-  "E08000005", // Rochdale
-  "E08000006", // Salford
-  "E08000007", // Stockport
-  "E08000008", // Tameside
-  "E08000009", // Trafford
-  "E08000010"  // Wigan
-];
-
 const OUTPUT_DIR = path.resolve(projectRoot, "src/data");
-const OUTPUT_GEOJSON = path.resolve(OUTPUT_DIR, "greater-manchester-wards.geojson");
-const OUTPUT_SUMMARY = path.resolve(OUTPUT_DIR, "greater-manchester-wards.summary.json");
+const OUTPUT_GEOJSON = path.resolve(OUTPUT_DIR, "england-wards.geojson");
+const OUTPUT_SUMMARY = path.resolve(OUTPUT_DIR, "england-wards.summary.json");
+const PAGE_SIZE = 2000;
 
 function toQueryString(params) {
   return new URLSearchParams(params).toString();
 }
 
 async function fetchWardPage(resultOffset) {
-  const where = `LAD24CD IN (${GREATER_MANCHESTER_LAD24_CODES.map((code) => `'${code}'`).join(",")})`;
   const query = toQueryString({
     f: "geojson",
-    where,
+    where: "LAD24CD LIKE 'E%'",
     outFields: "WD24CD,WD24NM,LAD24CD,LAD24NM",
     outSR: "4326",
     returnGeometry: "true",
     resultOffset: String(resultOffset),
-    resultRecordCount: "2000"
+    resultRecordCount: String(PAGE_SIZE)
   });
   const url = `${WARDS_QUERY_URL}?${query}`;
   const response = await fetch(url);
@@ -53,12 +40,13 @@ async function downloadGreaterManchesterWards() {
   const features = [];
   let safetyCounter = 0;
 
-  while (safetyCounter < 20) {
+  while (safetyCounter < 50) {
     safetyCounter += 1;
     const page = await fetchWardPage(offset);
     const pageFeatures = Array.isArray(page?.features) ? page.features : [];
     features.push(...pageFeatures);
-    if (!pageFeatures.length || pageFeatures.length < 2000) {
+    const exceededTransferLimit = Boolean(page?.properties?.exceededTransferLimit);
+    if (!pageFeatures.length || (!exceededTransferLimit && pageFeatures.length < PAGE_SIZE)) {
       break;
     }
     offset += pageFeatures.length;
@@ -82,7 +70,8 @@ async function downloadGreaterManchesterWards() {
       dataset: "ONS Wards December 2024 Boundaries UK BGC"
     },
     filter: {
-      lad24_codes: GREATER_MANCHESTER_LAD24_CODES
+      territory: "England",
+      where: "LAD24CD LIKE 'E%'"
     },
     counts: {
       wards: features.length,
@@ -100,5 +89,5 @@ async function downloadGreaterManchesterWards() {
 
 const summary = await downloadGreaterManchesterWards();
 console.log(
-  `Updated GM wards source: ${summary.counts.wards} wards across ${summary.counts.authorities} authorities`
+  `Updated England wards source: ${summary.counts.wards} wards across ${summary.counts.authorities} authorities`
 );

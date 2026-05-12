@@ -43,6 +43,57 @@ body {
 }
 .hint { margin: 8px 0 0; color: rgba(26, 28, 26, 0.72); font-size: 13px; }
 .control-group { margin-top: 14px; display: grid; gap: 8px; }
+.load-status-panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(15, 94, 156, 0.04);
+}
+.load-status-summary {
+  margin: 0;
+  font: 700 12px/1.3 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: rgba(26, 28, 26, 0.86);
+}
+.load-status-list {
+  display: grid;
+  gap: 6px;
+}
+.load-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px/1.25 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: rgba(26, 28, 26, 0.8);
+}
+.load-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: #9aa0a6;
+  box-shadow: inset 0 0 0 1px rgba(26, 28, 26, 0.12);
+}
+.load-status-dot[data-state="loading"] {
+  background: #d4821f;
+}
+.load-status-dot[data-state="ready"] {
+  background: #1f7a3f;
+}
+.load-status-dot[data-state="error"] {
+  background: #b23322;
+}
+.load-status-dot[data-state="pending"] {
+  background: #9aa0a6;
+}
+.load-status-label {
+  flex: 1 1 auto;
+}
+.load-status-detail {
+  color: rgba(26, 28, 26, 0.62);
+  font-weight: 500;
+}
 .overlay-toggle-label {
   display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
   padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px;
@@ -80,6 +131,24 @@ body {
   color: #111;
   pointer-events: none;
   backdrop-filter: blur(6px);
+}
+.map-warning-panel {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  z-index: 590;
+  transform: translateX(-50%);
+  max-width: min(560px, calc(100% - 120px));
+  padding: 10px 14px;
+  border: 1px solid rgba(140, 79, 10, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 245, 214, 0.96);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  font: 700 13px/1.3 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: #6b3b00;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 .hover-info-row + .hover-info-row {
   margin-top: 2px;
@@ -137,6 +206,80 @@ body {
   font-size: 12px;
   color: rgba(26, 28, 26, 0.8);
 }
+.select-label {
+  display: inline-block;
+  margin: 6px 8px 0 0;
+  font: 700 12px/1.2 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: rgba(26, 28, 26, 0.8);
+}
+#grouped-deprivation-select {
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: #fffdf8;
+  color: var(--ink);
+  font: 600 13px/1.2 "Avenir Next", "Trebuchet MS", sans-serif;
+}
+.distribution-bars {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+.distribution-row {
+  display: grid;
+  grid-template-columns: 134px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+.distribution-label {
+  font: 700 12px/1.2 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: rgba(26, 28, 26, 0.84);
+}
+.distribution-track {
+  height: 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(26, 28, 26, 0.04);
+  display: flex;
+}
+.distribution-segment {
+  height: 100%;
+}
+.distribution-legend {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(26, 28, 26, 0.8);
+}
+.rating-bars {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.rating-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 56px;
+  gap: 10px;
+  align-items: center;
+}
+.rating-label,
+.rating-value {
+  font: 700 12px/1.2 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: rgba(26, 28, 26, 0.84);
+}
+.rating-track {
+  position: relative;
+  height: 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(26, 28, 26, 0.05);
+}
+.rating-fill {
+  height: 100%;
+  border-radius: 999px;
+}
 .map-stage.is-collapsed { --sidebar-width: 76px; }
 .map-stage.is-collapsed .legend h1,
 .map-stage.is-collapsed .legend h2,
@@ -150,6 +293,9 @@ body {
   .map-stage { grid-template-columns: 1fr; grid-template-rows: minmax(62vh, 70dvh) auto; }
   #map { height: 62vh; height: 62dvh; }
   .legend { border-right: 0; border-top: 1px solid var(--line); }
+  .map-warning-panel { max-width: calc(100% - 20px); top: 10px; }
   .hover-info-panel { right: 10px; top: 10px; max-width: calc(100% - 20px); }
   .insights { grid-template-columns: 1fr; }
+  .distribution-row { grid-template-columns: 108px minmax(0, 1fr); }
+  .rating-row { grid-template-columns: 108px minmax(0, 1fr) 48px; }
 }

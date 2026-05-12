@@ -1,0 +1,16 @@
+{
+  "updated_at_utc": "2026-05-12T11:39:28.480Z",
+  "source": {
+    "boundaries_service": "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Local_Authority_Districts_December_2024_Boundaries_UK_BGC/FeatureServer/0/query",
+    "boundaries_dataset": "ONS LAD December 2024 Boundaries UK BGC",
+    "council_composition_csv": "https://opencouncildata.co.uk/csv2.php?y=2026"
+  },
+  "filter": {
+    "territory": "England",
+    "where": "LAD24CD LIKE 'E%'"
+  },
+  "counts": {
+    "councils": 296,
+    "councils_with_control": 292
+  }
+}

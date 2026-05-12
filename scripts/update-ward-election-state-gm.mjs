@@ -5,28 +5,15 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 
-const COUNCILLORS_CSV_URL = "https://opencouncildata.co.uk/csv2.php?y=2025";
-const BBC_COUNCILS_URL = "https://static.files.bbci.co.uk/elections/data/news/election/2026/england/councils";
+const ELECTION_DATE = process.env.ELECTION_DATE || "2026-05-07";
+const COUNCILLORS_CSV_YEAR = String(process.env.COUNCILLORS_CSV_YEAR || ELECTION_DATE.slice(0, 4));
+const COUNCILLORS_CSV_URL = `https://opencouncildata.co.uk/csv2.php?y=${encodeURIComponent(COUNCILLORS_CSV_YEAR)}`;
 const DEMOCRACY_CLUB_RESULTS_BASE_URL = "https://candidates.democracyclub.org.uk/api/next/results/";
 const DEMOCRACY_CLUB_BALLOTS_BASE_URL = "https://candidates.democracyclub.org.uk/api/next/ballots/";
-const ELECTION_DATE = process.env.ELECTION_DATE || "2026-05-07";
 const REFRESH_ALL_WARDS = /^(1|true|yes)$/i.test(String(process.env.REFRESH_ALL_WARDS || ""));
 const CHECK_PENDING_WARDS = /^(1|true|yes)$/i.test(String(process.env.CHECK_PENDING_WARDS || "1"));
-const WARDS_GEOJSON_PATH = path.resolve(projectRoot, "src/data/greater-manchester-wards.geojson");
-const OUTPUT_JSON_PATH = path.resolve(projectRoot, "src/data/greater-manchester-ward-election-state.json");
-
-const GM_AUTHORITIES = new Set([
-  "Bolton",
-  "Bury",
-  "Manchester",
-  "Oldham",
-  "Rochdale",
-  "Salford",
-  "Stockport",
-  "Tameside",
-  "Trafford",
-  "Wigan"
-]);
+const WARDS_GEOJSON_PATH = path.resolve(projectRoot, "src/data/england-wards.geojson");
+const OUTPUT_JSON_PATH = path.resolve(projectRoot, "src/data/england-ward-election-state.json");
 
 function parseCsvLine(line) {
   const out = [];
@@ -123,11 +110,11 @@ async function fetchDemocracyClubBallotWardCodeMap(allowedWardCodes) {
       byBallotPaperId.set(ballotPaperId, wardCode);
     }
     console.log(
-      `[ward-refresh] Ballots page ${safetyCounter}: scanned ${results.length}, matched GM ballots ${matchedWardCodes}`
+      `[ward-refresh] Ballots page ${safetyCounter}: scanned ${results.length}, matched England ballots ${matchedWardCodes}`
     );
     nextUrl = payload?.next || null;
   }
-  console.log(`[ward-refresh] Ballot scan complete: ${byBallotPaperId.size} GM ballot mappings`);
+  console.log(`[ward-refresh] Ballot scan complete: ${byBallotPaperId.size} England ballot mappings`);
 
   return byBallotPaperId;
 }
@@ -180,39 +167,6 @@ async function fetchCouncillorsCsv() {
   return response.text();
 }
 
-async function fetchBbcCouncilResults() {
-  const response = await fetch(BBC_COUNCILS_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch BBC councils feed (${response.status})`);
-  }
-  const payload = await response.json();
-  const groups = Array.isArray(payload?.groups) ? payload.groups : [];
-  const byLadCode = new Map();
-
-  for (const group of groups) {
-    const cards = Array.isArray(group?.cards) ? group.cards : [];
-    for (const card of cards) {
-      const href = String(card?.href || "");
-      const codeMatch = href.match(/\/councils\/([A-Z0-9]+)$/i);
-      if (!codeMatch) continue;
-      const ladCode = codeMatch[1].toUpperCase();
-      const winnerFlash = card?.winnerFlash || null;
-      const winnerPartyName = winnerFlash?.partyName || null;
-      const winnerPartyCode = winnerFlash?.winnerPartyCode || null;
-      const isDeclared = Boolean(winnerFlash && winnerPartyCode);
-      byLadCode.set(ladCode, {
-        council_name: card?.title || null,
-        council_href: href || null,
-        council_winner_party: winnerPartyName,
-        council_winner_party_code: winnerPartyCode,
-        council_result_declared: isDeclared
-      });
-    }
-  }
-
-  return byLadCode;
-}
-
 async function buildElectionState() {
   const wardsRaw = await fs.readFile(WARDS_GEOJSON_PATH, "utf8");
   const wardsGeojson = JSON.parse(wardsRaw);
@@ -223,9 +177,8 @@ async function buildElectionState() {
       .filter(Boolean)
   );
   const shouldFetchDemocracyClubWinners = REFRESH_ALL_WARDS || CHECK_PENDING_WARDS;
-  const [councillorsCsv, bbcCouncilResults, democracyClubWardWinnersByCode] = await Promise.all([
+  const [councillorsCsv, democracyClubWardWinnersByCode] = await Promise.all([
     fetchCouncillorsCsv(),
-    fetchBbcCouncilResults(),
     shouldFetchDemocracyClubWinners
       ? fetchDemocracyClubWardWinnersByWardCode(wardCodeSet)
       : Promise.resolve(new Map())
@@ -259,7 +212,6 @@ async function buildElectionState() {
     const row = parseCsvLine(lines[i]);
     const council = row[councilIdx];
     const ward = row[wardIdx];
-    if (!GM_AUTHORITIES.has(council)) continue;
     const party = row[partyIdx] || "Unknown";
     const councillor = row[councillorIdx] || "";
     const key = `${normalizeName(council)}::${normalizeName(ward)}`;
@@ -279,7 +231,6 @@ async function buildElectionState() {
 
   const wards = [];
   let matched = 0;
-  const declaredCouncilCodes = new Set();
   let declaredWardWinners = 0;
   for (const feature of wardFeatures) {
     const props = feature?.properties || {};
@@ -290,10 +241,6 @@ async function buildElectionState() {
     const key = `${normalizeName(authorityName)}::${normalizeName(wardName)}`;
     const incumbent = byAuthorityWard.get(key);
     const dcWinnerParty = democracyClubWardWinnersByCode.get(String(wardCode || "")) || null;
-    const councilResult = bbcCouncilResults.get(String(authorityCode || "").toUpperCase()) || null;
-    if (councilResult?.council_result_declared && authorityCode) {
-      declaredCouncilCodes.add(String(authorityCode).toUpperCase());
-    }
     const existing = existingWardsByCode.get(wardCode) || null;
     if (incumbent) matched += 1;
     const shouldApplyDcWinner = Boolean(dcWinnerParty) && (REFRESH_ALL_WARDS || !existing?.winner_party);
@@ -309,11 +256,7 @@ async function buildElectionState() {
       winner_status: finalWinnerParty
         ? "declared"
         : "pending",
-      winner_source: shouldApplyDcWinner ? "democracy_club_results_api" : (existing?.winner_source ?? null),
-      council_winner_party: councilResult?.council_winner_party ?? null,
-      council_winner_party_code: councilResult?.council_winner_party_code ?? null,
-      council_result_declared: councilResult?.council_result_declared ?? false,
-      council_result_source: councilResult ? "bbc_councils_feed" : null
+      winner_source: shouldApplyDcWinner ? "democracy_club_results_api" : (existing?.winner_source ?? null)
     });
     if (finalWinnerParty) declaredWardWinners += 1;
   }
@@ -323,7 +266,6 @@ async function buildElectionState() {
     sources: {
       wards_geojson: WARDS_GEOJSON_PATH,
       incumbents_csv: COUNCILLORS_CSV_URL,
-      bbc_england_councils: BBC_COUNCILS_URL,
       democracy_club_results: shouldFetchDemocracyClubWinners
         ? `${DEMOCRACY_CLUB_RESULTS_BASE_URL}?election_date=${encodeURIComponent(ELECTION_DATE)}`
         : null,
@@ -335,7 +277,6 @@ async function buildElectionState() {
       wards_total: wards.length,
       incumbents_matched: matched,
       incumbents_unmatched: wards.length - matched,
-      councils_declared: declaredCouncilCodes.size,
       wards_declared: declaredWardWinners
     },
     wards
@@ -347,7 +288,7 @@ async function buildElectionState() {
 
 const result = await buildElectionState();
 console.log(
-  `Updated GM ward election state: ${result.summary.incumbents_matched}/${result.summary.wards_total} incumbents matched`
+  `Updated England ward election state: ${result.summary.incumbents_matched}/${result.summary.wards_total} incumbents matched`
 );
 console.log(
   REFRESH_ALL_WARDS

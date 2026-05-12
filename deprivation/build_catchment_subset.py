@@ -10,11 +10,9 @@ from urllib.request import urlopen
 
 BASE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = BASE_DIR.parent.parent
-REPORT_GLOB = "gtd-greater-manchester-gp-practice-reviews-*"
-REPORT_PARENT = REPO_ROOT / "datasets" / "output"
 OUTPUT_DIR = BASE_DIR / "output"
-OUTPUT_GEOJSON = OUTPUT_DIR / "catchment_lsoa_imd_2025.geojson"
-OUTPUT_SUMMARY = OUTPUT_DIR / "catchment_lsoa_imd_2025_summary.json"
+OUTPUT_GEOJSON = OUTPUT_DIR / "england-lsoa-imd-2025.geojson"
+OUTPUT_SUMMARY = OUTPUT_DIR / "england-lsoa-imd-2025_summary.json"
 
 DEPRIVATION_CSV_URL = (
     "https://assets.publishing.service.gov.uk/media/691ded56d140bbbaa59a2a7d/"
@@ -28,31 +26,7 @@ BOUNDARY_QUERY_URL = (
     "Lower_layer_Super_Output_Areas_December_2021_Boundaries_EW_BSC_V4/FeatureServer/0/query"
 )
 
-PAD_DEGREES = 0.08
-PAGE_SIZE = 1000
-
-
-def find_latest_report() -> Path:
-    candidates = sorted(path for path in REPORT_PARENT.glob(REPORT_GLOB) if path.is_dir())
-    if not candidates:
-        raise FileNotFoundError(f"No report directories found under {REPORT_PARENT}")
-    return candidates[-1]
-
-
-def load_bbox() -> tuple[float, float, float, float]:
-    report_dir = find_latest_report()
-    rows_path = report_dir / "gtd_greater_manchester_gp_practices.json"
-    rows = json.loads(rows_path.read_text(encoding="utf-8"))
-    lons = [float(row["longitude"]) for row in rows if row.get("longitude") not in (None, "")]
-    lats = [float(row["latitude"]) for row in rows if row.get("latitude") not in (None, "")]
-    if not lons or not lats:
-        raise RuntimeError(f"No practice coordinates found in {rows_path}")
-    return (
-        min(lons) - PAD_DEGREES,
-        min(lats) - PAD_DEGREES,
-        max(lons) + PAD_DEGREES,
-        max(lats) + PAD_DEGREES,
-    )
+PAGE_SIZE = 2000
 
 
 def fetch_json(url: str) -> dict:
@@ -83,13 +57,9 @@ def fetch_deprivation_index() -> dict[str, dict[str, object]]:
     return index
 
 
-def boundary_query_url(bbox: tuple[float, float, float, float], *, offset: int) -> str:
+def boundary_query_url(*, offset: int) -> str:
     params = {
-        "where": "1=1",
-        "geometry": ",".join(f"{value:.6f}" for value in bbox),
-        "geometryType": "esriGeometryEnvelope",
-        "inSR": "4326",
-        "spatialRel": "esriSpatialRelIntersects",
+        "where": "LSOA21CD LIKE 'E%'",
         "outFields": "LSOA21CD,LSOA21NM",
         "outSR": "4326",
         "f": "geojson",
@@ -107,11 +77,11 @@ def round_coords(value):
     return value
 
 
-def fetch_boundary_features(bbox: tuple[float, float, float, float]) -> list[dict]:
+def fetch_boundary_features() -> list[dict]:
     features: list[dict] = []
     offset = 0
     while True:
-        payload = fetch_json(boundary_query_url(bbox, offset=offset))
+        payload = fetch_json(boundary_query_url(offset=offset))
         page_features = payload.get("features", [])
         if not page_features:
             break
@@ -123,9 +93,8 @@ def fetch_boundary_features(bbox: tuple[float, float, float, float]) -> list[dic
 
 
 def main() -> int:
-    bbox = load_bbox()
     deprivation_index = fetch_deprivation_index()
-    boundary_features = fetch_boundary_features(bbox)
+    boundary_features = fetch_boundary_features()
 
     kept_features: list[dict] = []
     missing_codes: list[str] = []
@@ -154,12 +123,15 @@ def main() -> int:
         "feature_count": len(kept_features),
         "missing_deprivation_rows": len(missing_codes),
         "missing_deprivation_codes_sample": missing_codes[:20],
-        "bbox_wgs84": [round(value, 6) for value in bbox],
         "sources": {
             "deprivation_release_page": "https://www.gov.uk/government/statistics/english-indices-of-deprivation-2025",
             "deprivation_csv": DEPRIVATION_CSV_URL,
             "boundary_about": BOUNDARY_ABOUT_URL,
             "boundary_query": BOUNDARY_QUERY_URL,
+        },
+        "filter": {
+            "territory": "England",
+            "where": "LSOA21CD LIKE 'E%'",
         },
     }
 

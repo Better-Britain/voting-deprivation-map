@@ -7,7 +7,7 @@ const root = path.resolve(__dirname, "src");
 
 export default defineConfig({
   root,
-  publicDir: false,
+  publicDir: path.resolve(__dirname, "public"),
   server: {
     watch: {
       usePolling: true,

@@ -1,16 +1,25 @@
-const DEPRIVATION_GEOJSON_URL = new URL("../deprivation/output/catchment_lsoa_imd_2025.geojson", import.meta.url).href;
-const DEPRIVATION_SUMMARY_URL = new URL("../deprivation/output/catchment_lsoa_imd_2025_summary.json", import.meta.url).href;
-const WARDS_GEOJSON_URL = new URL("./data/greater-manchester-wards.geojson", import.meta.url).href;
-const COUNCILS_GEOJSON_URL = new URL("./data/greater-manchester-councils.geojson", import.meta.url).href;
-const WARD_ELECTION_STATE_URL = new URL("./data/greater-manchester-ward-election-state.json", import.meta.url).href;
+const DEPRIVATION_TILES_MANIFEST_URL = `${import.meta.env.BASE_URL}data/england-lsoa-imd-2025_tiles/manifest.json`;
+const DEPRIVATION_SUMMARY_URL = new URL("../deprivation/output/england-lsoa-imd-2025_summary.json", import.meta.url).href;
+const WARDS_GEOJSON_URL = new URL("./data/england-wards.geojson", import.meta.url).href;
+const COUNCILS_GEOJSON_URL = new URL("./data/england-councils.geojson", import.meta.url).href;
+const WARD_ELECTION_STATE_URL = new URL("./data/england-ward-election-state.json", import.meta.url).href;
 const WARD_DEPRIVATION_INDEX_URL = new URL("./data/ward-deprivation-vote-index.json", import.meta.url).href;
+const WARD_DEPRIVATION_GROUPS_URL = new URL("./data/ward-deprivation-groups.json", import.meta.url).href;
+const WARD_CENSUS_DEMOGRAPHICS_URL = new URL("./data/ward-census-demographics.json", import.meta.url).href;
+const GP_PRACTICES_URL = new URL("./data/england-gp-practices.json", import.meta.url).href;
+const GP_RATINGS_SUMMARY_URL = new URL("./data/ward-gp-ratings.json", import.meta.url).href;
 
 const MAP_VIEW_STORAGE_KEY = "voterDeprivation.mapView.v1";
 const DEFAULT_VIEW = {
-  lat: 53.48,
-  lng: -2.24,
-  zoom: 10
+  lat: 52.7,
+  lng: -1.95,
+  zoom: 6
 };
+const DEPRIVATION_MIN_ZOOM = 8;
+const COUNCIL_RESULTS_MIN_ZOOM = 8;
+const WARD_RESULTS_MIN_ZOOM = 11;
+const GP_MIN_ZOOM = 11;
+const GP_BOUNDS_ONLY_MIN_ZOOM = 13;
 
 function loadStoredMapView() {
   try {
@@ -52,13 +61,16 @@ map.createPane("deprivationPane");
 map.getPane("deprivationPane").style.zIndex = "410";
 map.createPane("effectsPane");
 map.getPane("effectsPane").style.zIndex = "420";
+map.createPane("gpPane");
+map.getPane("gpPane").style.zIndex = "445";
 map.createPane("electionPane");
 map.getPane("electionPane").style.zIndex = "460";
 map.createPane("hoverPane");
 map.getPane("hoverPane").style.zIndex = "470";
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: "&copy; OpenStreetMap contributors"
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+  maxZoom: 20,
+  subdomains: "abcd",
+  attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
 }).addTo(map);
 
 const ZoomDebugControl = L.Control.extend({
@@ -89,16 +101,35 @@ const effectsToggle = document.getElementById("effects-toggle");
 const councilResultsToggle = document.getElementById("council-results-toggle");
 const wardResultsToggle = document.getElementById("ward-results-toggle");
 const wardFillToggle = document.getElementById("ward-fill-toggle");
+const gpRatingsToggle = document.getElementById("gp-ratings-toggle");
 const deprivationStatus = document.getElementById("deprivation-status");
 const deprivationStats = document.getElementById("deprivation-stats");
 const informationLayerStatus = document.getElementById("information-layer-status");
 const wardHoverStatus = document.getElementById("ward-hover-status");
+const gpRatingsStatus = document.getElementById("gp-ratings-status");
+const loadStatusPanel = document.getElementById("load-status-panel");
+const loadStatusSummary = document.getElementById("load-status-summary");
+const loadStatusList = document.getElementById("load-status-list");
 const hoverInfoPanel = document.getElementById("hover-info-panel");
+const mapWarningPanel = document.getElementById("map-warning-panel");
 const wardDeprivationSummary = document.getElementById("ward-deprivation-summary");
 const wardDeprivationBars = document.getElementById("ward-deprivation-bars");
+const groupedDeprivationSelect = document.getElementById("grouped-deprivation-select");
+const groupedDeprivationSummary = document.getElementById("grouped-deprivation-summary");
+const groupedDeprivationBars = document.getElementById("grouped-deprivation-bars");
 const wardDeprivationTable = document.getElementById("ward-deprivation-table");
+const censusSignalsSummary = document.getElementById("census-signals-summary");
+const censusSignalsTable = document.getElementById("census-signals-table");
+const censusPartyTable = document.getElementById("census-party-table");
+const gpPartySummary = document.getElementById("gp-party-summary");
+const gpPartyChart = document.getElementById("gp-party-chart");
+const gpPartyTable = document.getElementById("gp-party-table");
 
 let deprivationLayer = null;
+let deprivationTileManifest = null;
+let deprivationTileMetaByKey = new Map();
+let deprivationTileLayerCache = new Map();
+let activeDeprivationTileKeys = new Set();
 let effectsLayer = null;
 let wardFeatures = [];
 let councilFeatures = [];
@@ -107,14 +138,34 @@ let activeHoveredWardLayer = null;
 let declaredWardResultsLayer = null;
 let declaredCouncilResultsLayer = null;
 let wardElectionStateByCode = new Map();
+let councilControlByAuthorityCode = new Map();
 let declaredWinnerCount = 0;
 let declaredCouncilCount = 0;
 let declaredWardCount = 0;
 const RESULTS_RENDER_MODE = "council";
-const COUNCIL_RESULTS_MIN_ZOOM = 6;
-const WARD_RESULTS_MIN_ZOOM = 11;
 let deprivationFeatures = [];
 let hoverInfoTimer = null;
+let wardDeprivationGroupsPayload = null;
+let gpPractices = [];
+let gpPracticeLayer = null;
+let gpRatingsSummaryPayload = null;
+let gpSummaryByWardCode = new Map();
+
+const LOAD_STATUS_DEFINITIONS = [
+  { key: "wards", label: "Ward boundaries" },
+  { key: "councils", label: "Council boundaries" },
+  { key: "election", label: "Election results" },
+  { key: "deprivation", label: "Deprivation tiles" },
+  { key: "deprivationIndex", label: "Deprivation summary" },
+  { key: "deprivationGroups", label: "Regional groupings" },
+  { key: "census", label: "Census summaries" },
+  { key: "gpPractices", label: "GP locations" },
+  { key: "gpSummary", label: "GP ratings summary" }
+];
+
+const loadStatuses = new Map(
+  LOAD_STATUS_DEFINITIONS.map((item) => [item.key, { state: "pending", detail: "" }])
+);
 
 const PARTY_COLORS = {
   "labour": "#e4003b",
@@ -128,6 +179,53 @@ const PARTY_COLORS = {
   "uk independence party (ukip)": "#70147a",
   "independent": "#9ca3af"
 };
+
+function renderLoadStatus() {
+  if (!loadStatusSummary || !loadStatusList) return;
+  const items = LOAD_STATUS_DEFINITIONS.map((item) => ({
+    ...item,
+    ...(loadStatuses.get(item.key) || { state: "pending", detail: "" })
+  }));
+  const counts = items.reduce((acc, item) => {
+    acc[item.state] = (acc[item.state] || 0) + 1;
+    return acc;
+  }, {});
+  const readyCount = counts.ready || 0;
+  const loadingCount = counts.loading || 0;
+  const errorCount = counts.error || 0;
+  const totalCount = items.length;
+
+  if (errorCount > 0) {
+    loadStatusSummary.textContent = `${readyCount}/${totalCount} datasets ready. ${errorCount} failed to load.`;
+  } else if (loadingCount > 0) {
+    loadStatusSummary.textContent = `${readyCount}/${totalCount} datasets ready. Loading ${loadingCount} more...`;
+  } else if (readyCount === totalCount) {
+    loadStatusSummary.textContent = "All core datasets loaded.";
+  } else {
+    loadStatusSummary.textContent = "Preparing data sources...";
+  }
+
+  loadStatusList.innerHTML = items.map((item) => {
+    const detail = item.detail ? `<span class="load-status-detail">${item.detail}</span>` : "";
+    return [
+      '<div class="load-status-row">',
+      `<span class="load-status-dot" data-state="${item.state}" aria-hidden="true"></span>`,
+      `<span class="load-status-label">${item.label}</span>`,
+      detail,
+      "</div>"
+    ].join("");
+  }).join("");
+
+  if (loadStatusPanel) {
+    loadStatusPanel.dataset.state = errorCount > 0 ? "error" : loadingCount > 0 ? "loading" : readyCount === totalCount ? "ready" : "pending";
+  }
+}
+
+function setLoadStatus(key, state, detail = "") {
+  if (!loadStatuses.has(key)) return;
+  loadStatuses.set(key, { state, detail });
+  renderLoadStatus();
+}
 
 const INFORMATION_LAYER_DEFINITIONS = [
   {
@@ -169,6 +267,16 @@ function getDecileColor(decileValue) {
   return "#1f7a3f";
 }
 
+function getGpRatingColor(scoreValue) {
+  const score = Number(scoreValue);
+  if (!Number.isFinite(score)) return "#9aa0a6";
+  if (score < 2) return "#c3472f";
+  if (score < 3) return "#dc8c23";
+  if (score < 4) return "#d2b529";
+  if (score < 4.5) return "#4c9a52";
+  return "#1c7c54";
+}
+
 function createPopupContent(feature) {
   const props = feature?.properties || {};
   const name = props.lsoa21nm || props.lsoa21cd || "Unknown LSOA";
@@ -176,25 +284,282 @@ function createPopupContent(feature) {
   const score = Number.isFinite(props.imd_score) ? props.imd_score.toFixed(2) : "n/a";
   const rank = props.imd_rank ?? "n/a";
   const population = props.population_2022 ?? "n/a";
+  const formatPct = (value) => (Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(1)}%` : "n/a");
   return [
     `<strong>${name}</strong>`,
     `IMD 2025 decile: ${decile}`,
     `IMD score: ${score}`,
     `IMD rank: ${rank}`,
-    `Population (2022): ${population}`
+    `Population (2022): ${population}`,
+    `White British: ${formatPct(props.white_british_pct)}`,
+    `UK-born: ${formatPct(props.uk_born_pct)}`,
+    `English/British identity: ${formatPct(props.english_or_british_only_identity_pct)}`,
+    `Age 50+: ${formatPct(props.age_50plus_pct)}`,
+    `Owner occupied: ${formatPct(props.owner_occupied_pct)}`,
+    `Degree level: ${formatPct(props.degree_pct)}`
   ].join("<br>");
 }
 
-function applyLayerVisibility() {
-  if (!deprivationLayer) return;
+function isDeprivationVisibleAtZoom(zoom = map.getZoom()) {
+  return zoom >= DEPRIVATION_MIN_ZOOM;
+}
+
+function isCouncilResultsVisibleAtZoom(zoom = map.getZoom()) {
+  return zoom >= COUNCIL_RESULTS_MIN_ZOOM;
+}
+
+function isWardResultsVisibleAtZoom(zoom = map.getZoom()) {
+  return zoom >= WARD_RESULTS_MIN_ZOOM;
+}
+
+function isGpVisibleAtZoom(zoom = map.getZoom()) {
+  return zoom >= GP_MIN_ZOOM;
+}
+
+function mercatorX(lon) {
+  return (lon + 180) / 360;
+}
+
+function mercatorY(lat) {
+  const boundedLat = Math.max(Math.min(lat, 85.05112878), -85.05112878);
+  const radiansLat = (boundedLat * Math.PI) / 180;
+  return (1 - Math.log(Math.tan((Math.PI / 4) + (radiansLat / 2))) / Math.PI) / 2;
+}
+
+function lonLatToTile(lon, lat, zoom) {
+  const scale = 2 ** zoom;
+  const x = Math.min(Math.max(Math.floor(mercatorX(lon) * scale), 0), scale - 1);
+  const y = Math.min(Math.max(Math.floor(mercatorY(lat) * scale), 0), scale - 1);
+  return { x, y };
+}
+
+function tileKey(z, x, y) {
+  return `${z}/${x}/${y}`;
+}
+
+function getVisibleDeprivationTileKeys() {
+  const tileZoom = Number(deprivationTileManifest?.tile_zoom);
+  if (!Number.isFinite(tileZoom)) return [];
+  const bounds = map.getBounds();
+  const northWest = lonLatToTile(bounds.getWest(), bounds.getNorth(), tileZoom);
+  const southEast = lonLatToTile(bounds.getEast(), bounds.getSouth(), tileZoom);
+  const keys = [];
+  for (let x = northWest.x; x <= southEast.x; x += 1) {
+    for (let y = northWest.y; y <= southEast.y; y += 1) {
+      const key = tileKey(tileZoom, x, y);
+      if (deprivationTileMetaByKey.has(key)) keys.push(key);
+    }
+  }
+  return keys;
+}
+
+function rebuildDeprivationFeatureCache() {
+  deprivationFeatures = [];
+  for (const key of activeDeprivationTileKeys) {
+    const cached = deprivationTileLayerCache.get(key);
+    if (!cached?.features) continue;
+    deprivationFeatures.push(...cached.features);
+  }
+}
+
+function removeInactiveDeprivationTiles(nextKeys) {
+  const nextKeySet = new Set(nextKeys);
+  for (const key of [...activeDeprivationTileKeys]) {
+    if (nextKeySet.has(key)) continue;
+    const cached = deprivationTileLayerCache.get(key);
+    if (cached?.layer && deprivationLayer && deprivationLayer.hasLayer(cached.layer)) {
+      deprivationLayer.removeLayer(cached.layer);
+    }
+    activeDeprivationTileKeys.delete(key);
+  }
+  rebuildDeprivationFeatureCache();
+}
+
+async function ensureVisibleDeprivationTiles() {
+  if (!deprivationLayer || !deprivationTileManifest || !isDeprivationVisibleAtZoom() || !deprivationToggle.checked) {
+    return;
+  }
+  const nextKeys = getVisibleDeprivationTileKeys();
+  removeInactiveDeprivationTiles(nextKeys);
+  for (const key of nextKeys) {
+    const cached = deprivationTileLayerCache.get(key);
+    if (cached?.layer) {
+      if (!deprivationLayer.hasLayer(cached.layer)) deprivationLayer.addLayer(cached.layer);
+      activeDeprivationTileKeys.add(key);
+      continue;
+    }
+    if (cached?.loadingPromise) {
+      await cached.loadingPromise;
+      continue;
+    }
+    const tileMeta = deprivationTileMetaByKey.get(key);
+    if (!tileMeta?.file) continue;
+    const tileUrl = `${import.meta.env.BASE_URL}data/england-lsoa-imd-2025_tiles/${tileMeta.file}`;
+    const loadingPromise = fetch(tileUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Deprivation tile request failed: ${response.status}`);
+        return response.json();
+      })
+      .then((payload) => {
+        const features = Array.isArray(payload?.features) ? payload.features : [];
+        const layer = L.geoJSON(payload, {
+          pane: "deprivationPane",
+          style: (feature) => ({
+            stroke: false,
+            fillColor: getDecileColor(feature?.properties?.imd_decile),
+            fillOpacity: 0.48
+          }),
+          onEachFeature: (feature, itemLayer) => itemLayer.bindPopup(createPopupContent(feature), { maxWidth: 320 })
+        });
+        deprivationTileLayerCache.set(key, { layer, features });
+        if (deprivationLayer && deprivationToggle.checked && isDeprivationVisibleAtZoom()) {
+          deprivationLayer.addLayer(layer);
+          activeDeprivationTileKeys.add(key);
+          rebuildDeprivationFeatureCache();
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        deprivationTileLayerCache.delete(key);
+      });
+    deprivationTileLayerCache.set(key, { loadingPromise });
+    await loadingPromise;
+  }
+  rebuildDeprivationFeatureCache();
+}
+
+function updateMapWarnings() {
+  const zoom = map.getZoom();
+  const warnings = [];
+  if (deprivationToggle.checked && !isDeprivationVisibleAtZoom(zoom)) {
+    warnings.push(`Deprivation and LSOA shading are hidden below zoom ${DEPRIVATION_MIN_ZOOM}.`);
+  }
+  if (councilResultsToggle?.checked && !isCouncilResultsVisibleAtZoom(zoom)) {
+    warnings.push(`Council control outlines are hidden below zoom ${COUNCIL_RESULTS_MIN_ZOOM}.`);
+  }
+  if (wardResultsToggle?.checked && !isWardResultsVisibleAtZoom(zoom)) {
+    warnings.push(`Ward result outlines stay hidden until zoom ${WARD_RESULTS_MIN_ZOOM}; only the hovered ward outline is shown.`);
+  }
+  if (gpRatingsToggle?.checked && !isGpVisibleAtZoom(zoom)) {
+    warnings.push(`GP ratings markers are hidden below zoom ${GP_MIN_ZOOM}.`);
+  }
+  if (!mapWarningPanel) return;
+  if (warnings.length) {
+    mapWarningPanel.textContent = warnings.join(" ");
+    mapWarningPanel.hidden = false;
+  } else {
+    mapWarningPanel.hidden = true;
+    mapWarningPanel.textContent = "";
+  }
+}
+
+async function applyLayerVisibility() {
+  if (!deprivationLayer) {
+    updateMapWarnings();
+    return;
+  }
+  const zoom = map.getZoom();
   const isVisible = deprivationToggle.checked;
-  if (isVisible) {
+  if (isVisible && isDeprivationVisibleAtZoom(zoom)) {
     if (!map.hasLayer(deprivationLayer)) deprivationLayer.addTo(map);
-    deprivationStatus.textContent = "";
+    await ensureVisibleDeprivationTiles();
+    deprivationStatus.textContent = "Deprivation layer visible.";
   } else {
     if (map.hasLayer(deprivationLayer)) map.removeLayer(deprivationLayer);
-    deprivationStatus.textContent = "Deprivation layer hidden.";
+    activeDeprivationTileKeys.clear();
+    deprivationFeatures = [];
+    if (!isVisible) {
+      deprivationStatus.textContent = "Deprivation layer hidden.";
+    } else {
+      deprivationStatus.textContent = `Zoom in to at least ${DEPRIVATION_MIN_ZOOM} to display deprivation.`;
+    }
   }
+  updateMapWarnings();
+}
+
+function getVisibleGpPractices() {
+  const zoom = map.getZoom();
+  if (!isGpVisibleAtZoom(zoom)) return [];
+  if (zoom >= GP_BOUNDS_ONLY_MIN_ZOOM) {
+    const bounds = map.getBounds().pad(0.08);
+    return gpPractices.filter((row) => bounds.contains([row.lat, row.lon]));
+  }
+  const center = map.getCenter();
+  const cap = zoom >= GP_MIN_ZOOM + 1 ? 250 : 120;
+  return [...gpPractices]
+    .map((row) => ({
+      row,
+      distance: ((row.lat - center.lat) ** 2) + ((row.lon - center.lng) ** 2)
+    }))
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, cap)
+    .map((entry) => entry.row);
+}
+
+function gpPopupMarkup(row) {
+  const googleScore = Number.isFinite(Number(row.google_score)) ? Number(row.google_score).toFixed(1) : "n/a";
+  const googleCount = Number.isFinite(Number(row.google_count)) ? Number(row.google_count).toLocaleString() : "n/a";
+  const survey = Number.isFinite(Number(row.survey_overall_good_percent)) ? `${Number(row.survey_overall_good_percent).toFixed(1)}%` : "n/a";
+  const patients = Number.isFinite(Number(row.registered_patient_count)) ? Number(row.registered_patient_count).toLocaleString() : "n/a";
+  return [
+    `<strong>${row.practice_name || row.practice_code || "GP practice"}</strong>`,
+    `Google rating: ${googleScore} (${googleCount} reviews)`,
+    `GP survey overall good: ${survey}`,
+    `Patients: ${patients}`,
+    row.ward_name ? `Ward: ${row.ward_name}` : null,
+    row.authority_name ? `Council: ${row.authority_name}` : null
+  ].filter(Boolean).join("<br>");
+}
+
+function renderGpPracticeLayer() {
+  if (!gpPracticeLayer) gpPracticeLayer = L.layerGroup();
+  gpPracticeLayer.clearLayers();
+  const visibleRows = getVisibleGpPractices();
+  const zoom = map.getZoom();
+  for (const row of visibleRows) {
+    const marker = L.circleMarker([row.lat, row.lon], {
+      pane: "gpPane",
+      radius: zoom >= 14 ? 6 : zoom >= 13 ? 5 : 4,
+      weight: 1,
+      color: "#ffffff",
+      opacity: 0.95,
+      fillColor: getGpRatingColor(row.google_score),
+      fillOpacity: 0.9
+    });
+    marker.bindPopup(gpPopupMarkup(row), { maxWidth: 320 });
+    marker.bindTooltip(
+      `${row.practice_name || row.practice_code || "GP"}${Number.isFinite(Number(row.google_score)) ? ` · ${Number(row.google_score).toFixed(1)}` : ""}`,
+      { direction: "top", offset: [0, -4] }
+    );
+    gpPracticeLayer.addLayer(marker);
+  }
+  return visibleRows.length;
+}
+
+function applyGpLayerVisibility() {
+  if (!gpPracticeLayer) gpPracticeLayer = L.layerGroup();
+  const zoom = map.getZoom();
+  const enabled = Boolean(gpRatingsToggle?.checked);
+  if (!enabled) {
+    if (map.hasLayer(gpPracticeLayer)) map.removeLayer(gpPracticeLayer);
+    if (gpRatingsStatus) gpRatingsStatus.textContent = "GP ratings layer hidden.";
+    updateMapWarnings();
+    return;
+  }
+  if (!isGpVisibleAtZoom(zoom)) {
+    if (map.hasLayer(gpPracticeLayer)) map.removeLayer(gpPracticeLayer);
+    if (gpRatingsStatus) gpRatingsStatus.textContent = `Zoom in to at least ${GP_MIN_ZOOM} to display GP ratings.`;
+    updateMapWarnings();
+    return;
+  }
+  const count = renderGpPracticeLayer();
+  if (!map.hasLayer(gpPracticeLayer)) gpPracticeLayer.addTo(map);
+  if (gpRatingsStatus) {
+    gpRatingsStatus.textContent = zoom >= GP_BOUNDS_ONLY_MIN_ZOOM
+      ? `Showing ${count.toLocaleString()} GP practices in view.`
+      : `Showing nearest ${count.toLocaleString()} GP practices at this zoom.`;
+  }
+  updateMapWarnings();
 }
 
 function formatEstimate(value) {
@@ -351,6 +716,10 @@ function getWinnerPartyColor(partyName) {
   return "#6b7280";
 }
 
+function getCouncilControlForAuthority(authorityCode) {
+  return councilControlByAuthorityCode.get(String(authorityCode || "")) || null;
+}
+
 let outlineClipCounter = 0;
 
 function ensureSvgDefs(svgRoot) {
@@ -412,10 +781,12 @@ function renderHoveredWard(feature) {
   const props = feature?.properties || {};
   const wardCode = props.WD24CD || "";
   const electionState = wardElectionStateByCode.get(wardCode);
+  const councilState = getCouncilControlForAuthority(props.LAD24CD);
   const incumbentParty = electionState?.incumbent_party || "Unknown";
   const wardWinnerParty = electionState?.winner_party || null;
-  const councilControl = electionState?.council_result_declared
-    ? (electionState?.council_winner_party || "declared")
+  const gpSummary = gpSummaryByWardCode.get(wardCode);
+  const councilControl = councilState?.council_result_declared
+    ? (councilState?.council_winner_party || councilState?.council_control_party || "declared")
     : "pending";
   const displayedWinner = RESULTS_RENDER_MODE === "council"
     ? councilControl
@@ -429,8 +800,9 @@ function renderHoveredWard(feature) {
     `Incumbent: ${incumbentParty}`,
     `Ward winner: ${wardWinnerParty || "pending"}`,
     `Displayed winner (${RESULTS_RENDER_MODE}): ${displayedWinner}`,
-    `Council control: ${councilControl}`
-  ].join("<br>");
+    `Council control: ${councilControl}`,
+    gpSummary?.practices_count ? `GP avg: ${Number.isFinite(Number(gpSummary.avg_google_score)) ? Number(gpSummary.avg_google_score).toFixed(1) : "n/a"} across ${Number(gpSummary.practices_count).toLocaleString()} practices` : null
+  ].filter(Boolean).join("<br>");
   activeHoveredWardLayer.bindPopup(popupHtml);
 }
 
@@ -470,14 +842,20 @@ function buildHoverInfoLines(latlng, hoveredFeature) {
     const props = hoveredFeature.properties || {};
     const wardCode = props.WD24CD || "";
     const electionState = wardElectionStateByCode.get(wardCode);
-    const councilControl = electionState?.council_result_declared
-      ? (electionState?.council_winner_party || "declared")
+    const gpSummary = gpSummaryByWardCode.get(wardCode);
+    const councilState = getCouncilControlForAuthority(props.LAD24CD);
+    const councilControl = councilState?.council_result_declared
+      ? (councilState?.council_winner_party || councilState?.council_control_party || "declared")
       : "pending";
     lines.push(`${props.WD24NM || wardCode || "Unknown"}`);
     if (councilResultsToggle.checked) lines.push(`${councilControl}`);
     if (wardResultsToggle.checked) lines.push(`${electionState?.winner_party || "pending"}`);
+    if (gpSummary?.practices_count) {
+      const rating = Number.isFinite(Number(gpSummary.avg_google_score)) ? Number(gpSummary.avg_google_score).toFixed(1) : "n/a";
+      lines.push(`GP ${rating} (${Number(gpSummary.practices_count).toLocaleString()})`);
+    }
   }
-  if (deprivationToggle.checked) {
+  if (deprivationToggle.checked && isDeprivationVisibleAtZoom()) {
     const deprivationFeature = findDeprivationFeatureAt(latlng);
     if (deprivationFeature?.properties) {
       const p = deprivationFeature.properties;
@@ -565,18 +943,12 @@ function rebuildDeclaredWardsLayer() {
   declaredCouncilCount = 0;
   declaredWardCount = 0;
 
-  const byAuthorityCode = new Map();
-  for (const electionState of wardElectionStateByCode.values()) {
-    const authorityCode = electionState?.authority_code;
-    if (!authorityCode || byAuthorityCode.has(authorityCode)) continue;
-    byAuthorityCode.set(authorityCode, electionState);
-  }
   for (const candidate of councilFeatures) {
     const feature = candidate.feature;
     const authorityCode = feature?.properties?.LAD24CD;
-    const councilState = byAuthorityCode.get(authorityCode);
+    const councilState = getCouncilControlForAuthority(authorityCode);
     const winner = councilState?.council_result_declared
-      ? (councilState?.council_winner_party || null)
+      ? (councilState?.council_winner_party || councilState?.council_control_party || null)
       : null;
     if (!winner) continue;
     const color = getWinnerPartyColor(winner);
@@ -588,7 +960,9 @@ function rebuildDeclaredWardsLayer() {
     councilLayer.bindPopup(
       [
         `<strong>${feature?.properties?.LAD24NM || authorityCode || "Council"}</strong>`,
-        `Council control: ${winner}`
+        `Council control: ${winner}`,
+        `Seats: ${councilState?.council_seat_total || "n/a"}`,
+        `Threshold: ${councilState?.council_control_majority_threshold || "n/a"}`
       ].join("<br>")
     );
     councilLayer.eachLayer((layer) => {
@@ -630,13 +1004,18 @@ function rebuildDeclaredWardsLayer() {
 }
 
 function updateWardStatusDefault() {
+  const zoom = map.getZoom();
+  if (wardResultsToggle?.checked && !isWardResultsVisibleAtZoom(zoom)) {
+    wardHoverStatus.textContent = `Ward winners hidden below z${WARD_RESULTS_MIN_ZOOM}. Hover still works.`;
+    return;
+  }
   wardHoverStatus.textContent = `C:${declaredCouncilCount} W:${declaredWardCount}`;
 }
 
 function applyWardLayerVisibility() {
   const zoom = map.getZoom();
-  const allowCouncilResultsAtZoom = false;//zoom >= COUNCIL_RESULTS_MIN_ZOOM;
-  const allowWardResultsAtZoom = zoom >= WARD_RESULTS_MIN_ZOOM;
+  const allowCouncilResultsAtZoom = isCouncilResultsVisibleAtZoom(zoom);
+  const allowWardResultsAtZoom = isWardResultsVisibleAtZoom(zoom);
   if (declaredCouncilResultsLayer) {
     if (councilResultsToggle?.checked && allowCouncilResultsAtZoom && declaredCouncilCount > 0) {
       if (!map.hasLayer(declaredCouncilResultsLayer)) declaredCouncilResultsLayer.addTo(map);
@@ -651,9 +1030,11 @@ function applyWardLayerVisibility() {
       map.removeLayer(declaredWardResultsLayer);
     }
   }
+  updateMapWarnings();
 }
 
 async function loadWardHoverSource() {
+  setLoadStatus("wards", "loading", "Fetching GeoJSON...");
   try {
     const response = await fetch(WARDS_GEOJSON_URL);
     if (!response.ok) {
@@ -669,13 +1050,16 @@ async function loadWardHoverSource() {
       .filter((entry) => entry.bounds.isValid());
     rebuildDeclaredWardsLayer();
     updateWardStatusDefault();
+    setLoadStatus("wards", "ready", `${wardFeatures.length.toLocaleString()} wards`);
   } catch (error) {
     console.error(error);
     wardHoverStatus.textContent = "Could not load ward boundaries. Run `yarn updates:maintenance`.";
+    setLoadStatus("wards", "error", "Request failed");
   }
 }
 
 async function loadCouncilSource() {
+  setLoadStatus("councils", "loading", "Fetching GeoJSON...");
   try {
     const response = await fetch(COUNCILS_GEOJSON_URL);
     if (!response.ok) {
@@ -684,15 +1068,24 @@ async function loadCouncilSource() {
     const geojson = await response.json();
     const features = Array.isArray(geojson?.features) ? geojson.features : [];
     councilFeatures = features.map((feature) => ({ feature }));
+    councilControlByAuthorityCode = new Map(
+      features
+        .filter((feature) => feature?.properties?.LAD24CD)
+        .map((feature) => [feature.properties.LAD24CD, feature.properties])
+    );
     rebuildDeclaredWardsLayer();
     applyWardLayerVisibility();
     updateWardStatusDefault();
+    setLoadStatus("councils", "ready", `${councilFeatures.length.toLocaleString()} councils`);
   } catch (error) {
     console.error(error);
+    councilControlByAuthorityCode = new Map();
+    setLoadStatus("councils", "error", "Request failed");
   }
 }
 
 async function loadWardElectionState() {
+  setLoadStatus("election", "loading", "Fetching winners...");
   try {
     const response = await fetch(WARD_ELECTION_STATE_URL);
     if (!response.ok) {
@@ -708,42 +1101,43 @@ async function loadWardElectionState() {
     rebuildDeclaredWardsLayer();
     applyWardLayerVisibility();
     updateWardStatusDefault();
+    setLoadStatus("election", "ready", `${wardElectionStateByCode.size.toLocaleString()} ward rows`);
   } catch (error) {
     console.error(error);
     wardElectionStateByCode = new Map();
+    setLoadStatus("election", "error", "Request failed");
   }
 }
 
 async function loadDeprivationLayer() {
+  setLoadStatus("deprivation", "loading", "Loading tile manifest...");
   try {
-    const [geojsonResponse, summaryResponse] = await Promise.all([
-      fetch(DEPRIVATION_GEOJSON_URL),
+    const [manifestResponse, summaryResponse] = await Promise.all([
+      fetch(DEPRIVATION_TILES_MANIFEST_URL),
       fetch(DEPRIVATION_SUMMARY_URL)
     ]);
-    if (!geojsonResponse.ok) throw new Error(`GeoJSON request failed: ${geojsonResponse.status}`);
-    const geojson = await geojsonResponse.json();
+    if (!manifestResponse.ok) throw new Error(`Deprivation manifest request failed: ${manifestResponse.status}`);
+    const manifest = await manifestResponse.json();
     const summary = summaryResponse.ok ? await summaryResponse.json() : null;
-    deprivationFeatures = Array.isArray(geojson?.features) ? geojson.features : [];
-    deprivationLayer = L.geoJSON(geojson, {
-      pane: "deprivationPane",
-      style: (feature) => ({
-        stroke: false,
-        fillColor: getDecileColor(feature?.properties?.imd_decile),
-        fillOpacity: 0.48
-      }),
-      onEachFeature: (feature, layer) => layer.bindPopup(createPopupContent(feature), { maxWidth: 320 })
-    });
-    if (!initialView.hasStoredView && deprivationLayer.getLayers().length > 0) {
-      map.fitBounds(deprivationLayer.getBounds(), { padding: [16, 16] });
-    }
-    applyLayerVisibility();
-    const featureCount = geojson?.features?.length || 0;
-    const bbox = Array.isArray(summary?.bbox_wgs84) ? summary.bbox_wgs84.join(", ") : "n/a";
-    deprivationStats.textContent = `Loaded ${featureCount.toLocaleString()} deprivation polygons. BBox: ${bbox}.`;
+    deprivationTileManifest = manifest;
+    deprivationTileMetaByKey = new Map(
+      (Array.isArray(manifest?.tiles) ? manifest.tiles : []).map((tile) => [tileKey(tile.z, tile.x, tile.y), tile])
+    );
+    deprivationTileLayerCache = new Map();
+    activeDeprivationTileKeys = new Set();
+    deprivationFeatures = [];
+    deprivationLayer = L.layerGroup();
+    await applyLayerVisibility();
+    const featureCount = Number(manifest?.feature_count || 0);
+    const tileCount = Number(manifest?.tile_count || 0);
+    const scope = summary?.filter?.territory || "England";
+    deprivationStats.textContent = `Prepared ${featureCount.toLocaleString()} deprivation polygons for ${scope} across ${tileCount.toLocaleString()} tiles.`;
+    setLoadStatus("deprivation", "ready", `${tileCount.toLocaleString()} tiles`);
   } catch (error) {
     console.error(error);
     deprivationStatus.textContent = "Could not load deprivation layer.";
     deprivationStats.textContent = "Check file paths and run via a local static server.";
+    setLoadStatus("deprivation", "error", "Manifest or summary failed");
   }
 }
 
@@ -819,15 +1213,238 @@ function renderWardDeprivationTable(payload) {
 
 async function loadWardDeprivationIndex() {
   if (!wardDeprivationSummary || !wardDeprivationTable || !wardDeprivationBars) return;
+  setLoadStatus("deprivationIndex", "loading", "Preparing party summary...");
   try {
     const response = await fetch(WARD_DEPRIVATION_INDEX_URL);
     if (!response.ok) throw new Error(`Ward deprivation index request failed: ${response.status}`);
     const payload = await response.json();
     renderWardDeprivationTable(payload);
+    const partyCount = Array.isArray(payload?.parties) ? payload.parties.length : 0;
+    setLoadStatus("deprivationIndex", "ready", `${partyCount.toLocaleString()} party rows`);
   } catch (_error) {
     wardDeprivationSummary.textContent = "Ward deprivation index unavailable. Run `yarn deprivation:index:update`.";
     wardDeprivationBars.innerHTML = "";
     wardDeprivationTable.innerHTML = "";
+    setLoadStatus("deprivationIndex", "error", "Summary unavailable");
+  }
+}
+
+function renderGroupedDeprivationProfiles(payload, selectedGroupSetId) {
+  if (!groupedDeprivationSelect || !groupedDeprivationSummary || !groupedDeprivationBars) return;
+  const groupSets = Array.isArray(payload?.group_sets) ? payload.group_sets : [];
+  if (!groupSets.length) {
+    groupedDeprivationSummary.textContent = "No grouped deprivation profiles available yet.";
+    groupedDeprivationBars.innerHTML = "";
+    groupedDeprivationSelect.innerHTML = "";
+    return;
+  }
+
+  const resolvedGroupSetId = selectedGroupSetId || groupedDeprivationSelect.value || groupSets[0]?.id;
+  const activeGroupSet = groupSets.find((row) => row.id === resolvedGroupSetId) || groupSets[0];
+
+  if (!groupedDeprivationSelect.options.length || groupedDeprivationSelect.options.length !== groupSets.length) {
+    groupedDeprivationSelect.innerHTML = groupSets
+      .map((row) => `<option value="${row.id}">${row.label}</option>`)
+      .join("");
+  }
+  groupedDeprivationSelect.value = activeGroupSet.id;
+
+  const groups = Array.isArray(activeGroupSet?.groups) ? activeGroupSet.groups : [];
+  const summary = payload?.summary || {};
+  groupedDeprivationSummary.textContent =
+    `${activeGroupSet.description} Showing ${(summary.wards_with_declared_winner || 0).toLocaleString()} declared wards.`;
+
+  if (!groups.length) {
+    groupedDeprivationBars.innerHTML = "<p class='hint'>No groups available for this view.</p>";
+    return;
+  }
+
+  const rows = groups.map((group) => {
+    const shares = group?.deprivation_area_share_by_decile || {};
+    const segments = [];
+    for (let d = 1; d <= 10; d += 1) {
+      const share = Number(shares[String(d)] || 0);
+      if (share <= 0) continue;
+      segments.push(
+        `<span class="distribution-segment" style="width:${(share * 100).toFixed(2)}%;background:${getDecileColor(d)}" title="${group.label}: decile ${d} ${(share * 100).toFixed(1)}%"></span>`
+      );
+    }
+    return (
+      `<div class="distribution-row"><div class="distribution-label">${group.label} (${Number(group.ward_count || 0).toLocaleString()})</div><div class="distribution-track">${segments.join("")}</div></div>`
+    );
+  });
+
+  const legend = Array.from({ length: 10 }, (_value, index) => {
+    const decile = index + 1;
+    const label = decile === 1 ? "Poorest" : decile === 10 ? "Richest" : `D${decile}`;
+    return `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${getDecileColor(decile)};display:inline-block;"></span>${label}</span>`;
+  }).join("");
+
+  groupedDeprivationBars.innerHTML = `<div class="distribution-bars">${rows.join("")}</div><div class="distribution-legend">${legend}</div>`;
+}
+
+async function loadWardDeprivationGroups() {
+  if (!groupedDeprivationSelect || !groupedDeprivationSummary || !groupedDeprivationBars) return;
+  setLoadStatus("deprivationGroups", "loading", "Preparing grouped views...");
+  try {
+    const response = await fetch(WARD_DEPRIVATION_GROUPS_URL);
+    if (!response.ok) throw new Error(`Ward deprivation groups request failed: ${response.status}`);
+    wardDeprivationGroupsPayload = await response.json();
+    renderGroupedDeprivationProfiles(wardDeprivationGroupsPayload);
+    const groupSetCount = Array.isArray(wardDeprivationGroupsPayload?.group_sets) ? wardDeprivationGroupsPayload.group_sets.length : 0;
+    setLoadStatus("deprivationGroups", "ready", `${groupSetCount.toLocaleString()} views`);
+  } catch (_error) {
+    groupedDeprivationSummary.textContent = "Grouped deprivation profiles unavailable. Run `yarn deprivation:groups:update`.";
+    groupedDeprivationBars.innerHTML = "";
+    groupedDeprivationSelect.innerHTML = "";
+    setLoadStatus("deprivationGroups", "error", "Grouped views unavailable");
+  }
+}
+
+function formatPercentCell(value) {
+  return Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(1)}%` : "n/a";
+}
+
+function renderWardCensusDemographics(payload) {
+  if (!censusSignalsSummary || !censusSignalsTable || !censusPartyTable) return;
+  const summary = payload?.summary || {};
+  const reformProfile = payload?.reform_profile || null;
+  const parties = Array.isArray(payload?.parties) ? payload.parties : [];
+  const correlations = Array.isArray(payload?.correlations) ? payload.correlations : [];
+
+  censusSignalsSummary.textContent =
+    `LSOAs compiled: ${(summary.lsoas_with_census || 0).toLocaleString()}. Declared wards with census estimates: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`;
+
+  if (reformProfile?.deltas?.length) {
+    const topDeltas = reformProfile.deltas.slice(0, 8);
+    const rows = topDeltas.map((row) => (
+      `<tr><td>${row.label}</td><td>${formatPercentCell(row.reform_mean)}</td><td>${formatPercentCell(row.all_declared_mean)}</td><td>${row.difference >= 0 ? "+" : ""}${(Number(row.difference) * 100).toFixed(1)}pp</td></tr>`
+    ));
+    const reformCorrelations = correlations.find((row) => row.party === "Reform UK")?.strongest_signals || [];
+    const correlationHtml = reformCorrelations.length
+      ? `<p class="hint">Strongest Reform correlations: ${reformCorrelations.map((row) => `${row.label} (${Number(row.correlation).toFixed(2)})`).join(" · ")}</p>`
+      : "";
+    censusSignalsTable.innerHTML = [
+      '<table class="simple-table">',
+      "<thead><tr><th>Feature</th><th>Reform</th><th>All Declared</th><th>Delta</th></tr></thead>",
+      "<tbody>",
+      ...rows,
+      "</tbody></table>",
+      correlationHtml
+    ].join("");
+  } else {
+    censusSignalsTable.innerHTML = "<p class='hint'>No Reform summary available yet.</p>";
+  }
+
+  const partyRows = parties
+    .slice(0, 6)
+    .map((party) => (
+      `<tr><td>${party.party}</td><td>${Number(party.wards_won || 0).toLocaleString()}</td><td>${formatPercentCell(party.means?.white_british_pct)}</td><td>${formatPercentCell(party.means?.age_50plus_pct)}</td><td>${formatPercentCell(party.means?.owner_occupied_pct)}</td><td>${formatPercentCell(party.means?.degree_pct)}</td><td>${Number(party.means?.imd_score || 0).toFixed(2)}</td></tr>`
+    ));
+  censusPartyTable.innerHTML = [
+    '<table class="simple-table">',
+    "<thead><tr><th>Party</th><th>Wards Won</th><th>White British</th><th>Age 50+</th><th>Owner Occ</th><th>Degree</th><th>IMD</th></tr></thead>",
+    "<tbody>",
+    ...partyRows,
+    "</tbody></table>"
+  ].join("");
+}
+
+async function loadWardCensusDemographics() {
+  if (!censusSignalsSummary || !censusSignalsTable || !censusPartyTable) return;
+  setLoadStatus("census", "loading", "Preparing census summaries...");
+  try {
+    const response = await fetch(WARD_CENSUS_DEMOGRAPHICS_URL);
+    if (!response.ok) throw new Error(`Ward census demographics request failed: ${response.status}`);
+    const payload = await response.json();
+    renderWardCensusDemographics(payload);
+    const wardCount = Number(payload?.summary?.wards_with_declared_winner || 0);
+    setLoadStatus("census", "ready", `${wardCount.toLocaleString()} declared wards`);
+  } catch (_error) {
+    censusSignalsSummary.textContent = "Ward census summaries unavailable. Run `yarn census:update`.";
+    censusSignalsTable.innerHTML = "";
+    censusPartyTable.innerHTML = "";
+    setLoadStatus("census", "error", "Summary unavailable");
+  }
+}
+
+function renderGpPartyRatings(payload) {
+  if (!gpPartySummary || !gpPartyChart || !gpPartyTable) return;
+  const summary = payload?.summary || {};
+  const parties = Array.isArray(payload?.parties) ? payload.parties : [];
+  const filtered = parties
+    .filter((row) => Number(row?.rated_practices_count || 0) >= 25)
+    .sort((a, b) => Number(b.avg_google_score || 0) - Number(a.avg_google_score || 0));
+
+  gpPartySummary.textContent =
+    `Imported ${Number(summary.wards_with_practices || 0).toLocaleString()} wards with GP practices. Chart shows parties with at least 25 rated practices, grouped by the ward winner.`;
+
+  if (!filtered.length) {
+    gpPartyChart.innerHTML = "";
+    gpPartyTable.innerHTML = "<p class='hint'>No party-level GP ratings available yet.</p>";
+    return;
+  }
+
+  const chartRows = filtered.slice(0, 8).map((row) => {
+    const avg = Number(row.avg_google_score || 0);
+    const fill = `${Math.max(0, Math.min(100, (avg / 5) * 100)).toFixed(1)}%`;
+    return `<div class="rating-row"><div class="rating-label">${row.party}</div><div class="rating-track"><div class="rating-fill" style="width:${fill};background:${getGpRatingColor(avg)}"></div></div><div class="rating-value">${avg.toFixed(2)}</div></div>`;
+  });
+  gpPartyChart.innerHTML = `<div class="rating-bars">${chartRows.join("")}</div>`;
+
+  gpPartyTable.innerHTML = [
+    '<table class="simple-table">',
+    "<thead><tr><th>Party</th><th>Rated GPs</th><th>Avg Google</th><th>Patient Weighted</th><th>Avg Survey</th></tr></thead>",
+    "<tbody>",
+    ...filtered.slice(0, 10).map((row) => (
+      `<tr><td>${row.party}</td><td>${Number(row.rated_practices_count || 0).toLocaleString()}</td><td>${Number(row.avg_google_score || 0).toFixed(2)}</td><td>${Number(row.avg_google_score_weighted_by_patients || 0).toFixed(2)}</td><td>${Number.isFinite(Number(row.avg_survey_overall_good_percent)) ? `${Number(row.avg_survey_overall_good_percent).toFixed(1)}%` : "n/a"}</td></tr>`
+    )),
+    "</tbody></table>"
+  ].join("");
+}
+
+async function loadGpPractices() {
+  if (!gpRatingsStatus) return;
+  setLoadStatus("gpPractices", "loading", "Loading GP points...");
+  try {
+    const response = await fetch(GP_PRACTICES_URL);
+    if (!response.ok) throw new Error(`GP practices request failed: ${response.status}`);
+    const payload = await response.json();
+    gpPractices = Array.isArray(payload?.practices) ? payload.practices.filter((row) => Number.isFinite(Number(row.lat)) && Number.isFinite(Number(row.lon))) : [];
+    if (!gpPracticeLayer) gpPracticeLayer = L.layerGroup();
+    gpRatingsStatus.textContent = `Prepared ${gpPractices.length.toLocaleString()} GP practices.`;
+    applyGpLayerVisibility();
+    setLoadStatus("gpPractices", "ready", `${gpPractices.length.toLocaleString()} practices`);
+  } catch (error) {
+    console.error(error);
+    gpPractices = [];
+    gpRatingsStatus.textContent = "Could not load GP ratings layer.";
+    setLoadStatus("gpPractices", "error", "Request failed");
+  }
+}
+
+async function loadGpRatingsSummary() {
+  if (!gpPartySummary || !gpPartyChart || !gpPartyTable) return;
+  setLoadStatus("gpSummary", "loading", "Preparing party averages...");
+  try {
+    const response = await fetch(GP_RATINGS_SUMMARY_URL);
+    if (!response.ok) throw new Error(`GP ratings summary request failed: ${response.status}`);
+    gpRatingsSummaryPayload = await response.json();
+    gpSummaryByWardCode = new Map(
+      (Array.isArray(gpRatingsSummaryPayload?.wards) ? gpRatingsSummaryPayload.wards : [])
+        .filter((row) => row?.ward_code)
+        .map((row) => [row.ward_code, row])
+    );
+    renderGpPartyRatings(gpRatingsSummaryPayload);
+    const wardCount = Array.isArray(gpRatingsSummaryPayload?.wards) ? gpRatingsSummaryPayload.wards.length : 0;
+    setLoadStatus("gpSummary", "ready", `${wardCount.toLocaleString()} ward summaries`);
+  } catch (error) {
+    console.error(error);
+    gpSummaryByWardCode = new Map();
+    gpPartySummary.textContent = "GP rating summaries unavailable. Run `yarn gp:import`.";
+    gpPartyChart.innerHTML = "";
+    gpPartyTable.innerHTML = "";
+    setLoadStatus("gpSummary", "error", "Summary unavailable");
   }
 }
 
@@ -842,6 +1459,9 @@ deprivationToggle.addEventListener("change", applyLayerVisibility);
 if (effectsToggle) {
   effectsToggle.addEventListener("change", applyEffectsVisibility);
 }
+if (gpRatingsToggle) {
+  gpRatingsToggle.addEventListener("change", applyGpLayerVisibility);
+}
 councilResultsToggle.addEventListener("change", () => {
   applyWardLayerVisibility();
   updateWardStatusDefault();
@@ -853,6 +1473,13 @@ wardResultsToggle.addEventListener("change", () => {
 if (wardFillToggle) {
   wardFillToggle.addEventListener("change", () => {
     updateElectionStrokeStylesForZoom();
+  });
+}
+if (groupedDeprivationSelect) {
+  groupedDeprivationSelect.addEventListener("change", () => {
+    if (wardDeprivationGroupsPayload) {
+      renderGroupedDeprivationProfiles(wardDeprivationGroupsPayload, groupedDeprivationSelect.value);
+    }
   });
 }
 map.on("mousemove", (event) => {
@@ -880,18 +1507,32 @@ map.on("click", () => {
 });
 
 map.on("moveend", saveMapView);
+map.on("moveend", () => {
+  applyLayerVisibility();
+  applyGpLayerVisibility();
+});
 map.on("zoomend", saveMapView);
 map.on("zoomend", () => {
   zoomDebugControl.update();
+  applyLayerVisibility();
+  applyGpLayerVisibility();
   updateElectionStrokeStylesForZoom();
   applyWardLayerVisibility();
   updateWardStatusDefault();
 });
 
+renderLoadStatus();
 buildCombinedEffectsLayer();
 applyEffectsVisibility();
-await loadWardHoverSource();
-await loadCouncilSource();
-await loadWardElectionState();
+await Promise.all([
+  loadWardHoverSource(),
+  loadCouncilSource(),
+  loadWardElectionState(),
+  loadGpPractices(),
+  loadGpRatingsSummary()
+]);
 loadDeprivationLayer();
 loadWardDeprivationIndex();
+loadWardDeprivationGroups();
+loadWardCensusDemographics();
+updateMapWarnings();
