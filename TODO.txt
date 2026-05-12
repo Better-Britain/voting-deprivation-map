@@ -7,3 +7,7 @@
 - on How do people in England vote per deprivation level? combine the same set of hidden parties into Other, and observe the same expansion toggle.
 - the font choice is kinda small and elegant. Punch up the style of the page generally, to something more modern feeling. Tidy up labels and footnotes properly.
 - the wards won in some tables varies, so we need to be clear with the labels about what each one means, because it's sometimes referring to different things
+- Once loading is complete, the loader can close to just Loading complete, it's using too much vertical space too. That panel shouldn't be allowed to scroll, since it prevents the user from being able to scroll the page by mouse/touch/etc, cos the main map captures it for zoom.
+
+- Double-check: not sure if this is implemented and just dots aren't showing except around the cursor.
+  - GPs were only imported for Manchester, but there is extended GP data for the entire country in the nhs-complaint project
