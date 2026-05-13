@@ -126,6 +126,14 @@ function summarizeBallot(ballot) {
       winnerVotes = votes;
     }
   }
+  const turnoutPercentageRaw = toFiniteNumber(ballot?.results?.turnout_percentage);
+  const totalElectorateRaw = toFiniteNumber(ballot?.results?.total_electorate);
+  const numTurnoutReportedRaw = toFiniteNumber(ballot?.results?.num_turnout_reported);
+  const turnoutLooksMissing = hasCandidateVotes
+    && turnoutPercentageRaw !== null
+    && turnoutPercentageRaw <= 0
+    && (totalElectorateRaw === null || totalElectorateRaw <= 0)
+    && (numTurnoutReportedRaw === null || numTurnoutReportedRaw <= 0);
   return {
     ward_code: wardCode,
     ballot_paper_id: String(ballot?.ballot_paper_id || ""),
@@ -133,9 +141,9 @@ function summarizeBallot(ballot) {
     election_id: String(ballot?.election?.election_id || ""),
     winner_party: extractWinnerPartyFromBallot(ballot),
     winner_count: toFiniteNumber(ballot?.winner_count),
-    turnout_percentage: toFiniteNumber(ballot?.results?.turnout_percentage),
-    total_electorate: toFiniteNumber(ballot?.results?.total_electorate),
-    num_turnout_reported: toFiniteNumber(ballot?.results?.num_turnout_reported),
+    turnout_percentage: turnoutLooksMissing ? null : turnoutPercentageRaw,
+    total_electorate: totalElectorateRaw !== null && totalElectorateRaw > 0 ? totalElectorateRaw : null,
+    num_turnout_reported: numTurnoutReportedRaw !== null && numTurnoutReportedRaw > 0 ? numTurnoutReportedRaw : null,
     num_spoilt_ballots: toFiniteNumber(ballot?.results?.num_spoilt_ballots),
     total_candidate_votes: hasCandidateVotes ? totalCandidateVotes : null,
     winner_votes: winnerVotes,

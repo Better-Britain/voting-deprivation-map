@@ -577,6 +577,10 @@ function formatSignedNumber(value, digits = 1, suffix = "") {
   return `${sign}${num.toFixed(digits)}${suffix}`;
 }
 
+function hasNumericValue(value) {
+  return value !== null && value !== undefined && Number.isFinite(Number(value));
+}
+
 function estimateColor(value) {
   return value < 0 ? "#b23322" : "#1f7a3f";
 }
@@ -809,10 +813,10 @@ function renderHoveredWard(feature) {
     `Authority: ${props.LAD24NM || "n/a"}`,
     `Incumbent: ${incumbentParty}`,
     `Ward winner: ${wardWinnerParty || "pending"}`,
-    Number.isFinite(Number(electionState?.turnout_change_pct_points))
+    hasNumericValue(electionState?.turnout_change_pct_points)
       ? `Turnout change vs previous local: ${formatSignedNumber(electionState.turnout_change_pct_points, 1, "pp")}`
       : null,
-    Number.isFinite(Number(electionState?.vote_count_change))
+    hasNumericValue(electionState?.vote_count_change)
       ? `Candidate vote total change: ${formatSignedNumber(electionState.vote_count_change, 0)}`
       : null,
     `Displayed winner (${RESULTS_RENDER_MODE}): ${displayedWinner}`,
@@ -866,7 +870,7 @@ function buildHoverInfoLines(latlng, hoveredFeature) {
     lines.push(`${props.WD24NM || wardCode || "Unknown"}`);
     if (councilResultsToggle.checked) lines.push(`${councilControl}`);
     if (wardResultsToggle.checked) lines.push(`${electionState?.winner_party || "pending"}`);
-    if (Number.isFinite(Number(electionState?.turnout_change_pct_points))) {
+    if (hasNumericValue(electionState?.turnout_change_pct_points)) {
       lines.push(`Turnout ${formatSignedNumber(electionState.turnout_change_pct_points, 1, "pp")}`);
     }
     if (gpSummary?.practices_count) {
@@ -1025,10 +1029,10 @@ function rebuildDeclaredWardsLayer() {
 function updateWardStatusDefault() {
   const zoom = map.getZoom();
   if (wardResultsToggle?.checked && !isWardResultsVisibleAtZoom(zoom)) {
-    wardHoverStatus.textContent = `Ward winners hidden below z${WARD_RESULTS_MIN_ZOOM}. Hover still works.`;
+    wardHoverStatus.textContent = `Ward winners hidden below z${WARD_RESULTS_MIN_ZOOM}`;
     return;
   }
-  wardHoverStatus.textContent = `C:${declaredCouncilCount} W:${declaredWardCount}`;
+  // wardHoverStatus.textContent = `C:${declaredCouncilCount} W:${declaredWardCount}`;
 }
 
 function applyWardLayerVisibility() {
@@ -1135,7 +1139,7 @@ async function loadWardElectionState() {
 function renderTurnoutChangeByWinningParty() {
   if (!turnoutChangeSummary || !turnoutChangeChart || !turnoutChangeTable) return;
   const wards = [...wardElectionStateByCode.values()];
-  const comparable = wards.filter((row) => row?.winner_party && Number.isFinite(Number(row?.turnout_change_pct_points)));
+  const comparable = wards.filter((row) => row?.winner_party && hasNumericValue(row?.turnout_change_pct_points));
 
   if (!comparable.length) {
     turnoutChangeSummary.textContent = "No ward-level turnout deltas available yet.";
