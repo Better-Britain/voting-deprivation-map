@@ -8,6 +8,14 @@
 - the font choice is kinda small and elegant. Punch up the style of the page generally, to something more modern feeling. Tidy up labels and footnotes properly.
 - the wards won in some tables varies, so we need to be clear with the labels about what each one means, because it's sometimes referring to different things
 - Once loading is complete, the loader can close to just Loading complete, it's using too much vertical space too. That panel shouldn't be allowed to scroll, since it prevents the user from being able to scroll the page by mouse/touch/etc, cos the main map captures it for zoom.
+- Re-enable the councils layer, and show by default at zoom levels 10 and below (at least to 6), even if it's off, so the user can navigate
+
+- ward refresh and previous years ward update should be separate processes. 
+  - Old data will never need to be updated, and once all wards for current data are called, we don't need to update those if we have an up to date source file anyway. 
+  - Don't guess paths, look-up the api, check the html or browse the site via a browser, checking requests made if needed, you can build around anything.
 
 - Double-check: not sure if this is implemented and just dots aren't showing except around the cursor.
   - GPs were only imported for Manchester, but there is extended GP data for the entire country in the nhs-complaint project
+
+- The ward scanner is almost certainly wasting 99% of its effort, rescanning pages when virtually none of it will have changed.
+  - The scraper needs to be more considerate to the host and less forgetful

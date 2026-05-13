@@ -121,6 +121,9 @@ const wardDeprivationTable = document.getElementById("ward-deprivation-table");
 const censusSignalsSummary = document.getElementById("census-signals-summary");
 const censusSignalsTable = document.getElementById("census-signals-table");
 const censusPartyTable = document.getElementById("census-party-table");
+const turnoutChangeSummary = document.getElementById("turnout-change-summary");
+const turnoutChangeChart = document.getElementById("turnout-change-chart");
+const turnoutChangeTable = document.getElementById("turnout-change-table");
 const gpPartySummary = document.getElementById("gp-party-summary");
 const gpPartyChart = document.getElementById("gp-party-chart");
 const gpPartyTable = document.getElementById("gp-party-table");
@@ -567,6 +570,13 @@ function formatEstimate(value) {
   return `${sign}GBP ${Math.abs(value).toLocaleString()}m`;
 }
 
+function formatSignedNumber(value, digits = 1, suffix = "") {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return "n/a";
+  const sign = num > 0 ? "+" : "";
+  return `${sign}${num.toFixed(digits)}${suffix}`;
+}
+
 function estimateColor(value) {
   return value < 0 ? "#b23322" : "#1f7a3f";
 }
@@ -799,6 +809,12 @@ function renderHoveredWard(feature) {
     `Authority: ${props.LAD24NM || "n/a"}`,
     `Incumbent: ${incumbentParty}`,
     `Ward winner: ${wardWinnerParty || "pending"}`,
+    Number.isFinite(Number(electionState?.turnout_change_pct_points))
+      ? `Turnout change vs previous local: ${formatSignedNumber(electionState.turnout_change_pct_points, 1, "pp")}`
+      : null,
+    Number.isFinite(Number(electionState?.vote_count_change))
+      ? `Candidate vote total change: ${formatSignedNumber(electionState.vote_count_change, 0)}`
+      : null,
     `Displayed winner (${RESULTS_RENDER_MODE}): ${displayedWinner}`,
     `Council control: ${councilControl}`,
     gpSummary?.practices_count ? `GP avg: ${Number.isFinite(Number(gpSummary.avg_google_score)) ? Number(gpSummary.avg_google_score).toFixed(1) : "n/a"} across ${Number(gpSummary.practices_count).toLocaleString()} practices` : null
@@ -850,6 +866,9 @@ function buildHoverInfoLines(latlng, hoveredFeature) {
     lines.push(`${props.WD24NM || wardCode || "Unknown"}`);
     if (councilResultsToggle.checked) lines.push(`${councilControl}`);
     if (wardResultsToggle.checked) lines.push(`${electionState?.winner_party || "pending"}`);
+    if (Number.isFinite(Number(electionState?.turnout_change_pct_points))) {
+      lines.push(`Turnout ${formatSignedNumber(electionState.turnout_change_pct_points, 1, "pp")}`);
+    }
     if (gpSummary?.practices_count) {
       const rating = Number.isFinite(Number(gpSummary.avg_google_score)) ? Number(gpSummary.avg_google_score).toFixed(1) : "n/a";
       lines.push(`GP ${rating} (${Number(gpSummary.practices_count).toLocaleString()})`);
@@ -1098,6 +1117,7 @@ async function loadWardElectionState() {
         .filter((entry) => entry?.ward_code)
         .map((entry) => [entry.ward_code, entry])
     );
+    renderTurnoutChangeByWinningParty();
     rebuildDeclaredWardsLayer();
     applyWardLayerVisibility();
     updateWardStatusDefault();
@@ -1105,8 +1125,65 @@ async function loadWardElectionState() {
   } catch (error) {
     console.error(error);
     wardElectionStateByCode = new Map();
+    if (turnoutChangeSummary) turnoutChangeSummary.textContent = "Turnout deltas unavailable. Run `yarn updates:maintenance`.";
+    if (turnoutChangeChart) turnoutChangeChart.innerHTML = "";
+    if (turnoutChangeTable) turnoutChangeTable.innerHTML = "";
     setLoadStatus("election", "error", "Request failed");
   }
+}
+
+function renderTurnoutChangeByWinningParty() {
+  if (!turnoutChangeSummary || !turnoutChangeChart || !turnoutChangeTable) return;
+  const wards = [...wardElectionStateByCode.values()];
+  const comparable = wards.filter((row) => row?.winner_party && Number.isFinite(Number(row?.turnout_change_pct_points)));
+
+  if (!comparable.length) {
+    turnoutChangeSummary.textContent = "No ward-level turnout deltas available yet.";
+    turnoutChangeChart.innerHTML = "";
+    turnoutChangeTable.innerHTML = "";
+    return;
+  }
+
+  const overallMean = comparable.reduce((sum, row) => sum + Number(row.turnout_change_pct_points), 0) / comparable.length;
+  const grouped = new Map();
+  for (const ward of comparable) {
+    const party = ward.winner_party;
+    const existing = grouped.get(party) || { party, wards_won: 0, turnout_changes: [] };
+    existing.wards_won += 1;
+    existing.turnout_changes.push(Number(ward.turnout_change_pct_points));
+    grouped.set(party, existing);
+  }
+
+  const rows = [...grouped.values()]
+    .map((row) => {
+      const meanTurnoutChange = row.turnout_changes.reduce((sum, value) => sum + value, 0) / row.turnout_changes.length;
+      return {
+        party: row.party,
+        wards_won: row.wards_won,
+        mean_turnout_change: meanTurnoutChange,
+        delta_vs_all: meanTurnoutChange - overallMean
+      };
+    })
+    .sort((a, b) => b.mean_turnout_change - a.mean_turnout_change);
+
+  turnoutChangeSummary.textContent =
+    `Using ${comparable.length.toLocaleString()} declared wards with a matched prior local. Values are percentage-point turnout change against the most recent prior non-general local found for the same ward code.`;
+
+  turnoutChangeChart.innerHTML = `<div class="rating-bars">${rows.slice(0, 10).map((row) => {
+    const width = `${Math.min(100, Math.abs(row.mean_turnout_change) * 5).toFixed(1)}%`;
+    const color = row.mean_turnout_change >= 0 ? "#1f7a3f" : "#b23322";
+    return `<div class="rating-row"><div class="rating-label">${row.party}</div><div class="rating-track"><div class="rating-fill" style="width:${width};background:${color}"></div></div><div class="rating-value">${formatSignedNumber(row.mean_turnout_change, 1, "pp")}</div></div>`;
+  }).join("")}</div>`;
+
+  turnoutChangeTable.innerHTML = [
+    '<table class="simple-table">',
+    "<thead><tr><th>Party</th><th>Wards</th><th>Avg Turnout Change</th><th>Vs All Wards</th></tr></thead>",
+    "<tbody>",
+    ...rows.map((row) => (
+      `<tr><td>${row.party}</td><td>${row.wards_won.toLocaleString()}</td><td>${formatSignedNumber(row.mean_turnout_change, 1, "pp")}</td><td>${formatSignedNumber(row.delta_vs_all, 1, "pp")}</td></tr>`
+    )),
+    "</tbody></table>"
+  ].join("");
 }
 
 async function loadDeprivationLayer() {
