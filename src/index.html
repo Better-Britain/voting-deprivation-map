@@ -20,27 +20,31 @@
         <div class="control-group">
           <label class="overlay-toggle-label" for="deprivation-toggle">
             <input type="checkbox" id="deprivation-toggle" checked>
-            <span>Show deprivation (IMD 2025)</span>
+            <span class="toggle-label-main">Show deprivation (IMD 2025)</span>
+            <span class="toggle-label-state" id="deprivation-toggle-state"></span>
           </label>
           <p class="hint" id="deprivation-status">Loading deprivation layer...</p>
         </div>
 
         <div class="control-group">
-          <label class="overlay-toggle-label" style="display:none;" for="council-results-toggle">
+          <label class="overlay-toggle-label" for="council-results-toggle">
             <input type="checkbox" id="council-results-toggle">
-            <span>Show council control layer</span>
+            <span class="toggle-label-main">Show council control layer</span>
+            <span class="toggle-label-state" id="council-results-toggle-state"></span>
           </label>
           <label class="overlay-toggle-label" for="ward-results-toggle">
             <input type="checkbox" id="ward-results-toggle" checked>
-            <span>Show ward winners layer</span>
+            <span class="toggle-label-main">Show ward winners layer</span>
+            <span class="toggle-label-state" id="ward-results-toggle-state"></span>
           </label>
           <label class="overlay-toggle-label" for="ward-fill-toggle">
             <input type="checkbox" id="ward-fill-toggle">
-            <span>Fill wards</span>
+            <span class="toggle-label-main">Fill Wards / Councils</span>
           </label>
           <label class="overlay-toggle-label" for="gp-ratings-toggle">
             <input type="checkbox" id="gp-ratings-toggle">
-            <span>Show GP ratings</span>
+            <span class="toggle-label-main">Show GP ratings</span>
+            <span class="toggle-label-state" id="gp-ratings-toggle-state"></span>
           </label>
           <p class="hint" id="ward-hover-status"></p>
           <p class="hint" id="gp-ratings-status">Loading GP ratings layer...</p>
@@ -67,6 +71,7 @@
         <h2>How do people in England vote per deprivation level?</h2>
         <p id="ward-deprivation-summary">Loading ward deprivation vote index...</p>
         <div id="ward-deprivation-bars"></div>
+        <div id="ward-deprivation-toggle"></div>
       </section>
       <section class="panel">
         <h2>How Do Regions Group By Deprivation?</h2>
@@ -77,10 +82,13 @@
       </section>
       <section class="panel">
         <h2>Deprivation decile per party</h2>
+        <div id="ward-deprivation-table-toggle"></div>
         <div id="ward-deprivation-table"></div>
       </section>
       <section class="panel">
         <h2>Census Signals</h2>
+        <label class="select-label" for="census-party-select">Party:</label>
+        <select id="census-party-select"></select>
         <p id="census-signals-summary">Loading census summaries...</p>
         <div id="census-signals-table"></div>
       </section>
@@ -92,6 +100,7 @@
         <h2>Turnout Change By Winning Party</h2>
         <p id="turnout-change-summary">Loading turnout deltas...</p>
         <div id="turnout-change-chart"></div>
+        <div id="turnout-change-toggle"></div>
         <div id="turnout-change-table"></div>
       </section>
       <section class="panel">

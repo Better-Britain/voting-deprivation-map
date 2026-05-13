@@ -10,12 +10,13 @@ const GP_PRACTICES_URL = new URL("./data/england-gp-practices.json", import.meta
 const GP_RATINGS_SUMMARY_URL = new URL("./data/ward-gp-ratings.json", import.meta.url).href;
 
 const MAP_VIEW_STORAGE_KEY = "voterDeprivation.mapView.v1";
+const SMALL_PARTY_MIN_WARDS = 3;
 const DEFAULT_VIEW = {
   lat: 52.7,
   lng: -1.95,
   zoom: 6
 };
-const DEPRIVATION_MIN_ZOOM = 8;
+const DEPRIVATION_MIN_ZOOM = 9;
 const COUNCIL_RESULTS_MIN_ZOOM = 8;
 const WARD_RESULTS_MIN_ZOOM = 11;
 const GP_MIN_ZOOM = 11;
@@ -97,11 +98,15 @@ map.addControl(zoomDebugControl);
 const mapStage = document.getElementById("map-stage");
 const collapseButton = document.getElementById("legend-collapse");
 const deprivationToggle = document.getElementById("deprivation-toggle");
+const deprivationToggleState = document.getElementById("deprivation-toggle-state");
 const effectsToggle = document.getElementById("effects-toggle");
 const councilResultsToggle = document.getElementById("council-results-toggle");
+const councilResultsToggleState = document.getElementById("council-results-toggle-state");
 const wardResultsToggle = document.getElementById("ward-results-toggle");
+const wardResultsToggleState = document.getElementById("ward-results-toggle-state");
 const wardFillToggle = document.getElementById("ward-fill-toggle");
 const gpRatingsToggle = document.getElementById("gp-ratings-toggle");
+const gpRatingsToggleState = document.getElementById("gp-ratings-toggle-state");
 const deprivationStatus = document.getElementById("deprivation-status");
 const deprivationStats = document.getElementById("deprivation-stats");
 const informationLayerStatus = document.getElementById("information-layer-status");
@@ -118,11 +123,15 @@ const groupedDeprivationSelect = document.getElementById("grouped-deprivation-se
 const groupedDeprivationSummary = document.getElementById("grouped-deprivation-summary");
 const groupedDeprivationBars = document.getElementById("grouped-deprivation-bars");
 const wardDeprivationTable = document.getElementById("ward-deprivation-table");
+const wardDeprivationToggle = document.getElementById("ward-deprivation-toggle");
+const wardDeprivationTableToggle = document.getElementById("ward-deprivation-table-toggle");
 const censusSignalsSummary = document.getElementById("census-signals-summary");
 const censusSignalsTable = document.getElementById("census-signals-table");
 const censusPartyTable = document.getElementById("census-party-table");
+const censusPartySelect = document.getElementById("census-party-select");
 const turnoutChangeSummary = document.getElementById("turnout-change-summary");
 const turnoutChangeChart = document.getElementById("turnout-change-chart");
+const turnoutChangeToggle = document.getElementById("turnout-change-toggle");
 const turnoutChangeTable = document.getElementById("turnout-change-table");
 const gpPartySummary = document.getElementById("gp-party-summary");
 const gpPartyChart = document.getElementById("gp-party-chart");
@@ -149,10 +158,20 @@ const RESULTS_RENDER_MODE = "council";
 let deprivationFeatures = [];
 let hoverInfoTimer = null;
 let wardDeprivationGroupsPayload = null;
+let wardDeprivationIndexPayload = null;
+let wardCensusDemographicsPayload = null;
 let gpPractices = [];
 let gpPracticeLayer = null;
 let gpRatingsSummaryPayload = null;
 let gpSummaryByWardCode = new Map();
+let showSmallParties = false;
+let selectedCensusParty = "Reform UK";
+const layerPrefs = {
+  deprivation: Boolean(deprivationToggle?.checked),
+  council: Boolean(councilResultsToggle?.checked),
+  ward: Boolean(wardResultsToggle?.checked),
+  gp: Boolean(gpRatingsToggle?.checked)
+};
 
 const LOAD_STATUS_DEFINITIONS = [
   { key: "wards", label: "Ward boundaries" },
@@ -203,7 +222,7 @@ function renderLoadStatus() {
   } else if (loadingCount > 0) {
     loadStatusSummary.textContent = `${readyCount}/${totalCount} datasets ready. Loading ${loadingCount} more...`;
   } else if (readyCount === totalCount) {
-    loadStatusSummary.textContent = "All core datasets loaded.";
+    loadStatusSummary.textContent = "Loading complete.";
   } else {
     loadStatusSummary.textContent = "Preparing data sources...";
   }
@@ -221,6 +240,7 @@ function renderLoadStatus() {
 
   if (loadStatusPanel) {
     loadStatusPanel.dataset.state = errorCount > 0 ? "error" : loadingCount > 0 ? "loading" : readyCount === totalCount ? "ready" : "pending";
+    loadStatusPanel.hidden = errorCount === 0 && loadingCount === 0 && readyCount === totalCount;
   }
 }
 
@@ -433,17 +453,18 @@ async function ensureVisibleDeprivationTiles() {
 
 function updateMapWarnings() {
   const zoom = map.getZoom();
+  const states = getLayerControlState(zoom);
   const warnings = [];
-  if (deprivationToggle.checked && !isDeprivationVisibleAtZoom(zoom)) {
+  if (layerPrefs.deprivation && !states.deprivation.actualChecked) {
     warnings.push(`Deprivation and LSOA shading are hidden below zoom ${DEPRIVATION_MIN_ZOOM}.`);
   }
-  if (councilResultsToggle?.checked && !isCouncilResultsVisibleAtZoom(zoom)) {
+  if (layerPrefs.council && !states.council.actualChecked && !shouldAutoShowCouncilsAtZoom(zoom)) {
     warnings.push(`Council control outlines are hidden below zoom ${COUNCIL_RESULTS_MIN_ZOOM}.`);
   }
-  if (wardResultsToggle?.checked && !isWardResultsVisibleAtZoom(zoom)) {
+  if (layerPrefs.ward && !states.ward.actualChecked) {
     warnings.push(`Ward result outlines stay hidden until zoom ${WARD_RESULTS_MIN_ZOOM}; only the hovered ward outline is shown.`);
   }
-  if (gpRatingsToggle?.checked && !isGpVisibleAtZoom(zoom)) {
+  if (layerPrefs.gp && !states.gp.actualChecked) {
     warnings.push(`GP ratings markers are hidden below zoom ${GP_MIN_ZOOM}.`);
   }
   if (!mapWarningPanel) return;
@@ -459,10 +480,12 @@ function updateMapWarnings() {
 async function applyLayerVisibility() {
   if (!deprivationLayer) {
     updateMapWarnings();
+    updateSidebarToggleStates();
     return;
   }
   const zoom = map.getZoom();
-  const isVisible = deprivationToggle.checked;
+  const states = getLayerControlState(zoom);
+  const isVisible = states.deprivation.actualChecked;
   if (isVisible && isDeprivationVisibleAtZoom(zoom)) {
     if (!map.hasLayer(deprivationLayer)) deprivationLayer.addTo(map);
     await ensureVisibleDeprivationTiles();
@@ -478,6 +501,7 @@ async function applyLayerVisibility() {
     }
   }
   updateMapWarnings();
+  updateSidebarToggleStates();
 }
 
 function getVisibleGpPractices() {
@@ -542,17 +566,22 @@ function renderGpPracticeLayer() {
 function applyGpLayerVisibility() {
   if (!gpPracticeLayer) gpPracticeLayer = L.layerGroup();
   const zoom = map.getZoom();
-  const enabled = Boolean(gpRatingsToggle?.checked);
+  const states = getLayerControlState(zoom);
+  const enabled = Boolean(states.gp.actualChecked);
   if (!enabled) {
     if (map.hasLayer(gpPracticeLayer)) map.removeLayer(gpPracticeLayer);
-    if (gpRatingsStatus) gpRatingsStatus.textContent = "GP ratings layer hidden.";
+    if (gpRatingsStatus) gpRatingsStatus.textContent = layerPrefs.gp && !states.gp.actualChecked
+      ? `Zoom in to at least ${GP_MIN_ZOOM} to display GP ratings.`
+      : "GP ratings layer hidden.";
     updateMapWarnings();
+    updateSidebarToggleStates();
     return;
   }
   if (!isGpVisibleAtZoom(zoom)) {
     if (map.hasLayer(gpPracticeLayer)) map.removeLayer(gpPracticeLayer);
     if (gpRatingsStatus) gpRatingsStatus.textContent = `Zoom in to at least ${GP_MIN_ZOOM} to display GP ratings.`;
     updateMapWarnings();
+    updateSidebarToggleStates();
     return;
   }
   const count = renderGpPracticeLayer();
@@ -563,6 +592,7 @@ function applyGpLayerVisibility() {
       : `Showing nearest ${count.toLocaleString()} GP practices at this zoom.`;
   }
   updateMapWarnings();
+  updateSidebarToggleStates();
 }
 
 function formatEstimate(value) {
@@ -579,6 +609,159 @@ function formatSignedNumber(value, digits = 1, suffix = "") {
 
 function hasNumericValue(value) {
   return value !== null && value !== undefined && Number.isFinite(Number(value));
+}
+
+function isPercentFeatureId(featureId) {
+  return featureId !== "imd_score";
+}
+
+function formatFeatureMean(featureId, value) {
+  if (!hasNumericValue(value)) return "n/a";
+  return isPercentFeatureId(featureId)
+    ? `${(Number(value) * 100).toFixed(1)}%`
+    : Number(value).toFixed(2);
+}
+
+function formatFeatureDelta(featureId, value) {
+  if (!hasNumericValue(value)) return "n/a";
+  return isPercentFeatureId(featureId)
+    ? formatSignedNumber(Number(value) * 100, 1, "pp")
+    : formatSignedNumber(Number(value), 2);
+}
+
+function getDeltaClass(value, epsilon = 0.005) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return "delta-neutral";
+  if (numeric > epsilon) return "delta-positive";
+  if (numeric < -epsilon) return "delta-negative";
+  return "delta-neutral";
+}
+
+function getRowsAfterSmallPartyFilter(rows, countKey = "wards_won") {
+  const typedRows = Array.isArray(rows) ? rows : [];
+  const hiddenRows = typedRows.filter((row) => Number(row?.[countKey] || 0) < SMALL_PARTY_MIN_WARDS);
+  const visibleRows = showSmallParties
+    ? typedRows
+    : typedRows.filter((row) => Number(row?.[countKey] || 0) >= SMALL_PARTY_MIN_WARDS);
+  return { visibleRows, hiddenRows };
+}
+
+function toggleSharedSmallParties() {
+  showSmallParties = !showSmallParties;
+  rerenderPartyPanels();
+}
+
+function setSharedSmallPartyToggle(target, hiddenCount) {
+  if (!target) return;
+  if (!(hiddenCount > 0)) {
+    target.innerHTML = "";
+    return;
+  }
+  const label = showSmallParties
+    ? `Hide ${hiddenCount.toLocaleString()} smaller parties`
+    : `Show ${hiddenCount.toLocaleString()} smaller parties`;
+  target.innerHTML = `<button type="button" class="inline-toggle-button">${label}</button>`;
+  target.querySelector("button")?.addEventListener("click", toggleSharedSmallParties);
+}
+
+function buildHiddenPartySummaryRow(hiddenCount, colspan) {
+  if (!(hiddenCount > 0)) return "";
+  const label = showSmallParties
+    ? `Hide ${hiddenCount.toLocaleString()} smaller parties`
+    : `Show ${hiddenCount.toLocaleString()} smaller parties`;
+  return `<tr class="table-summary-row"><td colspan="${colspan}"><button type="button" class="table-toggle-link">${label}</button></td></tr>`;
+}
+
+function getMajorCensusParties(parties) {
+  const rows = Array.isArray(parties) ? [...parties].sort((a, b) => Number(b?.wards_won || 0) - Number(a?.wards_won || 0)) : [];
+  const direct = rows.filter((row) => Number(row?.wards_won || 0) >= 25);
+  if (direct.length >= 5) return direct;
+  return rows.slice(0, 6);
+}
+
+function computeAllDeclaredMeansFromParties(parties, featureIds) {
+  const totals = {};
+  let totalWards = 0;
+  for (const party of parties) {
+    const wardsWon = Number(party?.wards_won || 0);
+    if (!(wardsWon > 0)) continue;
+    totalWards += wardsWon;
+    for (const featureId of featureIds) {
+      const value = Number(party?.means?.[featureId]);
+      if (!Number.isFinite(value)) continue;
+      totals[featureId] = (totals[featureId] || 0) + (value * wardsWon);
+    }
+  }
+  return Object.fromEntries(
+    featureIds.map((featureId) => [
+      featureId,
+      totalWards > 0 && Number.isFinite(totals[featureId]) ? totals[featureId] / totalWards : null
+    ])
+  );
+}
+
+function shouldAutoShowCouncilsAtZoom(zoom = map.getZoom()) {
+  return zoom >= COUNCIL_RESULTS_MIN_ZOOM && zoom <= 10;
+}
+
+function getLayerControlState(zoom = map.getZoom()) {
+  const deprivationAvailable = isDeprivationVisibleAtZoom(zoom);
+  const councilAutoOn = shouldAutoShowCouncilsAtZoom(zoom);
+  const councilAvailable = isCouncilResultsVisibleAtZoom(zoom);
+  const wardAvailable = isWardResultsVisibleAtZoom(zoom);
+  const gpAvailable = isGpVisibleAtZoom(zoom);
+
+  return {
+    deprivation: {
+      actualChecked: deprivationAvailable && layerPrefs.deprivation,
+      disabled: !deprivationAvailable,
+      state: !deprivationAvailable ? "blocked" : (layerPrefs.deprivation ? "visible" : "off"),
+      text: !deprivationAvailable ? `Off below z${DEPRIVATION_MIN_ZOOM}` : (layerPrefs.deprivation ? "On" : "Off")
+    },
+    council: {
+      actualChecked: councilAutoOn ? true : (councilAvailable && layerPrefs.council),
+      disabled: councilAutoOn || !councilAvailable,
+      state: councilAutoOn ? "auto" : (!councilAvailable ? "blocked" : (layerPrefs.council ? "visible" : "off")),
+      text: councilAutoOn ? "Forced on" : (!councilAvailable ? `Off below z${COUNCIL_RESULTS_MIN_ZOOM}` : (layerPrefs.council ? "On" : "Off"))
+    },
+    ward: {
+      actualChecked: wardAvailable && layerPrefs.ward,
+      disabled: !wardAvailable,
+      state: !wardAvailable ? "blocked" : (layerPrefs.ward ? "visible" : "off"),
+      text: !wardAvailable ? `Off below z${WARD_RESULTS_MIN_ZOOM}` : (layerPrefs.ward ? "On" : "Off")
+    },
+    gp: {
+      actualChecked: gpAvailable && layerPrefs.gp,
+      disabled: !gpAvailable,
+      state: !gpAvailable ? "blocked" : (layerPrefs.gp ? "visible" : "off"),
+      text: !gpAvailable ? `Off below z${GP_MIN_ZOOM}` : (layerPrefs.gp ? "On" : "Off")
+    }
+  };
+}
+
+function applyToggleControlState(toggle, badge, controlState) {
+  if (!toggle) return;
+  toggle.checked = Boolean(controlState.actualChecked);
+  toggle.disabled = Boolean(controlState.disabled);
+  const row = toggle.closest("label");
+  if (row) {
+    row.dataset.state = controlState.state;
+    row.dataset.disabled = controlState.disabled ? "true" : "false";
+  }
+  if (badge) badge.textContent = controlState.text;
+}
+
+function updateSidebarToggleStates() {
+  const states = getLayerControlState();
+  applyToggleControlState(deprivationToggle, deprivationToggleState, states.deprivation);
+  applyToggleControlState(councilResultsToggle, councilResultsToggleState, states.council);
+  applyToggleControlState(wardResultsToggle, wardResultsToggleState, states.ward);
+  applyToggleControlState(gpRatingsToggle, gpRatingsToggleState, states.gp);
+}
+
+function rerenderPartyPanels() {
+  if (wardDeprivationIndexPayload) renderWardDeprivationTable(wardDeprivationIndexPayload);
+  renderTurnoutChangeByWinningParty();
 }
 
 function estimateColor(value) {
@@ -917,16 +1100,28 @@ function getElectionStrokeWeightsForZoom(zoom) {
 function updateElectionStrokeStylesForZoom() {
   const zoom = map.getZoom();
   const { councilWeight, wardWeight, hoverWeight } = getElectionStrokeWeightsForZoom(zoom);
+  const states = getLayerControlState(zoom);
+  const fillWards = Boolean(wardFillToggle?.checked && states.ward.actualChecked);
+  const fillCouncils = Boolean(wardFillToggle?.checked && states.council.actualChecked && !fillWards);
   if (declaredCouncilResultsLayer) {
     declaredCouncilResultsLayer.eachLayer((layer) => {
-      if (layer?.setStyle) layer.setStyle({ weight: councilWeight, opacity: 1, fill: false });
+      if (!layer?.setStyle) return;
+      const winnerColor = layer?.options?.winnerColor || layer?.options?.color || "#6b7280";
+      layer.setStyle({
+        weight: councilWeight,
+        opacity: 1,
+        color: winnerColor,
+        fill: fillCouncils,
+        fillColor: winnerColor,
+        fillOpacity: fillCouncils ? 0.65 : 0
+      });
     });
   }
   if (declaredWardResultsLayer) {
     declaredWardResultsLayer.eachLayer((layer) => {
       if (!layer?.setStyle) return;
       const winnerColor = layer?.options?.winnerColor || layer?.options?.color || "#6b7280";
-      if (wardFillToggle?.checked) {
+      if (fillWards) {
         layer.setStyle({
           weight: wardWeight,
           opacity: 1,
@@ -1028,8 +1223,10 @@ function rebuildDeclaredWardsLayer() {
 
 function updateWardStatusDefault() {
   const zoom = map.getZoom();
-  if (wardResultsToggle?.checked && !isWardResultsVisibleAtZoom(zoom)) {
-    wardHoverStatus.textContent = `Ward winners hidden below z${WARD_RESULTS_MIN_ZOOM}`;
+  if (layerPrefs.ward && !isWardResultsVisibleAtZoom(zoom)) {
+    wardHoverStatus.textContent = shouldAutoShowCouncilsAtZoom(zoom)
+      ? `Ward winners hidden below z${WARD_RESULTS_MIN_ZOOM} · councils visible for navigation`
+      : `Ward winners hidden below z${WARD_RESULTS_MIN_ZOOM}`;
     return;
   }
   // wardHoverStatus.textContent = `C:${declaredCouncilCount} W:${declaredWardCount}`;
@@ -1037,23 +1234,24 @@ function updateWardStatusDefault() {
 
 function applyWardLayerVisibility() {
   const zoom = map.getZoom();
-  const allowCouncilResultsAtZoom = isCouncilResultsVisibleAtZoom(zoom);
-  const allowWardResultsAtZoom = isWardResultsVisibleAtZoom(zoom);
+  const states = getLayerControlState(zoom);
   if (declaredCouncilResultsLayer) {
-    if (councilResultsToggle?.checked && allowCouncilResultsAtZoom && declaredCouncilCount > 0) {
+    const shouldShowCouncils = declaredCouncilCount > 0 && states.council.actualChecked;
+    if (shouldShowCouncils) {
       if (!map.hasLayer(declaredCouncilResultsLayer)) declaredCouncilResultsLayer.addTo(map);
     } else if (map.hasLayer(declaredCouncilResultsLayer)) {
       map.removeLayer(declaredCouncilResultsLayer);
     }
   }
   if (declaredWardResultsLayer) {
-    if (wardResultsToggle?.checked && allowWardResultsAtZoom && declaredWardCount > 0) {
+    if (states.ward.actualChecked && declaredWardCount > 0) {
       if (!map.hasLayer(declaredWardResultsLayer)) declaredWardResultsLayer.addTo(map);
     } else if (map.hasLayer(declaredWardResultsLayer)) {
       map.removeLayer(declaredWardResultsLayer);
     }
   }
   updateMapWarnings();
+  updateSidebarToggleStates();
 }
 
 async function loadWardHoverSource() {
@@ -1169,25 +1367,29 @@ function renderTurnoutChangeByWinningParty() {
       };
     })
     .sort((a, b) => b.mean_turnout_change - a.mean_turnout_change);
+  const { visibleRows, hiddenRows } = getRowsAfterSmallPartyFilter(rows);
 
   turnoutChangeSummary.textContent =
-    `Using ${comparable.length.toLocaleString()} declared wards with a matched prior local. Values are percentage-point turnout change against the most recent prior non-general local found for the same ward code.`;
+    `Matched turnout wards: ${comparable.length.toLocaleString()} across declared winning wards with a prior local comparator.`;
 
-  turnoutChangeChart.innerHTML = `<div class="rating-bars">${rows.slice(0, 10).map((row) => {
+  turnoutChangeChart.innerHTML = `<div class="rating-bars">${visibleRows.slice(0, 10).map((row) => {
     const width = `${Math.min(100, Math.abs(row.mean_turnout_change) * 5).toFixed(1)}%`;
     const color = row.mean_turnout_change >= 0 ? "#1f7a3f" : "#b23322";
     return `<div class="rating-row"><div class="rating-label">${row.party}</div><div class="rating-track"><div class="rating-fill" style="width:${width};background:${color}"></div></div><div class="rating-value">${formatSignedNumber(row.mean_turnout_change, 1, "pp")}</div></div>`;
   }).join("")}</div>`;
+  setSharedSmallPartyToggle(turnoutChangeToggle, hiddenRows.length);
 
   turnoutChangeTable.innerHTML = [
     '<table class="simple-table">',
-    "<thead><tr><th>Party</th><th>Wards</th><th>Avg Turnout Change</th><th>Vs All Wards</th></tr></thead>",
+    "<thead><tr><th>Winning Party</th><th>Matched Turnout Wards</th><th>Avg Turnout Change</th><th>Vs Matched-Ward Mean</th></tr></thead>",
     "<tbody>",
-    ...rows.map((row) => (
-      `<tr><td>${row.party}</td><td>${row.wards_won.toLocaleString()}</td><td>${formatSignedNumber(row.mean_turnout_change, 1, "pp")}</td><td>${formatSignedNumber(row.delta_vs_all, 1, "pp")}</td></tr>`
+    ...visibleRows.map((row) => (
+      `<tr><td>${row.party}</td><td>${row.wards_won.toLocaleString()}</td><td>${formatSignedNumber(row.mean_turnout_change, 1, "pp")}</td><td class="${getDeltaClass(row.delta_vs_all, 0.1)}">${formatSignedNumber(row.delta_vs_all, 1, "pp")}</td></tr>`
     )),
+    buildHiddenPartySummaryRow(hiddenRows.length, 4),
     "</tbody></table>"
   ].join("");
+  turnoutChangeTable.querySelector(".table-toggle-link")?.addEventListener("click", toggleSharedSmallParties);
 }
 
 async function loadDeprivationLayer() {
@@ -1226,22 +1428,24 @@ function renderWardDeprivationTable(payload) {
   if (!wardDeprivationSummary || !wardDeprivationTable || !wardDeprivationBars) return;
   const parties = Array.isArray(payload?.parties) ? payload.parties : [];
   const wards = Array.isArray(payload?.wards) ? payload.wards : [];
-  //const topParties = parties.slice(0, 8);
-  const topParties = [...parties]
+  const sortedParties = [...parties]
     .sort((a, b) =>
       Number(a.deprivation_weighted_mean_decile || 0) -
       Number(b.deprivation_weighted_mean_decile || 0)
     );
-    // .slice(0, 8);
+  const { visibleRows: topParties, hiddenRows } = getRowsAfterSmallPartyFilter(sortedParties);
+  const barParties = showSmallParties ? sortedParties : topParties;
   const summary = payload?.summary || {};
   wardDeprivationSummary.textContent =
-    `Declared wards: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`;
-  if (!topParties.length) {
+    `Declared winning wards: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`;
+  setSharedSmallPartyToggle(wardDeprivationToggle, hiddenRows.length);
+  setSharedSmallPartyToggle(wardDeprivationTableToggle, hiddenRows.length);
+  if (!sortedParties.length) {
     wardDeprivationBars.innerHTML = "";
     wardDeprivationTable.innerHTML = "";
     return;
   }
-  const topPartyNames = new Set(topParties.map((row) => row.party));
+  const topPartyNames = new Set(barParties.map((row) => row.party));
   const decilePartyTotals = {};
   for (let d = 1; d <= 10; d += 1) decilePartyTotals[String(d)] = {};
   for (const ward of wards) {
@@ -1252,12 +1456,12 @@ function renderWardDeprivationTable(payload) {
       const key = String(d);
       const value = Number(shares[key] || 0);
       if (value <= 0) continue;
-      const bucketParty = topPartyNames.has(party) ? party : "Other";
+      const bucketParty = topPartyNames.has(party) ? party : (showSmallParties ? party : "Other");
       decilePartyTotals[key][bucketParty] = (decilePartyTotals[key][bucketParty] || 0) + value;
     }
   }
-  const partyColorByName = Object.fromEntries(topParties.map((p) => [p.party, getWinnerPartyColor(p.party)]));
-  partyColorByName.Other = "#9ca3af";
+  const partyColorByName = Object.fromEntries(sortedParties.map((p) => [p.party, getWinnerPartyColor(p.party)]));
+  if (!showSmallParties) partyColorByName.Other = "#9ca3af";
   const stackedRows = [];
   for (let d = 1; d <= 10; d += 1) {
     const key = String(d);
@@ -1277,19 +1481,22 @@ function renderWardDeprivationTable(payload) {
       `<div class="stacked-row"><div class="stacked-label">${d === 10 ? "Richest" : d === 1 ? "Poorest" : "Decile " + d}</div><div class="stacked-track">${segmentHtml}</div></div>`
     );
   }
-  const legendItems = [...topParties.map((p) => p.party), "Other"]
+  const legendParties = showSmallParties ? barParties.map((p) => p.party) : [...barParties.map((p) => p.party), "Other"];
+  const legendItems = legendParties
     .map((party) => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${partyColorByName[party] || "#6b7280"};display:inline-block;"></span>${party}</span>`)
     .join("");
   wardDeprivationBars.innerHTML = `<div class="stacked-bars">${stackedRows.join("")}</div><div class="stacked-legend">${legendItems}</div>`;
   wardDeprivationTable.innerHTML = [
     '<table class="simple-table">',
-    "<thead><tr><th>Party</th><th>Wards Won</th><th>Weighted Decile</th></tr></thead>",
+    "<thead><tr><th>Winning Party</th><th>Winning Wards</th><th>Weighted Deprivation Decile</th></tr></thead>",
     "<tbody>",
     ...topParties.map((row, rownum) => (
       `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}${rownum===0?' (poorest)':(rownum===(topParties.length-1)?' (richest)':'')}</td></tr>`
     )),
-    "</tbody></table><br/><p class='hint'>TODO: Rendering distribution, rather than averages, might illustrate this better</p>"
+    buildHiddenPartySummaryRow(hiddenRows.length, 3),
+    "</tbody></table><p class='panel-note'>Weighted decile is based on the deprivation-area mix inside wards won by each party.</p>"
   ].join("");
+  wardDeprivationTable.querySelector(".table-toggle-link")?.addEventListener("click", toggleSharedSmallParties);
 }
 
 async function loadWardDeprivationIndex() {
@@ -1299,6 +1506,7 @@ async function loadWardDeprivationIndex() {
     const response = await fetch(WARD_DEPRIVATION_INDEX_URL);
     if (!response.ok) throw new Error(`Ward deprivation index request failed: ${response.status}`);
     const payload = await response.json();
+    wardDeprivationIndexPayload = payload;
     renderWardDeprivationTable(payload);
     const partyCount = Array.isArray(payload?.parties) ? payload.parties.length : 0;
     setLoadStatus("deprivationIndex", "ready", `${partyCount.toLocaleString()} party rows`);
@@ -1389,42 +1597,82 @@ function formatPercentCell(value) {
 function renderWardCensusDemographics(payload) {
   if (!censusSignalsSummary || !censusSignalsTable || !censusPartyTable) return;
   const summary = payload?.summary || {};
-  const reformProfile = payload?.reform_profile || null;
+  const featureCatalog = Array.isArray(payload?.feature_catalog) ? payload.feature_catalog : [];
   const parties = Array.isArray(payload?.parties) ? payload.parties : [];
   const correlations = Array.isArray(payload?.correlations) ? payload.correlations : [];
+  const selectableParties = getMajorCensusParties(parties);
+  const selectablePartyNames = new Set(selectableParties.map((row) => row.party));
+  const reformOption = selectableParties.find((row) => row.party === "Reform UK")?.party || null;
+
+  selectedCensusParty = selectablePartyNames.has(selectedCensusParty)
+    ? selectedCensusParty
+    : (reformOption || selectableParties[0]?.party || "Reform UK");
 
   censusSignalsSummary.textContent =
-    `LSOAs compiled: ${(summary.lsoas_with_census || 0).toLocaleString()}. Declared wards with census estimates: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`;
+    `Census estimates available for ${(summary.wards_with_declared_winner || 0).toLocaleString()} declared winning wards out of ${(summary.wards_total || 0).toLocaleString()} total wards.`;
 
-  if (reformProfile?.deltas?.length) {
-    const topDeltas = reformProfile.deltas.slice(0, 8);
+  if (censusPartySelect) {
+    const optionHtml = selectableParties
+      .map((party) => `<option value="${party.party}">${party.party}</option>`)
+      .join("");
+    if (censusPartySelect.innerHTML !== optionHtml) {
+      censusPartySelect.innerHTML = optionHtml;
+    }
+    censusPartySelect.value = selectedCensusParty;
+    censusPartySelect.disabled = selectableParties.length <= 1;
+  }
+
+  const selectedParty = parties.find((party) => party.party === selectedCensusParty)
+    || selectableParties.find((party) => party.party === selectedCensusParty)
+    || selectableParties[0]
+    || null;
+  const allDeclaredMeans = computeAllDeclaredMeansFromParties(parties, featureCatalog.map((feature) => feature.id));
+  const selectedSignalRows = selectedParty
+    ? featureCatalog
+      .map((feature) => {
+        const partyMean = Number(selectedParty?.means?.[feature.id]);
+        const allDeclaredMean = Number(allDeclaredMeans?.[feature.id]);
+        if (!Number.isFinite(partyMean) || !Number.isFinite(allDeclaredMean)) return null;
+        return {
+          featureId: feature.id,
+          label: feature.label || feature.id,
+          partyMean,
+          allDeclaredMean,
+          difference: partyMean - allDeclaredMean
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference))
+    : [];
+
+  if (selectedSignalRows.length) {
+    const topDeltas = selectedSignalRows.slice(0, 8);
     const rows = topDeltas.map((row) => (
-      `<tr><td>${row.label}</td><td>${formatPercentCell(row.reform_mean)}</td><td>${formatPercentCell(row.all_declared_mean)}</td><td>${row.difference >= 0 ? "+" : ""}${(Number(row.difference) * 100).toFixed(1)}pp</td></tr>`
+      `<tr><td>${row.label}</td><td>${formatFeatureMean(row.featureId, row.partyMean)}</td><td>${formatFeatureMean(row.featureId, row.allDeclaredMean)}</td><td class="${getDeltaClass(row.difference)}">${formatFeatureDelta(row.featureId, row.difference)}</td></tr>`
     ));
-    const reformCorrelations = correlations.find((row) => row.party === "Reform UK")?.strongest_signals || [];
-    const correlationHtml = reformCorrelations.length
-      ? `<p class="hint">Strongest Reform correlations: ${reformCorrelations.map((row) => `${row.label} (${Number(row.correlation).toFixed(2)})`).join(" · ")}</p>`
+    const selectedCorrelations = correlations.find((row) => row.party === selectedCensusParty)?.strongest_signals || [];
+    const correlationHtml = selectedCorrelations.length
+      ? `<p class="hint">Strongest ${selectedCensusParty} correlations: ${selectedCorrelations.map((row) => `${row.label} (${Number(row.correlation).toFixed(2)})`).join(" · ")}</p>`
       : "";
     censusSignalsTable.innerHTML = [
       '<table class="simple-table">',
-      "<thead><tr><th>Feature</th><th>Reform</th><th>All Declared</th><th>Delta</th></tr></thead>",
+      `<thead><tr><th>Feature</th><th>${selectedCensusParty}</th><th>All Declared Winners</th><th>Delta</th></tr></thead>`,
       "<tbody>",
       ...rows,
       "</tbody></table>",
       correlationHtml
     ].join("");
   } else {
-    censusSignalsTable.innerHTML = "<p class='hint'>No Reform summary available yet.</p>";
+    censusSignalsTable.innerHTML = "<p class='hint'>No census signal summary available yet.</p>";
   }
 
-  const partyRows = parties
-    .slice(0, 6)
+  const partyRows = selectableParties
     .map((party) => (
       `<tr><td>${party.party}</td><td>${Number(party.wards_won || 0).toLocaleString()}</td><td>${formatPercentCell(party.means?.white_british_pct)}</td><td>${formatPercentCell(party.means?.age_50plus_pct)}</td><td>${formatPercentCell(party.means?.owner_occupied_pct)}</td><td>${formatPercentCell(party.means?.degree_pct)}</td><td>${Number(party.means?.imd_score || 0).toFixed(2)}</td></tr>`
     ));
   censusPartyTable.innerHTML = [
     '<table class="simple-table">',
-    "<thead><tr><th>Party</th><th>Wards Won</th><th>White British</th><th>Age 50+</th><th>Owner Occ</th><th>Degree</th><th>IMD</th></tr></thead>",
+    "<thead><tr><th>Winning Party</th><th>Declared Winning Wards</th><th>White British</th><th>Age 50+</th><th>Owner Occ</th><th>Degree</th><th>IMD</th></tr></thead>",
     "<tbody>",
     ...partyRows,
     "</tbody></table>"
@@ -1438,6 +1686,7 @@ async function loadWardCensusDemographics() {
     const response = await fetch(WARD_CENSUS_DEMOGRAPHICS_URL);
     if (!response.ok) throw new Error(`Ward census demographics request failed: ${response.status}`);
     const payload = await response.json();
+    wardCensusDemographicsPayload = payload;
     renderWardCensusDemographics(payload);
     const wardCount = Number(payload?.summary?.wards_with_declared_winner || 0);
     setLoadStatus("census", "ready", `${wardCount.toLocaleString()} declared wards`);
@@ -1475,10 +1724,10 @@ function renderGpPartyRatings(payload) {
 
   gpPartyTable.innerHTML = [
     '<table class="simple-table">',
-    "<thead><tr><th>Party</th><th>Rated GPs</th><th>Avg Google</th><th>Patient Weighted</th><th>Avg Survey</th></tr></thead>",
+    "<thead><tr><th>Party</th><th>Rated GPs</th><th>Google Rating</th><th>Patient Survey</th></tr></thead>",
     "<tbody>",
     ...filtered.slice(0, 10).map((row) => (
-      `<tr><td>${row.party}</td><td>${Number(row.rated_practices_count || 0).toLocaleString()}</td><td>${Number(row.avg_google_score || 0).toFixed(2)}</td><td>${Number(row.avg_google_score_weighted_by_patients || 0).toFixed(2)}</td><td>${Number.isFinite(Number(row.avg_survey_overall_good_percent)) ? `${Number(row.avg_survey_overall_good_percent).toFixed(1)}%` : "n/a"}</td></tr>`
+      `<tr><td>${row.party}</td><td>${Number(row.rated_practices_count || 0).toLocaleString()}</td><td>${Number(row.avg_google_score || 0).toFixed(2)}</td><td>${Number.isFinite(Number(row.avg_survey_overall_good_percent)) ? `${Number(row.avg_survey_overall_good_percent).toFixed(1)}%` : "n/a"}</td></tr>`
     )),
     "</tbody></table>"
   ].join("");
@@ -1536,20 +1785,28 @@ collapseButton.addEventListener("click", () => {
   setTimeout(() => map.invalidateSize(), 180);
 });
 
-deprivationToggle.addEventListener("change", applyLayerVisibility);
 if (effectsToggle) {
   effectsToggle.addEventListener("change", applyEffectsVisibility);
 }
 if (gpRatingsToggle) {
-  gpRatingsToggle.addEventListener("change", applyGpLayerVisibility);
+  gpRatingsToggle.addEventListener("change", () => {
+    layerPrefs.gp = Boolean(gpRatingsToggle.checked);
+    applyGpLayerVisibility();
+  });
 }
 councilResultsToggle.addEventListener("change", () => {
+  layerPrefs.council = Boolean(councilResultsToggle.checked);
   applyWardLayerVisibility();
   updateWardStatusDefault();
 });
 wardResultsToggle.addEventListener("change", () => {
+  layerPrefs.ward = Boolean(wardResultsToggle.checked);
   applyWardLayerVisibility();
   updateWardStatusDefault();
+});
+deprivationToggle.addEventListener("change", () => {
+  layerPrefs.deprivation = Boolean(deprivationToggle.checked);
+  applyLayerVisibility();
 });
 if (wardFillToggle) {
   wardFillToggle.addEventListener("change", () => {
@@ -1560,6 +1817,14 @@ if (groupedDeprivationSelect) {
   groupedDeprivationSelect.addEventListener("change", () => {
     if (wardDeprivationGroupsPayload) {
       renderGroupedDeprivationProfiles(wardDeprivationGroupsPayload, groupedDeprivationSelect.value);
+    }
+  });
+}
+if (censusPartySelect) {
+  censusPartySelect.addEventListener("change", () => {
+    selectedCensusParty = censusPartySelect.value || "Reform UK";
+    if (wardCensusDemographicsPayload) {
+      renderWardCensusDemographics(wardCensusDemographicsPayload);
     }
   });
 }
@@ -1603,6 +1868,7 @@ map.on("zoomend", () => {
 });
 
 renderLoadStatus();
+updateSidebarToggleStates();
 buildCombinedEffectsLayer();
 applyEffectsVisibility();
 await Promise.all([

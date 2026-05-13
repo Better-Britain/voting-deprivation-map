@@ -55,6 +55,11 @@ function toFiniteNumber(value) {
   return Number.isFinite(num) ? num : null;
 }
 
+function normalizeTurnoutPercentage(value) {
+  const num = toFiniteNumber(value);
+  return num !== null && num > 0 ? num : null;
+}
+
 function mean(values) {
   if (!values.length) return null;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -120,14 +125,9 @@ function summarizeBallot(ballot) {
       winnerVotes = votes;
     }
   }
-  const turnoutPercentageRaw = toFiniteNumber(ballot?.results?.turnout_percentage);
+  const turnoutPercentageRaw = normalizeTurnoutPercentage(ballot?.results?.turnout_percentage);
   const totalElectorateRaw = toFiniteNumber(ballot?.results?.total_electorate);
   const numTurnoutReportedRaw = toFiniteNumber(ballot?.results?.num_turnout_reported);
-  const turnoutLooksMissing = hasCandidateVotes
-    && turnoutPercentageRaw !== null
-    && turnoutPercentageRaw <= 0
-    && (totalElectorateRaw === null || totalElectorateRaw <= 0)
-    && (numTurnoutReportedRaw === null || numTurnoutReportedRaw <= 0);
   return {
     ward_code: wardCode,
     ballot_paper_id: String(ballot?.ballot_paper_id || ""),
@@ -135,7 +135,7 @@ function summarizeBallot(ballot) {
     election_id: String(ballot?.election?.election_id || ""),
     winner_party: extractWinnerPartyFromBallot(ballot),
     winner_count: toFiniteNumber(ballot?.winner_count),
-    turnout_percentage: turnoutLooksMissing ? null : turnoutPercentageRaw,
+    turnout_percentage: turnoutPercentageRaw,
     total_electorate: totalElectorateRaw !== null && totalElectorateRaw > 0 ? totalElectorateRaw : null,
     num_turnout_reported: numTurnoutReportedRaw !== null && numTurnoutReportedRaw > 0 ? numTurnoutReportedRaw : null,
     num_spoilt_ballots: toFiniteNumber(ballot?.results?.num_spoilt_ballots),
@@ -317,7 +317,7 @@ async function loadBaseContext() {
       current_ballot_paper_id: existing.current_ballot_paper_id ?? null,
       current_election_date: existing.current_election_date ?? null,
       current_election_id: existing.current_election_id ?? null,
-      current_turnout_percentage: existing.current_turnout_percentage ?? null,
+      current_turnout_percentage: normalizeTurnoutPercentage(existing.current_turnout_percentage),
       current_total_electorate: existing.current_total_electorate ?? null,
       current_num_turnout_reported: existing.current_num_turnout_reported ?? null,
       current_num_spoilt_ballots: existing.current_num_spoilt_ballots ?? null,
@@ -327,7 +327,7 @@ async function loadBaseContext() {
       previous_ballot_paper_id: existing.previous_ballot_paper_id ?? null,
       previous_election_date: existing.previous_election_date ?? null,
       previous_election_id: existing.previous_election_id ?? null,
-      previous_turnout_percentage: existing.previous_turnout_percentage ?? null,
+      previous_turnout_percentage: normalizeTurnoutPercentage(existing.previous_turnout_percentage),
       previous_total_electorate: existing.previous_total_electorate ?? null,
       previous_num_turnout_reported: existing.previous_num_turnout_reported ?? null,
       previous_num_spoilt_ballots: existing.previous_num_spoilt_ballots ?? null,

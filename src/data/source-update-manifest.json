@@ -1,16 +1,16 @@
 {
-  "updated_at_utc": "2026-05-13T05:43:47.268Z",
+  "updated_at_utc": "2026-05-13T06:31:51.839Z",
   "entries": {
     "ward_election_current": {
       "source_url": "https://candidates.democracyclub.org.uk/api/next/ballots/?election_date=2026-05-07",
-      "last_fetch_utc": "2026-05-13T05:43:47.267Z",
+      "last_fetch_utc": "2026-05-13T06:31:51.838Z",
       "version_key": "2026-05-07",
       "fetch_mode": "pending_only",
       "completion_status": "pending",
       "output_files": [
         "/home/bobbigmac/projects/voting-deprivation-map/src/data/england-ward-election-state.json"
       ],
-      "updated_at_utc": "2026-05-13T05:43:47.268Z"
+      "updated_at_utc": "2026-05-13T06:31:51.839Z"
     }
   }
 }
