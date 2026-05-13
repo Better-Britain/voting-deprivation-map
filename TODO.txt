@@ -1,26 +1,20 @@
-
 # TODO
 
-- Don't rerun all the updater steps just to test one of the steps
 
-- The ward scanner is almost certainly wasting 99% of its effort, rescanning pages when virtually none of it will have changed.
-  - The scraper needs to be more considerate to the host and less forgetful
 
-- ward refresh and previous years ward update should be separate processes. 
-  - Old data will never need to be updated, and once all wards for current data are called, we don't need to update those if we have an up to date source file anyway. 
-  - Don't guess paths, look-up the api, check the html or browse the site via a browser, checking requests made if needed, you can build around anything.
-
-- there is a frankenstein's monster of hyrbid scraper mixed with more conventional system. This entire approach is flawed, we should now be able to get good quality data for both councils and wards without scraping. If not, let's just _be_ it and stop rechecking everything once we know it.
-
-- Queryable zone (like variable range circle filter) for regional comparison to national stacked chart
 - order and colour census signals by delta
 - in the Deprivation decile per party table, hide options below 3 wards, and add an 'expand to show x hidden small parties'
-- Adding a party (major parties) selector for Census Signals panel might be useful
+- limit the outputs to the parties by turnout change table with the same limiter as the other small-parties panels (on the same toggle)
+- Adding a party (major parties) selector for Census Signals panel might be useful (unless our backend data is reform only, but I don't think it is)
 - on How do people in England vote per deprivation level? combine the same set of hidden parties into Other, and observe the same expansion toggle.
 - the font choice is kinda small and elegant. Punch up the style of the page generally, to something more modern feeling. Tidy up labels and footnotes properly.
 - the wards won in some tables varies, so we need to be clear with the labels about what each one means, because it's sometimes referring to different things
 - Once loading is complete, the loader can close to just Loading complete, it's using too much vertical space too. That panel shouldn't be allowed to scroll, since it prevents the user from being able to scroll the page by mouse/touch/etc, cos the main map captures it for zoom.
+  - I cleared out some pointless labels, do not re-add them
 - Re-enable the councils layer, and show by default at zoom levels 10 and below (at least to 6), even if it's off, so the user can navigate
 
-- Double-check: not sure if this is implemented and just dots aren't showing except around the cursor.
-  - GPs were only imported for Manchester, but there is extended GP data for the entire country in the nhs-complaint project
+
+
+- [POSTPONED] The ward scanner is still wasting work on current results.
+  - It now separates current and historical refreshes and tracks pending wards, but Democracy Club current polling still scans the full current election date because the API path is still broad.
+  - Next step: find a reliable narrower source or request pattern so pending-current refreshes do not need a full current-election sweep.

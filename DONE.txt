@@ -1,0 +1,28 @@
+# DONE
+
+- Modernised the dataset update pipeline so you do not need to rerun all updater steps just to test one step.
+  - Added granular data update and derive commands in `package.json`.
+  - Kept one umbrella maintenance command as a thin wrapper.
+
+- Split ward refresh and previous-years ward history into separate processes.
+  - Current local refresh is now handled by `scripts/update-ward-election-current-gm.mjs`.
+  - Historical comparator refresh is now handled by `scripts/update-ward-election-history-gm.mjs`.
+  - The compatibility wrapper `scripts/update-ward-election-state-gm.mjs` now just composes those two steps.
+
+- Added compact pipeline metadata in `src/data` instead of storing bulky raw source archives.
+  - `source-update-manifest.json`
+  - `ward-election-progress.json`
+  - `build-dependency-state.json`
+
+- Cleaned up the normal data flow so direct structured sources are the default path for shipped datasets.
+  - Wards and councils refresh from structured upstreams.
+  - Manual Playwright capture remains as a fallback for source gaps only, not the normal maintenance path.
+
+- Added dependency-aware derived rebuild orchestration.
+  - Maintenance now decides whether to rerun deprivation, census, and GP derivative steps based on whether their real upstream outputs changed in that run.
+
+- Documented the new dataset workflow in `README.md`.
+
+- Reduced part of the old “frankenstein” updater shape, but not all of it is solved yet.
+  - The process is cleaner and more explicit now.
+  - The remaining open issue is current-election polling still needing a broad current-date scan on Democracy Club, which stays in `TODO.txt`.
