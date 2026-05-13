@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { updateSourceManifest } from "./lib/pipeline-tools.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
@@ -83,6 +84,14 @@ async function downloadGreaterManchesterWards() {
   await fs.mkdir(OUTPUT_DIR, { recursive: true });
   await fs.writeFile(OUTPUT_GEOJSON, JSON.stringify(geojson));
   await fs.writeFile(OUTPUT_SUMMARY, JSON.stringify(summary, null, 2));
+  await updateSourceManifest("ward_boundaries", {
+    source_url: WARDS_QUERY_URL,
+    last_fetch_utc: summary.updated_at_utc,
+    version_key: "ons-wards-december-2024",
+    fetch_mode: "direct_api_full_snapshot",
+    completion_status: "complete",
+    output_files: [OUTPUT_GEOJSON, OUTPUT_SUMMARY]
+  });
 
   return summary;
 }

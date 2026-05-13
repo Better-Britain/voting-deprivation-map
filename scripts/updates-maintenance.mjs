@@ -1,67 +1,97 @@
-import { spawn } from "node:child_process";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { projectRoot, snapshotFiles, snapshotsDiffer, runCommand, updateBuildState } from "./lib/pipeline-tools.mjs";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.resolve(__dirname, "..");
-
-function runNodeScript(relativeScriptPath) {
-  return runNodeScriptWithEnv(relativeScriptPath, {});
+function script(relativePath) {
+  return path.resolve(projectRoot, relativePath);
 }
 
-function runCommand(command, args) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd: projectRoot,
-      stdio: "inherit",
-      env: {
-        ...process.env
-      }
-    });
-    child.on("exit", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`${command} ${args.join(" ")} failed with exit code ${code}`));
-      }
-    });
+async function runNodeStep(id, relativePath, outputs, env = {}) {
+  const before = await snapshotFiles(outputs);
+  await runCommand(process.execPath, [script(relativePath)], {
+    cwd: projectRoot,
+    env,
+    label: id
   });
+  const after = await snapshotFiles(outputs);
+  const changed = snapshotsDiffer(before, after);
+  console.log(`[maintenance] ${id}: ${changed ? "changed" : "unchanged"}`);
+  return changed;
 }
 
-function runNodeScriptWithEnv(relativeScriptPath, envOverrides) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [path.resolve(projectRoot, relativeScriptPath)], {
-      cwd: projectRoot,
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        ...envOverrides
-      }
-    });
-    child.on("exit", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`${relativeScriptPath} failed with exit code ${code}`));
-      }
-    });
+const wardsChanged = await runNodeStep("ward boundaries", "scripts/update-wards-gm.mjs", [
+  path.resolve(projectRoot, "src/data/england-wards.geojson"),
+  path.resolve(projectRoot, "src/data/england-wards.summary.json")
+]);
+
+const councilsChanged = await runNodeStep("councils", "scripts/update-councils-gm.mjs", [
+  path.resolve(projectRoot, "src/data/england-councils.geojson"),
+  path.resolve(projectRoot, "src/data/england-councils.summary.json")
+]);
+
+const electionCurrentChanged = await runNodeStep("current ward election state", "scripts/update-ward-election-current-gm.mjs", [
+  path.resolve(projectRoot, "src/data/england-ward-election-state.json")
+], /^(1|true|yes)$/i.test(String(process.env.FORCE_REFRESH_ALL_CURRENT || "")) ? { FORCE_REFRESH_ALL_CURRENT: "1" } : {});
+
+const electionHistoryChanged = await runNodeStep("historical ward election state", "scripts/update-ward-election-history-gm.mjs", [
+  path.resolve(projectRoot, "src/data/england-ward-election-state.json")
+], /^(1|true|yes)$/i.test(String(process.env.FORCE_REBUILD_HISTORY || "")) ? { FORCE_REBUILD_HISTORY: "1" } : {});
+
+const deprivationSourceChanged = await runNodeStep("deprivation source", "scripts/update-deprivation-source.mjs", [
+  path.resolve(projectRoot, "deprivation/output/england-lsoa-imd-2025.geojson"),
+  path.resolve(projectRoot, "deprivation/output/england-lsoa-imd-2025_summary.json"),
+  path.resolve(projectRoot, "public/data/england-lsoa-imd-2025_tiles/manifest.json")
+]);
+
+const censusSourceChanged = await runNodeStep("census source", "scripts/update-census-source.mjs", [
+  path.resolve(projectRoot, "src/data/england-census-lsoa-summary.json"),
+  path.resolve(projectRoot, "src/data/england-census-lsoa-summary.meta.json")
+]);
+
+const shouldRunDeprivationDerivatives = wardsChanged || electionCurrentChanged || electionHistoryChanged || deprivationSourceChanged;
+if (shouldRunDeprivationDerivatives) {
+  await runNodeStep("deprivation derivatives", "scripts/run-deprivation-derivatives.mjs", [
+    path.resolve(projectRoot, "src/data/ward-deprivation-vote-index.json"),
+    path.resolve(projectRoot, "src/data/ward-deprivation-groups.json")
+  ]);
+} else {
+  await updateBuildState("deprivation_derivatives", {
+    last_run_utc: new Date().toISOString(),
+    fetch_mode: "derived_skip",
+    completion_status: "skipped_unchanged_inputs",
+    dependencies: ["ward_boundaries", "ward_election_current", "ward_election_history", "deprivation_source"]
   });
+  console.log("[maintenance] deprivation derivatives: skipped");
 }
 
-const refreshAllWards = process.argv.includes("--refresh-all-wards");
+const shouldRunCensusDerivatives = wardsChanged || electionCurrentChanged || electionHistoryChanged || deprivationSourceChanged || censusSourceChanged;
+if (shouldRunCensusDerivatives) {
+  await runNodeStep("census derivatives", "scripts/run-census-derivatives.mjs", [
+    path.resolve(projectRoot, "src/data/ward-census-demographics.json")
+  ]);
+} else {
+  await updateBuildState("census_derivatives", {
+    last_run_utc: new Date().toISOString(),
+    fetch_mode: "derived_skip",
+    completion_status: "skipped_unchanged_inputs",
+    dependencies: ["ward_boundaries", "ward_election_current", "ward_election_history", "census_source", "deprivation_source"]
+  });
+  console.log("[maintenance] census derivatives: skipped");
+}
 
-// Maintenance updates source datasets only. Build remains separate.
-await runNodeScript("./scripts/update-wards-gm.mjs");
-await runNodeScript("./scripts/update-councils-gm.mjs");
-await runNodeScriptWithEnv("./scripts/update-ward-election-state-gm.mjs", {
-  REFRESH_ALL_WARDS: refreshAllWards ? "1" : "0",
-  CHECK_PENDING_WARDS: "1"
-});
-await runCommand("python3", ["./deprivation/build_catchment_subset.py"]);
-await runCommand("python3", ["./census/build_england_census_lsoa_summary.py"]);
-await runCommand("python3", ["./deprivation/build_deprivation_tiles.py"]);
-await runNodeScript("./scripts/build-ward-deprivation-vote-index.mjs");
-await runNodeScript("./scripts/build-ward-deprivation-groups.mjs");
-await runNodeScript("./scripts/build-ward-census-demographics.mjs");
-await runNodeScript("./scripts/import-gp-ratings-from-nhs.mjs");
+const shouldRunGpImport = wardsChanged || electionCurrentChanged || electionHistoryChanged;
+if (shouldRunGpImport) {
+  await runNodeStep("gp import", "scripts/run-gp-import.mjs", [
+    path.resolve(projectRoot, "src/data/england-gp-practices.json"),
+    path.resolve(projectRoot, "src/data/ward-gp-ratings.json")
+  ]);
+} else {
+  await updateBuildState("gp_import", {
+    last_run_utc: new Date().toISOString(),
+    fetch_mode: "derived_skip",
+    completion_status: "skipped_unchanged_inputs",
+    dependencies: ["ward_boundaries", "ward_election_current", "ward_election_history"]
+  });
+  console.log("[maintenance] gp import: skipped");
+}
+
 console.log("Maintenance source updates complete.");

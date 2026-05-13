@@ -1,0 +1,19 @@
+{
+  "updated_at_utc": "2026-05-13T05:43:47.270Z",
+  "current": {
+    "current_election_date": "2026-05-07",
+    "last_checked_utc": "2026-05-13T05:43:47.269Z",
+    "fetch_mode": "pending_only",
+    "completion_status": "pending",
+    "eligible_ward_count": 2085,
+    "pending_ward_codes": [
+      "E05007075",
+      "E05013572",
+      "E05014132",
+      "E05014157"
+    ],
+    "pending_count": 4,
+    "declared_count": 2081
+  },
+  "history": {}
+}

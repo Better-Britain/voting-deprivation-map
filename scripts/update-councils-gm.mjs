@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { updateSourceManifest } from "./lib/pipeline-tools.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
@@ -193,5 +194,13 @@ const summary = {
 await fs.mkdir(OUTPUT_DIR, { recursive: true });
 await fs.writeFile(OUTPUT_GEOJSON, JSON.stringify({ type: "FeatureCollection", features }));
 await fs.writeFile(OUTPUT_SUMMARY, JSON.stringify(summary, null, 2));
+await updateSourceManifest("council_boundaries_and_control", {
+  source_url: [LAD_QUERY_URL, COUNCILLORS_CSV_URL],
+  last_fetch_utc: summary.updated_at_utc,
+  version_key: `ons-lad-december-2024|ocd-${COUNCILLORS_CSV_YEAR}`,
+  fetch_mode: "direct_api_plus_csv_snapshot",
+  completion_status: "complete",
+  output_files: [OUTPUT_GEOJSON, OUTPUT_SUMMARY]
+});
 
 console.log(`Updated England councils source: ${features.length} council boundaries`);
