@@ -117,6 +117,9 @@ const loadStatusSummary = document.getElementById("load-status-summary");
 const loadStatusList = document.getElementById("load-status-list");
 const hoverInfoPanel = document.getElementById("hover-info-panel");
 const mapWarningPanel = document.getElementById("map-warning-panel");
+const wardDeprivationHeading = document.getElementById("ward-deprivation-heading");
+const wardDeprivationFilterSelect = document.getElementById("ward-deprivation-filter-select");
+const wardDeprivationResetButton = document.getElementById("ward-deprivation-reset");
 const wardDeprivationSummary = document.getElementById("ward-deprivation-summary");
 const wardDeprivationBars = document.getElementById("ward-deprivation-bars");
 const groupedDeprivationSelect = document.getElementById("grouped-deprivation-select");
@@ -124,11 +127,12 @@ const groupedDeprivationSummary = document.getElementById("grouped-deprivation-s
 const groupedDeprivationBars = document.getElementById("grouped-deprivation-bars");
 const wardDeprivationTable = document.getElementById("ward-deprivation-table");
 const wardDeprivationToggle = document.getElementById("ward-deprivation-toggle");
-const wardDeprivationTableToggle = document.getElementById("ward-deprivation-table-toggle");
 const censusSignalsSummary = document.getElementById("census-signals-summary");
 const censusSignalsTable = document.getElementById("census-signals-table");
+const censusSignalsPanels = document.getElementById("census-signals-panels");
 const censusPartyTable = document.getElementById("census-party-table");
 const censusPartySelect = document.getElementById("census-party-select");
+const censusShowAllToggle = document.getElementById("census-show-all-toggle");
 const turnoutChangeSummary = document.getElementById("turnout-change-summary");
 const turnoutChangeChart = document.getElementById("turnout-change-chart");
 const turnoutChangeToggle = document.getElementById("turnout-change-toggle");
@@ -166,6 +170,9 @@ let gpRatingsSummaryPayload = null;
 let gpSummaryByWardCode = new Map();
 let showSmallParties = false;
 let selectedCensusParty = "Reform UK";
+let showAllCensusSignals = false;
+let selectedWardDeprivationFilterId = "all";
+let censusPartyTableSort = { key: "wards_won", direction: "desc" };
 const layerPrefs = {
   deprivation: Boolean(deprivationToggle?.checked),
   council: Boolean(councilResultsToggle?.checked),
@@ -672,11 +679,155 @@ function buildHiddenPartySummaryRow(hiddenCount, colspan) {
   return `<tr class="table-summary-row"><td colspan="${colspan}"><button type="button" class="table-toggle-link">${label}</button></td></tr>`;
 }
 
+function getWardDeprivationFilterOptions(payload) {
+  const groupSets = Array.isArray(payload?.group_sets) ? payload.group_sets : [];
+  const options = [{
+    id: "all",
+    label: "England",
+    controlLabel: "England",
+    groupSetId: null,
+    groupId: null,
+    wardCodes: null
+  }];
+  for (const groupSet of groupSets) {
+    for (const group of Array.isArray(groupSet?.groups) ? groupSet.groups : []) {
+      options.push({
+        id: `${groupSet.id}::${group.id}`,
+        label: group.label,
+        controlLabel: `${groupSet.label}: ${group.label}`,
+        groupSetId: groupSet.id,
+        groupId: group.id,
+        wardCodes: Array.isArray(group.ward_codes) ? group.ward_codes : []
+      });
+    }
+  }
+  return options;
+}
+
+function getActiveWardDeprivationFilter(payload) {
+  const options = getWardDeprivationFilterOptions(payload);
+  return options.find((option) => option.id === selectedWardDeprivationFilterId) || options[0];
+}
+
+function setWardDeprivationFilter(filterId) {
+  selectedWardDeprivationFilterId = filterId || "all";
+  if (wardDeprivationIndexPayload) renderWardDeprivationTable(wardDeprivationIndexPayload);
+  if (wardDeprivationGroupsPayload) {
+    const activeFilter = getActiveWardDeprivationFilter(wardDeprivationGroupsPayload);
+    renderGroupedDeprivationProfiles(
+      wardDeprivationGroupsPayload,
+      activeFilter?.groupSetId || groupedDeprivationSelect?.value
+    );
+  }
+}
+
 function getMajorCensusParties(parties) {
   const rows = Array.isArray(parties) ? [...parties].sort((a, b) => Number(b?.wards_won || 0) - Number(a?.wards_won || 0)) : [];
   const direct = rows.filter((row) => Number(row?.wards_won || 0) >= 25);
   if (direct.length >= 5) return direct;
   return rows.slice(0, 6);
+}
+
+const CENSUS_PARTY_TABLE_COLUMNS = [
+  {
+    key: "party",
+    label: "Winning Party",
+    defaultDirection: "asc",
+    getValue: (row) => String(row?.party || "")
+  },
+  {
+    key: "wards_won",
+    label: "Declared Winning Wards",
+    defaultDirection: "desc",
+    getValue: (row) => Number(row?.wards_won || 0)
+  },
+  {
+    key: "white_british_pct",
+    label: "White British",
+    defaultDirection: "desc",
+    getValue: (row) => Number(row?.means?.white_british_pct)
+  },
+  {
+    key: "age_50plus_pct",
+    label: "Age 50+",
+    defaultDirection: "desc",
+    getValue: (row) => Number(row?.means?.age_50plus_pct)
+  },
+  {
+    key: "owner_occupied_pct",
+    label: "Owner Occ",
+    defaultDirection: "desc",
+    getValue: (row) => Number(row?.means?.owner_occupied_pct)
+  },
+  {
+    key: "degree_pct",
+    label: "Degree",
+    defaultDirection: "desc",
+    getValue: (row) => Number(row?.means?.degree_pct)
+  },
+  {
+    key: "imd_score",
+    label: "IMD",
+    defaultDirection: "desc",
+    getValue: (row) => Number(row?.means?.imd_score)
+  }
+];
+
+function sortCensusPartyRows(parties) {
+  const rows = Array.isArray(parties) ? [...parties] : [];
+  const activeColumn = CENSUS_PARTY_TABLE_COLUMNS.find((column) => column.key === censusPartyTableSort.key)
+    || CENSUS_PARTY_TABLE_COLUMNS[1];
+  const directionMultiplier = censusPartyTableSort.direction === "asc" ? 1 : -1;
+  const partyColumn = CENSUS_PARTY_TABLE_COLUMNS[0];
+
+  return rows.sort((left, right) => {
+    const leftValue = activeColumn.getValue(left);
+    const rightValue = activeColumn.getValue(right);
+    let comparison = 0;
+
+    if (typeof leftValue === "string" || typeof rightValue === "string") {
+      comparison = String(leftValue).localeCompare(String(rightValue), undefined, { sensitivity: "base" });
+    } else {
+      const leftFinite = Number.isFinite(leftValue);
+      const rightFinite = Number.isFinite(rightValue);
+      if (leftFinite && rightFinite) {
+        comparison = leftValue - rightValue;
+      } else if (leftFinite) {
+        comparison = -1;
+      } else if (rightFinite) {
+        comparison = 1;
+      } else {
+        comparison = 0;
+      }
+    }
+
+    if (comparison !== 0) return comparison * directionMultiplier;
+
+    const leftWards = Number(left?.wards_won || 0);
+    const rightWards = Number(right?.wards_won || 0);
+    if (leftWards !== rightWards) return rightWards - leftWards;
+
+    return partyColumn.getValue(left).localeCompare(partyColumn.getValue(right), undefined, { sensitivity: "base" });
+  });
+}
+
+function getCensusSortIndicator(columnKey) {
+  if (censusPartyTableSort.key !== columnKey) return "↕";
+  return censusPartyTableSort.direction === "asc" ? "↑" : "↓";
+}
+
+function setCensusPartyTableSort(sortKey) {
+  const column = CENSUS_PARTY_TABLE_COLUMNS.find((item) => item.key === sortKey);
+  if (!column) return;
+  if (censusPartyTableSort.key === sortKey) {
+    censusPartyTableSort = {
+      key: sortKey,
+      direction: censusPartyTableSort.direction === "asc" ? "desc" : "asc"
+    };
+  } else {
+    censusPartyTableSort = { key: sortKey, direction: column.defaultDirection };
+  }
+  if (wardCensusDemographicsPayload) renderWardCensusDemographics(wardCensusDemographicsPayload);
 }
 
 function computeAllDeclaredMeansFromParties(parties, featureIds) {
@@ -1426,74 +1577,142 @@ async function loadDeprivationLayer() {
 
 function renderWardDeprivationTable(payload) {
   if (!wardDeprivationSummary || !wardDeprivationTable || !wardDeprivationBars) return;
-  const parties = Array.isArray(payload?.parties) ? payload.parties : [];
   const wards = Array.isArray(payload?.wards) ? payload.wards : [];
-  const sortedParties = [...parties]
-    .sort((a, b) =>
-      Number(a.deprivation_weighted_mean_decile || 0) -
-      Number(b.deprivation_weighted_mean_decile || 0)
-    );
-  const { visibleRows: topParties, hiddenRows } = getRowsAfterSmallPartyFilter(sortedParties);
-  const barParties = showSmallParties ? sortedParties : topParties;
-  const summary = payload?.summary || {};
-  wardDeprivationSummary.textContent =
-    `Declared winning wards: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`;
-  setSharedSmallPartyToggle(wardDeprivationToggle, hiddenRows.length);
-  setSharedSmallPartyToggle(wardDeprivationTableToggle, hiddenRows.length);
-  if (!sortedParties.length) {
-    wardDeprivationBars.innerHTML = "";
-    wardDeprivationTable.innerHTML = "";
-    return;
-  }
-  const topPartyNames = new Set(barParties.map((row) => row.party));
-  const decilePartyTotals = {};
-  for (let d = 1; d <= 10; d += 1) decilePartyTotals[String(d)] = {};
-  for (const ward of wards) {
-    const party = ward?.winner_party;
-    if (!party) continue;
+  const allWinnerWards = wards.filter((row) => row?.winner_party);
+  const activeFilter = wardDeprivationGroupsPayload
+    ? getActiveWardDeprivationFilter(wardDeprivationGroupsPayload)
+    : { id: "all", label: "England", wardCodes: null };
+  const allowedWardCodes = activeFilter?.wardCodes ? new Set(activeFilter.wardCodes) : null;
+  const filteredWards = allWinnerWards.filter((row) => !allowedWardCodes || allowedWardCodes.has(row.ward_code));
+  const groupedParties = new Map();
+  for (const ward of filteredWards) {
+    const party = ward.winner_party;
+    const existing = groupedParties.get(party) || {
+      party,
+      wards_won: 0,
+      deprivationAreaTotals: {}
+    };
+    existing.wards_won += 1;
     const shares = ward?.deprivation_area_share_by_decile || {};
     for (let d = 1; d <= 10; d += 1) {
       const key = String(d);
-      const value = Number(shares[key] || 0);
-      if (value <= 0) continue;
-      const bucketParty = topPartyNames.has(party) ? party : (showSmallParties ? party : "Other");
-      decilePartyTotals[key][bucketParty] = (decilePartyTotals[key][bucketParty] || 0) + value;
+      existing.deprivationAreaTotals[key] = (existing.deprivationAreaTotals[key] || 0) + Number(shares[key] || 0);
     }
+    groupedParties.set(party, existing);
   }
-  const partyColorByName = Object.fromEntries(sortedParties.map((p) => [p.party, getWinnerPartyColor(p.party)]));
-  if (!showSmallParties) partyColorByName.Other = "#9ca3af";
-  const stackedRows = [];
-  for (let d = 1; d <= 10; d += 1) {
-    const key = String(d);
-    const totals = decilePartyTotals[key];
-    const total = Object.values(totals).reduce((sum, v) => sum + v, 0);
-    const segments = Object.entries(totals)
-      .map(([party, value]) => ({ party, share: total > 0 ? value / total : 0 }))
-      .sort((a, b) => b.share - a.share)
-      .filter((x) => x.share > 0.001);
-    const segmentHtml = segments
-      .map(
-        (seg) =>
-          `<span class="stacked-segment" style="width:${(seg.share * 100).toFixed(2)}%;background:${partyColorByName[seg.party] || "#6b7280"}" title="${seg.party}: ${(seg.share * 100).toFixed(1)}%"></span>`
-      )
+  const sortedParties = [...groupedParties.values()]
+    .map((row) => {
+      let weightedMean = 0;
+      for (let d = 1; d <= 10; d += 1) weightedMean += d * ((row.deprivationAreaTotals[String(d)] || 0) / Math.max(1, row.wards_won));
+      return {
+        party: row.party,
+        wards_won: row.wards_won,
+        deprivation_weighted_mean_decile: weightedMean
+      };
+    })
+    .sort((a, b) => Number(a.deprivation_weighted_mean_decile || 0) - Number(b.deprivation_weighted_mean_decile || 0));
+  const { visibleRows: topParties, hiddenRows } = getRowsAfterSmallPartyFilter(sortedParties);
+  const barParties = showSmallParties ? sortedParties : topParties;
+  const summary = payload?.summary || {};
+  if (wardDeprivationHeading) {
+    wardDeprivationHeading.textContent = activeFilter?.id === "all"
+      ? "How do people in England vote per deprivation level?"
+      : `How do people in ${activeFilter.label} vote per deprivation level?`;
+  }
+  if (wardDeprivationFilterSelect && wardDeprivationGroupsPayload) {
+    const options = getWardDeprivationFilterOptions(wardDeprivationGroupsPayload);
+    const optionHtml = options
+      .map((option) => `<option value="${option.id}">${option.controlLabel}</option>`)
       .join("");
-    stackedRows.push(
-      `<div class="stacked-row"><div class="stacked-label">${d === 10 ? "Richest" : d === 1 ? "Poorest" : "Decile " + d}</div><div class="stacked-track">${segmentHtml}</div></div>`
-    );
+    if (wardDeprivationFilterSelect.innerHTML !== optionHtml) {
+      wardDeprivationFilterSelect.innerHTML = optionHtml;
+    }
+    wardDeprivationFilterSelect.value = activeFilter?.id || "all";
   }
-  const legendParties = showSmallParties ? barParties.map((p) => p.party) : [...barParties.map((p) => p.party), "Other"];
-  const legendItems = legendParties
-    .map((party) => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${partyColorByName[party] || "#6b7280"};display:inline-block;"></span>${party}</span>`)
-    .join("");
-  wardDeprivationBars.innerHTML = `<div class="stacked-bars">${stackedRows.join("")}</div><div class="stacked-legend">${legendItems}</div>`;
+  if (wardDeprivationResetButton) {
+    wardDeprivationResetButton.hidden = activeFilter?.id === "all";
+  }
+  wardDeprivationSummary.textContent = activeFilter?.id === "all"
+    ? `Declared winning wards: ${(summary.wards_with_declared_winner || 0).toLocaleString()} / ${(summary.wards_total || 0).toLocaleString()}.`
+    : `${activeFilter.label}: ${filteredWards.length.toLocaleString()} declared winning wards.`;
+  setSharedSmallPartyToggle(wardDeprivationToggle, hiddenRows.length);
+  if (!sortedParties.length) {
+    wardDeprivationBars.innerHTML = "";
+  } else {
+    const decilePartyTotals = {};
+    for (let d = 1; d <= 10; d += 1) decilePartyTotals[String(d)] = {};
+    for (const ward of filteredWards) {
+      const party = ward?.winner_party;
+      if (!party) continue;
+      const shares = ward?.deprivation_area_share_by_decile || {};
+      for (let d = 1; d <= 10; d += 1) {
+        const key = String(d);
+        const value = Number(shares[key] || 0);
+        if (value <= 0) continue;
+        decilePartyTotals[key][party] = (decilePartyTotals[key][party] || 0) + value;
+      }
+    }
+    const partyColorByName = Object.fromEntries(sortedParties.map((p) => [p.party, getWinnerPartyColor(p.party)]));
+    const stackedRows = [];
+    for (let d = 1; d <= 10; d += 1) {
+      const key = String(d);
+      const totals = decilePartyTotals[key];
+      const total = Object.values(totals).reduce((sum, v) => sum + v, 0);
+      const segments = Object.entries(totals)
+        .map(([party, value]) => ({ party, share: total > 0 ? value / total : 0 }))
+        .sort((a, b) => b.share - a.share)
+        .filter((x) => x.share > 0.001);
+      const segmentHtml = segments
+        .map(
+          (seg) =>
+            `<span class="stacked-segment" style="width:${(seg.share * 100).toFixed(2)}%;background:${partyColorByName[seg.party] || "#6b7280"}" title="${seg.party}: ${(seg.share * 100).toFixed(1)}%"></span>`
+        )
+        .join("");
+      stackedRows.push(
+        `<div class="stacked-row"><div class="stacked-label">${d === 10 ? "Richest" : d === 1 ? "Poorest" : "Decile " + d}</div><div class="stacked-track">${segmentHtml}</div></div>`
+      );
+    }
+    const legendParties = (showSmallParties ? sortedParties : topParties).map((p) => p.party);
+    const legendItems = legendParties
+      .map((party) => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:10px;"><span style="width:10px;height:10px;border-radius:2px;background:${partyColorByName[party] || "#6b7280"};display:inline-block;"></span>${party}</span>`)
+      .join("");
+    const hiddenLegendNote = !showSmallParties && hiddenRows.length
+      ? `<span class="stacked-legend-note">${hiddenRows.length.toLocaleString()} smaller parties hidden from legend</span>`
+      : "";
+    wardDeprivationBars.innerHTML = `<div class="stacked-bars">${stackedRows.join("")}</div><div class="stacked-legend">${legendItems}${hiddenLegendNote}</div>`;
+  }
+  const overallPartyMap = new Map();
+  for (const ward of allWinnerWards) {
+    const party = ward.winner_party;
+    const existing = overallPartyMap.get(party) || { party, wards_won: 0, deprivationAreaTotals: {} };
+    existing.wards_won += 1;
+    const shares = ward?.deprivation_area_share_by_decile || {};
+    for (let d = 1; d <= 10; d += 1) {
+      const key = String(d);
+      existing.deprivationAreaTotals[key] = (existing.deprivationAreaTotals[key] || 0) + Number(shares[key] || 0);
+    }
+    overallPartyMap.set(party, existing);
+  }
+  const overallSortedParties = [...overallPartyMap.values()]
+    .map((row) => {
+      let weightedMean = 0;
+      for (let d = 1; d <= 10; d += 1) weightedMean += d * ((row.deprivationAreaTotals[String(d)] || 0) / Math.max(1, row.wards_won));
+      return {
+        party: row.party,
+        wards_won: row.wards_won,
+        deprivation_weighted_mean_decile: weightedMean
+      };
+    })
+    .sort((a, b) => Number(a.deprivation_weighted_mean_decile || 0) - Number(b.deprivation_weighted_mean_decile || 0));
+  const { visibleRows: overallTopParties, hiddenRows: overallHiddenRows } = getRowsAfterSmallPartyFilter(overallSortedParties);
   wardDeprivationTable.innerHTML = [
     '<table class="simple-table">',
     "<thead><tr><th>Winning Party</th><th>Winning Wards</th><th>Weighted Deprivation Decile</th></tr></thead>",
     "<tbody>",
-    ...topParties.map((row, rownum) => (
-      `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}${rownum===0?' (poorest)':(rownum===(topParties.length-1)?' (richest)':'')}</td></tr>`
+    ...overallTopParties.map((row, rownum) => (
+      `<tr><td>${row.party || "Unknown"}</td><td>${Number(row.wards_won || 0).toLocaleString()}</td><td>${Number(row.deprivation_weighted_mean_decile || 0).toFixed(2)}${rownum===0?' (poorest)':(rownum===(overallTopParties.length-1)?' (richest)':'')}</td></tr>`
     )),
-    buildHiddenPartySummaryRow(hiddenRows.length, 3),
+    buildHiddenPartySummaryRow(overallHiddenRows.length, 3),
     "</tbody></table><p class='panel-note'>Weighted decile is based on the deprivation-area mix inside wards won by each party.</p>"
   ].join("");
   wardDeprivationTable.querySelector(".table-toggle-link")?.addEventListener("click", toggleSharedSmallParties);
@@ -1538,7 +1757,19 @@ function renderGroupedDeprivationProfiles(payload, selectedGroupSetId) {
   }
   groupedDeprivationSelect.value = activeGroupSet.id;
 
-  const groups = Array.isArray(activeGroupSet?.groups) ? activeGroupSet.groups : [];
+  const baseGroups = Array.isArray(activeGroupSet?.groups) ? activeGroupSet.groups : [];
+  const groups = activeGroupSet?.id === "official-region" && payload?.global_profile
+    ? [{
+        id: "all",
+        label: "England",
+        ward_count: payload.global_profile.ward_count,
+        deprivation_weighted_mean_decile: payload.global_profile.deprivation_weighted_mean_decile,
+        deprivation_dominant_decile: payload.global_profile.deprivation_dominant_decile,
+        deprivation_dominant_share: payload.global_profile.deprivation_dominant_share,
+        deprivation_area_share_by_decile: payload.global_profile.deprivation_area_share_by_decile,
+        _filterId: "all"
+      }, ...baseGroups]
+    : baseGroups;
   const summary = payload?.summary || {};
   groupedDeprivationSummary.textContent =
     `${activeGroupSet.description} Showing ${(summary.wards_with_declared_winner || 0).toLocaleString()} declared wards.`;
@@ -1558,8 +1789,10 @@ function renderGroupedDeprivationProfiles(payload, selectedGroupSetId) {
         `<span class="distribution-segment" style="width:${(share * 100).toFixed(2)}%;background:${getDecileColor(d)}" title="${group.label}: decile ${d} ${(share * 100).toFixed(1)}%"></span>`
       );
     }
+    const filterId = group._filterId || `${activeGroupSet.id}::${group.id}`;
+    const activeClass = selectedWardDeprivationFilterId === filterId ? " is-active" : "";
     return (
-      `<div class="distribution-row"><div class="distribution-label">${group.label} (${Number(group.ward_count || 0).toLocaleString()})</div><div class="distribution-track">${segments.join("")}</div></div>`
+      `<button type="button" class="distribution-row is-interactive${activeClass}" data-group-filter-id="${filterId}"><div class="distribution-label">${group.label} (${Number(group.ward_count || 0).toLocaleString()})</div><div class="distribution-track">${segments.join("")}</div></button>`
     );
   });
 
@@ -1570,6 +1803,11 @@ function renderGroupedDeprivationProfiles(payload, selectedGroupSetId) {
   }).join("");
 
   groupedDeprivationBars.innerHTML = `<div class="distribution-bars">${rows.join("")}</div><div class="distribution-legend">${legend}</div>`;
+  groupedDeprivationBars.querySelectorAll("[data-group-filter-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setWardDeprivationFilter(button.getAttribute("data-group-filter-id") || "all");
+    });
+  });
 }
 
 async function loadWardDeprivationGroups() {
@@ -1580,6 +1818,7 @@ async function loadWardDeprivationGroups() {
     if (!response.ok) throw new Error(`Ward deprivation groups request failed: ${response.status}`);
     wardDeprivationGroupsPayload = await response.json();
     renderGroupedDeprivationProfiles(wardDeprivationGroupsPayload);
+    if (wardDeprivationIndexPayload) renderWardDeprivationTable(wardDeprivationIndexPayload);
     const groupSetCount = Array.isArray(wardDeprivationGroupsPayload?.group_sets) ? wardDeprivationGroupsPayload.group_sets.length : 0;
     setLoadStatus("deprivationGroups", "ready", `${groupSetCount.toLocaleString()} views`);
   } catch (_error) {
@@ -1594,12 +1833,29 @@ function formatPercentCell(value) {
   return Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(1)}%` : "n/a";
 }
 
+function buildCensusSignalSection(partyName, signalRows, showHeading = false) {
+  if (!signalRows.length) return "";
+  const topDeltas = signalRows.slice(0, 8);
+  const rows = topDeltas.map((row) => (
+    `<tr><td>${row.label}</td><td>${formatFeatureMean(row.featureId, row.partyMean)}</td><td>${formatFeatureMean(row.featureId, row.allDeclaredMean)}</td><td class="${getDeltaClass(row.difference)}">${formatFeatureDelta(row.featureId, row.difference)}</td></tr>`
+  ));
+  return [
+    `<div class="census-signal-section">`,
+    showHeading ? `<h3>${partyName}</h3>` : "",
+    '<table class="simple-table">',
+    `<thead><tr><th>Feature</th><th>${partyName}</th><th>All Declared Winners</th><th>Delta</th></tr></thead>`,
+    "<tbody>",
+    ...rows,
+    "</tbody></table>",
+    "</div>"
+  ].join("");
+}
+
 function renderWardCensusDemographics(payload) {
   if (!censusSignalsSummary || !censusSignalsTable || !censusPartyTable) return;
   const summary = payload?.summary || {};
   const featureCatalog = Array.isArray(payload?.feature_catalog) ? payload.feature_catalog : [];
   const parties = Array.isArray(payload?.parties) ? payload.parties : [];
-  const correlations = Array.isArray(payload?.correlations) ? payload.correlations : [];
   const selectableParties = getMajorCensusParties(parties);
   const selectablePartyNames = new Set(selectableParties.map((row) => row.party));
   const reformOption = selectableParties.find((row) => row.party === "Reform UK")?.party || null;
@@ -1619,18 +1875,17 @@ function renderWardCensusDemographics(payload) {
       censusPartySelect.innerHTML = optionHtml;
     }
     censusPartySelect.value = selectedCensusParty;
-    censusPartySelect.disabled = selectableParties.length <= 1;
+    censusPartySelect.disabled = showAllCensusSignals || selectableParties.length <= 1;
+  }
+  if (censusShowAllToggle) {
+    censusShowAllToggle.textContent = showAllCensusSignals ? "Hide All" : "Show All";
+    censusShowAllToggle.disabled = selectableParties.length <= 1;
   }
 
-  const selectedParty = parties.find((party) => party.party === selectedCensusParty)
-    || selectableParties.find((party) => party.party === selectedCensusParty)
-    || selectableParties[0]
-    || null;
   const allDeclaredMeans = computeAllDeclaredMeansFromParties(parties, featureCatalog.map((feature) => feature.id));
-  const selectedSignalRows = selectedParty
-    ? featureCatalog
+  const buildSignalRowsForParty = (partyRow) => featureCatalog
       .map((feature) => {
-        const partyMean = Number(selectedParty?.means?.[feature.id]);
+        const partyMean = Number(partyRow?.means?.[feature.id]);
         const allDeclaredMean = Number(allDeclaredMeans?.[feature.id]);
         if (!Number.isFinite(partyMean) || !Number.isFinite(allDeclaredMean)) return null;
         return {
@@ -1642,41 +1897,62 @@ function renderWardCensusDemographics(payload) {
         };
       })
       .filter(Boolean)
-      .sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference))
-    : [];
+      .sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
 
-  if (selectedSignalRows.length) {
-    const topDeltas = selectedSignalRows.slice(0, 8);
-    const rows = topDeltas.map((row) => (
-      `<tr><td>${row.label}</td><td>${formatFeatureMean(row.featureId, row.partyMean)}</td><td>${formatFeatureMean(row.featureId, row.allDeclaredMean)}</td><td class="${getDeltaClass(row.difference)}">${formatFeatureDelta(row.featureId, row.difference)}</td></tr>`
-    ));
-    const selectedCorrelations = correlations.find((row) => row.party === selectedCensusParty)?.strongest_signals || [];
-    const correlationHtml = selectedCorrelations.length
-      ? `<p class="hint">Strongest ${selectedCensusParty} correlations: ${selectedCorrelations.map((row) => `${row.label} (${Number(row.correlation).toFixed(2)})`).join(" · ")}</p>`
-      : "";
-    censusSignalsTable.innerHTML = [
-      '<table class="simple-table">',
-      `<thead><tr><th>Feature</th><th>${selectedCensusParty}</th><th>All Declared Winners</th><th>Delta</th></tr></thead>`,
-      "<tbody>",
-      ...rows,
-      "</tbody></table>",
-      correlationHtml
-    ].join("");
+  const selectedParty = parties.find((party) => party.party === selectedCensusParty)
+    || selectableParties.find((party) => party.party === selectedCensusParty)
+    || selectableParties[0]
+    || null;
+
+  if (showAllCensusSignals) {
+    censusSignalsTable.innerHTML = "";
+    if (censusSignalsPanels) {
+      const panels = selectableParties
+        .map((party) => {
+          const sectionHtml = buildCensusSignalSection(party.party, buildSignalRowsForParty(party), false);
+          if (!sectionHtml) return "";
+          return [
+            '<section class="panel census-signal-panel">',
+            `<h2>${party.party}</h2>`,
+            sectionHtml,
+            "</section>"
+          ].join("");
+        })
+        .filter(Boolean);
+      censusSignalsPanels.innerHTML = panels.length
+        ? panels.join("")
+        : "<section class='panel census-signal-panel'><p class='hint'>No census signal summary available yet.</p></section>";
+    }
   } else {
-    censusSignalsTable.innerHTML = "<p class='hint'>No census signal summary available yet.</p>";
+    const selectedSignalRows = selectedParty ? buildSignalRowsForParty(selectedParty) : [];
+    censusSignalsTable.innerHTML = selectedSignalRows.length
+      ? buildCensusSignalSection(selectedCensusParty, selectedSignalRows, false)
+      : "<p class='hint'>No census signal summary available yet.</p>";
+    if (censusSignalsPanels) censusSignalsPanels.innerHTML = "";
   }
 
-  const partyRows = selectableParties
+  const partyRows = sortCensusPartyRows(selectableParties)
     .map((party) => (
       `<tr><td>${party.party}</td><td>${Number(party.wards_won || 0).toLocaleString()}</td><td>${formatPercentCell(party.means?.white_british_pct)}</td><td>${formatPercentCell(party.means?.age_50plus_pct)}</td><td>${formatPercentCell(party.means?.owner_occupied_pct)}</td><td>${formatPercentCell(party.means?.degree_pct)}</td><td>${Number(party.means?.imd_score || 0).toFixed(2)}</td></tr>`
     ));
   censusPartyTable.innerHTML = [
     '<table class="simple-table">',
-    "<thead><tr><th>Winning Party</th><th>Declared Winning Wards</th><th>White British</th><th>Age 50+</th><th>Owner Occ</th><th>Degree</th><th>IMD</th></tr></thead>",
+    "<thead><tr>",
+    ...CENSUS_PARTY_TABLE_COLUMNS.map((column) => {
+      const isActive = censusPartyTableSort.key === column.key;
+      const ariaSort = !isActive ? "none" : (censusPartyTableSort.direction === "asc" ? "ascending" : "descending");
+      return `<th scope="col" aria-sort="${ariaSort}"><button type="button" class="table-sort-button${isActive ? " is-active" : ""}" data-sort-key="${column.key}">${column.label}<span class="table-sort-indicator" aria-hidden="true">${getCensusSortIndicator(column.key)}</span></button></th>`;
+    }),
+    "</tr></thead>",
     "<tbody>",
     ...partyRows,
     "</tbody></table>"
   ].join("");
+  censusPartyTable.querySelectorAll(".table-sort-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      setCensusPartyTableSort(button.dataset.sortKey);
+    });
+  });
 }
 
 async function loadWardCensusDemographics() {
@@ -1693,6 +1969,7 @@ async function loadWardCensusDemographics() {
   } catch (_error) {
     censusSignalsSummary.textContent = "Ward census summaries unavailable. Run `yarn census:update`.";
     censusSignalsTable.innerHTML = "";
+    if (censusSignalsPanels) censusSignalsPanels.innerHTML = "";
     censusPartyTable.innerHTML = "";
     setLoadStatus("census", "error", "Summary unavailable");
   }
@@ -1820,9 +2097,27 @@ if (groupedDeprivationSelect) {
     }
   });
 }
+if (wardDeprivationFilterSelect) {
+  wardDeprivationFilterSelect.addEventListener("change", () => {
+    setWardDeprivationFilter(wardDeprivationFilterSelect.value || "all");
+  });
+}
+if (wardDeprivationResetButton) {
+  wardDeprivationResetButton.addEventListener("click", () => {
+    setWardDeprivationFilter("all");
+  });
+}
 if (censusPartySelect) {
   censusPartySelect.addEventListener("change", () => {
     selectedCensusParty = censusPartySelect.value || "Reform UK";
+    if (wardCensusDemographicsPayload) {
+      renderWardCensusDemographics(wardCensusDemographicsPayload);
+    }
+  });
+}
+if (censusShowAllToggle) {
+  censusShowAllToggle.addEventListener("click", () => {
+    showAllCensusSignals = !showAllCensusSignals;
     if (wardCensusDemographicsPayload) {
       renderWardCensusDemographics(wardCensusDemographicsPayload);
     }

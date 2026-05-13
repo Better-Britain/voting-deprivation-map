@@ -291,6 +291,32 @@ body {
   letter-spacing: 0.08em;
   color: rgba(24, 32, 29, 0.74);
 }
+.table-sort-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.table-sort-button:hover {
+  color: rgba(24, 32, 29, 0.96);
+}
+.table-sort-button.is-active {
+  color: var(--ink);
+}
+.table-sort-indicator {
+  font-size: 11px;
+  opacity: 0.58;
+}
+.table-sort-button.is-active .table-sort-indicator {
+  opacity: 1;
+}
 .simple-table tbody tr:last-child td {
   border-bottom: 0;
 }
@@ -345,6 +371,12 @@ body {
   font-size: 12px;
   color: rgba(24, 32, 29, 0.8);
 }
+.stacked-legend-note {
+  display: inline-block;
+  margin-left: 2px;
+  color: rgba(24, 32, 29, 0.58);
+  font-style: italic;
+}
 .select-label {
   display: inline-block;
   margin: 2px 8px 0 0;
@@ -353,7 +385,14 @@ body {
   /* text-transform: uppercase; */
   letter-spacing: 0.06em;
 }
+.selector-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
 #grouped-deprivation-select,
+#ward-deprivation-filter-select,
 #census-party-select {
   margin-top: 6px;
   border: 1px solid var(--line-strong);
@@ -362,6 +401,24 @@ body {
   background: #fffdf8;
   color: var(--ink);
   font: 700 13px/1.2 var(--font-ui);
+}
+.selector-inline .inline-toggle-button {
+  margin-top: 6px;
+}
+.census-signal-section + .census-signal-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+#census-signals-panels {
+  display: contents;
+}
+.census-signal-panel .census-signal-section {
+  margin-top: 0;
+}
+.census-signal-section h3 {
+  margin: 0 0 8px;
+  font: 800 15px/1.1 var(--font-ui);
 }
 .distribution-bars {
   display: grid;
@@ -373,6 +430,24 @@ body {
   grid-template-columns: 134px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
+}
+.distribution-row.is-interactive {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.distribution-row.is-interactive:hover .distribution-label {
+  color: var(--accent);
+}
+.distribution-row.is-interactive.is-active .distribution-label {
+  color: var(--accent);
+}
+.distribution-row.is-interactive.is-active .distribution-track {
+  border-color: rgba(11, 106, 167, 0.4);
+  box-shadow: 0 0 0 2px rgba(11, 106, 167, 0.08);
 }
 .distribution-label {
   font: 700 12px/1.2 "Avenir Next", "Trebuchet MS", sans-serif;

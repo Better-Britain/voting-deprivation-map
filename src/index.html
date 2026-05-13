@@ -68,12 +68,6 @@
 
     <div class="insights">
       <section class="panel">
-        <h2>How do people in England vote per deprivation level?</h2>
-        <p id="ward-deprivation-summary">Loading ward deprivation vote index...</p>
-        <div id="ward-deprivation-bars"></div>
-        <div id="ward-deprivation-toggle"></div>
-      </section>
-      <section class="panel">
         <h2>How Do Regions Group By Deprivation?</h2>
         <label class="select-label" for="grouped-deprivation-select">View:</label>
         <select id="grouped-deprivation-select"></select>
@@ -81,17 +75,31 @@
         <div id="grouped-deprivation-bars"></div>
       </section>
       <section class="panel">
+        <h2 id="ward-deprivation-heading">How do people in England vote per deprivation level?</h2>
+        <div class="selector-inline">
+          <label class="select-label" for="ward-deprivation-filter-select">Scope:</label>
+          <select id="ward-deprivation-filter-select"></select>
+          <button type="button" class="inline-toggle-button" id="ward-deprivation-reset" hidden>Reset to England</button>
+        </div>
+        <p id="ward-deprivation-summary">Loading ward deprivation vote index...</p>
+        <div id="ward-deprivation-bars"></div>
+        <div id="ward-deprivation-toggle"></div>
+      </section>
+      <section class="panel">
         <h2>Deprivation decile per party</h2>
-        <div id="ward-deprivation-table-toggle"></div>
         <div id="ward-deprivation-table"></div>
       </section>
       <section class="panel">
         <h2>Census Signals</h2>
-        <label class="select-label" for="census-party-select">Party:</label>
-        <select id="census-party-select"></select>
+        <div class="selector-inline">
+          <label class="select-label" for="census-party-select">Party:</label>
+          <select id="census-party-select"></select>
+          <button type="button" class="inline-toggle-button" id="census-show-all-toggle">Show All</button>
+        </div>
         <p id="census-signals-summary">Loading census summaries...</p>
         <div id="census-signals-table"></div>
       </section>
+      <div id="census-signals-panels"></div>
       <section class="panel">
         <h2>Party Census Means</h2>
         <div id="census-party-table"></div>

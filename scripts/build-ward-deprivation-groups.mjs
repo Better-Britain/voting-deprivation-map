@@ -187,6 +187,7 @@ function buildOrderedGroups(groupMap, order) {
     out.push({
       id: label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
       label,
+      ward_codes: rows.map((row) => row.ward_code).filter(Boolean),
       ...aggregateWardGroup(rows)
     });
   }
