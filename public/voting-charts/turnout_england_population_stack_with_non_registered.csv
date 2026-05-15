@@ -1,0 +1,60 @@
+year,election,bar_label,trend_group,population_m,registered_electorate_m,turnout_pct,voted_m,registered_nonvoter_m,not_registered_or_not_in_register_m,population_basis,registered_electorate_basis
+1979,General election,GE,GE / GE-day ballots,46.6981,34.3,76.0,26.067999999999998,8.232,12.3981,ONS ENPOP estimate,anchor
+1979,Local elections,L-GE,GE / GE-day ballots,46.6981,34.3,76.0,26.067999999999998,8.232,12.3981,ONS ENPOP estimate,anchor
+1980,Local elections,L,Routine local elections,46.7872,34.449999999999996,37.4,12.884299999999998,21.5657,12.337200000000003,ONS ENPOP estimate,interpolated
+1981,Local elections,L,Routine local elections,46.8208,34.599999999999994,42.8,14.808799999999996,19.791199999999996,12.220800000000004,ONS ENPOP estimate,interpolated
+1982,Local elections,L,Routine local elections,46.7773,34.75,41.0,14.2475,20.502499999999998,12.027299999999997,ONS ENPOP estimate,interpolated
+1983,General election,GE,GE / GE-day ballots,46.8137,34.9,72.7,25.3723,9.5277,11.913699999999999,ONS ENPOP estimate,anchor
+1983,Local elections,L,Routine local elections,46.8137,34.9,44.5,15.5305,19.3695,11.913699999999999,ONS ENPOP estimate,anchor
+1984,Local elections,L,Routine local elections,46.9124,35.05,40.0,14.02,21.029999999999998,11.862400000000001,ONS ENPOP estimate,interpolated
+1985,Local elections,L,Routine local elections,47.0574,35.2,41.6,14.643200000000002,20.556800000000003,11.857399999999998,ONS ENPOP estimate,interpolated
+1986,Local elections,L,Routine local elections,47.1876,35.35,41.9,14.81165,20.53835,11.837600000000002,ONS ENPOP estimate,interpolated
+1987,General election,GE,GE / GE-day ballots,47.3004,35.5,75.3,26.7315,8.7685,11.800400000000003,ONS ENPOP estimate,anchor
+1987,Local elections,L,Routine local elections,47.3004,35.5,45.0,15.975,19.525,11.800400000000003,ONS ENPOP estimate,anchor
+1988,Local elections,L,Routine local elections,47.4123,35.66,40.8,14.549279999999996,21.11072,11.752300000000005,ONS ENPOP estimate,interpolated
+1989,Local elections,L,Routine local elections,47.5527,35.82,39.2,14.04144,21.77856,11.732700000000001,ONS ENPOP estimate,interpolated
+1990,Local elections,L,Routine local elections,47.6991,35.98,47.5,17.0905,18.889499999999998,11.719100000000005,ONS ENPOP estimate,interpolated
+1991,Local elections,L,Routine local elections,47.875,36.14,46.0,16.6244,19.5156,11.735,ONS ENPOP estimate,interpolated
+1992,General election,GE,GE / GE-day ballots,47.998,36.3,77.7,28.205099999999998,8.094899999999999,11.698,ONS ENPOP estimate,anchor
+1992,Local elections,L,Routine local elections,47.998,36.3,35.1,12.741299999999999,23.558699999999998,11.698,ONS ENPOP estimate,anchor
+1993,Local elections,L,Routine local elections,48.1023,36.48,37.2,13.57056,22.909439999999996,11.622300000000003,ONS ENPOP estimate,interpolated
+1994,Local elections,L,Routine local elections,48.2288,36.66,41.5,15.213899999999999,21.446099999999998,11.568800000000003,ONS ENPOP estimate,interpolated
+1995,Local elections,L,Routine local elections,48.3835,36.84,39.2,14.44128,22.398720000000004,11.543499999999995,ONS ENPOP estimate,interpolated
+1996,Local elections,L,Routine local elections,48.5191,37.02,33.2,12.290640000000003,24.72936,11.499099999999999,ONS ENPOP estimate,interpolated
+1997,General election,GE,GE / GE-day ballots,48.6648,37.2,71.4,26.560800000000004,10.639199999999999,11.464799999999997,ONS ENPOP estimate,anchor
+1997,Local elections,L-GE,GE / GE-day ballots,48.6648,37.2,72.5,26.97,10.230000000000004,11.464799999999997,ONS ENPOP estimate,anchor
+1998,Local elections,L,Routine local elections,48.8206,37.325,28.8,10.749600000000001,26.575400000000002,11.495599999999996,ONS ENPOP estimate,interpolated
+1999,Local elections,L,Routine local elections,49.0329,37.45,32.2,12.058900000000001,25.3911,11.582899999999995,ONS ENPOP estimate,interpolated
+2000,Local elections,L,Routine local elections,49.2333,37.575,29.6,11.1222,26.452800000000003,11.658299999999997,ONS ENPOP estimate,interpolated
+2001,General election,GE,GE / GE-day ballots,49.4497,37.7,59.4,22.393800000000002,15.3062,11.749699999999997,ONS ENPOP estimate,anchor
+2001,Local elections,L-GE,GE / GE-day ballots,49.4497,37.7,62.1,23.4117,14.288300000000003,11.749699999999997,ONS ENPOP estimate,anchor
+2002,Local elections,L,Routine local elections,49.6793,37.825,33.3,12.595725,25.229275,11.854299999999995,ONS ENPOP estimate,interpolated
+2003,Local elections,L,Routine local elections,49.9255,37.95,35.6,13.510200000000003,24.439799999999998,11.975499999999997,ONS ENPOP estimate,interpolated
+2004,Local elections,L,Routine local elections,50.1946,38.075,40.5,15.420375000000002,22.654625000000003,12.119599999999998,ONS ENPOP estimate,interpolated
+2005,General election,GE,GE / GE-day ballots,50.606,38.2,61.4,23.4548,14.745200000000004,12.405999999999999,ONS ENPOP estimate,anchor
+2005,Local elections,L-GE,GE / GE-day ballots,50.606,38.2,63.8,24.371599999999997,13.828400000000006,12.405999999999999,ONS ENPOP estimate,anchor
+2006,Local elections,L,Routine local elections,50.9652,38.36666666666667,36.5,14.003833333333334,24.362833333333334,12.598533333333336,ONS ENPOP estimate,interpolated
+2007,Local elections,L,Routine local elections,51.3811,38.53333333333334,37.4,14.411466666666668,24.12186666666667,12.847766666666665,ONS ENPOP estimate,interpolated
+2008,Local elections,L,Routine local elections,51.8159,38.7,35.5,13.738500000000002,24.9615,13.115899999999996,ONS ENPOP estimate,anchor
+2009,Local elections,L,Routine local elections,52.1964,39.0525,39.2,15.308580000000001,23.743920000000003,13.143899999999995,ONS ENPOP estimate,interpolated
+2010,General election,GE,GE / GE-day ballots,52.6425,39.405,65.1,25.652655,13.752345000000002,13.237499999999997,ONS ENPOP estimate,interpolated
+2010,Local elections,L-GE,GE / GE-day ballots,52.6425,39.405,63.5,25.022175,14.382825,13.237499999999997,ONS ENPOP estimate,interpolated
+2011,Local elections,L,Routine local elections,53.1072,39.7575,42.6,16.936695,22.820805,13.349699999999999,ONS ENPOP estimate,interpolated
+2012,Local elections,L,Routine local elections,53.5068,40.11,31.3,12.55443,27.55557,13.396799999999999,ONS ENPOP estimate,anchor
+2013,Local elections,L,Routine local elections,53.9187,40.0018,31.2,12.480561600000001,27.5212384,13.916899999999998,ONS ENPOP estimate,anchor
+2014,Local elections,L,Routine local elections,54.3703,39.185,36.2,14.184970000000003,25.00003,15.185299999999998,ONS ENPOP estimate,anchor
+2015,General election,GE,GE / GE-day ballots,54.8087,38.6961,66.2,25.6168182,13.0792818,16.1126,ONS ENPOP estimate,anchor
+2015,Local elections,L-GE,GE / GE-day ballots,54.8087,38.6961,64.6,24.9976806,13.698419400000002,16.1126,ONS ENPOP estimate,anchor
+2016,Local elections,L,Routine local elections,55.289,39.12305,34.2,13.380083100000002,25.7429669,16.165950000000002,ONS ENPOP estimate,interpolated
+2017,General election,GE,GE / GE-day ballots,55.6195,39.55,68.8,27.210399999999996,12.3396,16.069500000000005,ONS ENPOP estimate,anchor
+2017,Local elections,L,Routine local elections,55.6195,39.55,35.3,13.961149999999998,25.58885,16.069500000000005,ONS ENPOP estimate,anchor
+2018,Local elections,L,Routine local elections,55.9245,39.875,35.0,13.95625,25.91875,16.049500000000002,ONS ENPOP estimate,interpolated
+2019,General election,GE,GE / GE-day ballots,56.2301,40.2,67.3,27.0546,13.145400000000002,16.030099999999997,ONS ENPOP estimate,anchor
+2019,Local elections,L,Routine local elections,56.2301,40.2,32.5,13.065,27.135000000000005,16.030099999999997,ONS ENPOP estimate,anchor
+2021,Local elections,L,Routine local elections,56.5549,41.1,35.9,14.7549,26.345100000000002,15.454900000000002,ONS ENPOP estimate,anchor
+2022,Local elections,L,Routine local elections,57.1444,41.070465999999996,33.6,13.799676576,27.270789423999997,16.073934,ONS ENPOP estimate,interpolated
+2023,Local elections,L,Routine local elections,57.9325,41.040932,32.0,13.133098239999999,27.90783376,16.891568,ONS ENPOP estimate,anchor
+2024,General election,GE,GE / GE-day ballots,58.6201,41.680892,59.7,24.883492524000005,16.797399475999995,16.939208,ONS ENPOP estimate,anchor
+2024,Local elections,L,Routine local elections,58.6201,41.680892,30.8,12.837714736,28.843177263999998,16.939208,ONS ENPOP estimate,anchor
+2025,Local elections,L,Routine local elections,58.79009829,41.790446,34.3,14.334122978,27.456323022000003,16.99965229,2024-based projection proxy,interpolated
+2026,Local elections,L,Routine local elections,58.96009658,41.9,31.5,13.1985,28.7015,17.06009658,2024-based projection proxy,anchor
