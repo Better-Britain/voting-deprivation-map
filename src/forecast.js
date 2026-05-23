@@ -247,7 +247,7 @@ function renderPartyBarPanel(container, entries, options) {
   container.innerHTML = `
     <p class="panel-note">${options?.note || ""}</p>
     <p class="panel-note">Showing the top ${formatNumber(Math.min(topN, entries.length))} parties by seats. All rows are included in the total.</p>
-    <div class="stacked-bars stacked-bars--single">
+    <div class="seat-bars seat-bars--single">
       ${visible.map(([party, value]) => renderStackedSegment(party, value, sum, false, options)).join("")}
       ${showHidden ? hidden.map(([party, value]) => renderStackedSegment(party, value, sum, true, options)).join("") : ""}
     </div>
@@ -279,15 +279,15 @@ function renderStackedSegment(party, value, sum, hidden, options) {
   return `
     <button
       type="button"
-      class="stacked-segment"
+      class="seat-segment"
       data-hidden-group="${options?.moreId || ""}"
       aria-label="${party}: ${formatNumber(value)} seats, ${formatPercent(Number(value || 0) / sum, 1)} of the total"
       title="${party}: ${formatNumber(value)} seats"
       style="width:${width}%; background:${partyColor(party)}"
       ${hidden ? "hidden" : ""}
     >
-      <span class="stacked-segment-label">${party}</span>
-      <span class="stacked-segment-count">${formatNumber(value)}</span>
+      <span class="seat-segment-label">${party}</span>
+      <span class="seat-segment-count">${formatNumber(value)}</span>
     </button>
   `;
 }

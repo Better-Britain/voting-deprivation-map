@@ -31,19 +31,6 @@
       </aside>
     </header>
 
-    <section class="panel mode-panel">
-      <h2>General Election Correction</h2>
-      <label class="overlay-toggle-label mode-toggle-label" for="ge-adjustment-toggle">
-        <input type="checkbox" id="ge-adjustment-toggle">
-        <span class="toggle-label-main">Apply GE turnout correction</span>
-        <span class="toggle-label-state" id="ge-adjustment-state"></span>
-      </label>
-      <p class="panel-note mode-explainer">
-        Local elections and general elections are not the same electorate. Turning this on applies a small current-era party correction that includes Reform UK, slightly lifts Labour and Reform relative to the raw local roll-up, and trims the parties that usually overperform in low-turnout locals.
-        It does not add new data or change the ward-to-constituency map. 
-      </p>
-    </section>
-
     <section class="panel">
       <h2>Forecast Snapshot</h2>
       <div id="forecast-metrics" class="forecast-metrics"></div>
@@ -93,6 +80,19 @@
       <p class="panel-note" id="ward-summary"></p>
       <button type="button" class="inline-toggle-button" id="ward-table-toggle"><span id="ward-table-toggle-label">Show all wards</span></button>
       <div id="ward-table"></div>
+    </section>
+
+    <section class="panel mode-panel">
+      <h2>General Election Correction</h2>
+      <label class="overlay-toggle-label mode-toggle-label" for="ge-adjustment-toggle">
+        <input type="checkbox" id="ge-adjustment-toggle" checked>
+        <span class="toggle-label-main">Apply GE turnout correction</span>
+        <span class="toggle-label-state" id="ge-adjustment-state"></span>
+      </label>
+      <p class="panel-note mode-explainer">
+        Local elections and general elections are not the same electorate. Turning this on applies a small current-era party correction that includes Reform UK, slightly lifts Labour and Reform relative to the raw local roll-up, and trims the parties that usually overperform in low-turnout locals.
+        It does not add new data or change the ward-to-constituency map.
+      </p>
     </section>
 
     <section class="panel">

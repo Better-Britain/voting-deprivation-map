@@ -341,6 +341,50 @@ body {
   color: rgba(24, 32, 29, 0.82);
 }
 .stacked-bars {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+.party-bar-more {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(24, 32, 29, 0.14);
+}
+.stacked-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+.stacked-label {
+  font: 700 12px/1.2 "Avenir Next", "Trebuchet MS", sans-serif;
+  color: rgba(26, 28, 26, 0.8);
+}
+.stacked-track {
+  height: 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(26, 28, 26, 0.04);
+  display: flex;
+}
+.stacked-segment {
+  height: 100%;
+}
+.stacked-legend {
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(24, 32, 29, 0.8);
+}
+.stacked-legend-note {
+  display: inline-block;
+  margin-left: 2px;
+  color: rgba(24, 32, 29, 0.58);
+  font-style: italic;
+}
+.seat-bars {
   display: flex;
   width: 100%;
   min-height: 42px;
@@ -350,10 +394,10 @@ body {
   overflow: hidden;
   background: rgba(26, 28, 26, 0.04);
 }
-.stacked-bars--single {
+.seat-bars--single {
   gap: 0;
 }
-.stacked-segment {
+.seat-segment {
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
@@ -369,43 +413,32 @@ body {
   overflow: hidden;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
 }
-.stacked-segment:last-child {
+.seat-segment:last-child {
   border-right: 0;
 }
-.stacked-segment:hover,
-.stacked-segment:focus-visible {
+.seat-segment:hover,
+.seat-segment:focus-visible {
   filter: brightness(1.06) saturate(1.05);
   outline: none;
 }
-.stacked-segment-label,
-.stacked-segment-count {
+.seat-segment-label,
+.seat-segment-count {
   display: block;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stacked-segment-label {
+.seat-segment-label {
   font: 800 11px/1.1 var(--font-ui);
 }
-.stacked-segment-count {
+.seat-segment-count {
   margin-top: 2px;
   font: 700 11px/1.1 var(--font-ui);
   opacity: 0.95;
 }
-.stacked-segment[hidden] {
+.seat-segment[hidden] {
   display: none;
-}
-.stacked-legend {
-  margin-top: 8px;
-  font-size: 12px;
-  color: rgba(24, 32, 29, 0.8);
-}
-.stacked-legend-note {
-  display: inline-block;
-  margin-left: 2px;
-  color: rgba(24, 32, 29, 0.58);
-  font-style: italic;
 }
 .select-label {
   display: inline-block;
