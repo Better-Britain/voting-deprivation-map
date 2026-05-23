@@ -668,6 +668,16 @@ body {
   display: grid;
   gap: 16px;
 }
+.thought-banner {
+  border: 1px solid rgba(11, 106, 167, 0.18);
+  background: linear-gradient(180deg, rgba(11, 106, 167, 0.09), rgba(11, 106, 167, 0.03));
+  color: rgba(24, 32, 29, 0.88);
+  font: 800 13px/1.35 var(--font-ui);
+  letter-spacing: 0.01em;
+}
+.thought-banner p {
+  margin: 0;
+}
 .forecast-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
@@ -812,6 +822,10 @@ body {
   padding: 24px 18px 32px;
   display: grid;
   gap: 16px;
+}
+.spotlight-shell .thought-banner {
+  border-color: rgba(181, 74, 28, 0.16);
+  background: linear-gradient(180deg, rgba(181, 74, 28, 0.08), rgba(181, 74, 28, 0.03));
 }
 .spotlight-hero {
   display: grid;
