@@ -10,7 +10,12 @@ The map is at [https://better-britain.github.io/voting-deprivation-map/](https:/
 
 This repo ships real dataset files from `src/data` and the website reads those files directly. There is no production-side builder. Data refreshes happen in dev or CI and the resulting JSON/GeoJSON stays repo-tracked.
 
-## TODO
+## Spotlight
+
+- `src/spotlight.html` shows a focused Makerfield and Greater Manchester mayoralty readout.
+- `yarn data:update:spotlight` rebuilds the reduced `src/data/spotlight-focus.json` payload from the source datasets.
+
+### Not doable
 
 - The ward scanner now separates current and historical refreshes and tracks pending wards, but Democracy Club current polling still scans the full current election date because the API path is still broad.
   - Next step: find a reliable narrower source or request pattern so pending-current refreshes do not need a full current-election sweep.

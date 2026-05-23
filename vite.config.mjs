@@ -18,5 +18,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "local-dist"),
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(root, "index.html"),
+        forecast: path.resolve(root, "forecast.html"),
+        spotlight: path.resolve(root, "spotlight.html")
+      }
+    },
   },
 });

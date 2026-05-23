@@ -19,8 +19,13 @@ const CAPTURE_DEBUG_PATH = path.resolve(projectRoot, "src/data/manual-election-c
 const PARTY_LOOKUP = {
   lab: "Labour",
   labour: "Labour",
+  "labour and co-operative": "Labour",
+  "labour and cooperative": "Labour",
+  "labour co-operative": "Labour",
+  "labour cooperative": "Labour",
   con: "Conservative and Unionist",
   conservative: "Conservative and Unionist",
+  "liberal democrat": "Liberal Democrats",
   libdem: "Liberal Democrats",
   "lib dem": "Liberal Democrats",
   liberal: "Liberal Democrats",

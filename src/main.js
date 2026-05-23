@@ -1052,8 +1052,30 @@ function normalizePartyName(value) {
     .toLowerCase();
 }
 
+function canonicalPartyName(value) {
+  const normalized = normalizePartyName(value);
+  if (
+    normalized === "labour" ||
+    normalized === "labour and co-operative" ||
+    normalized === "labour and cooperative" ||
+    normalized === "labour and cooperative party" ||
+    normalized === "labour and co operative" ||
+    normalized === "labour and co operative party" ||
+    normalized === "labour co-operative" ||
+    normalized === "labour cooperative" ||
+    normalized === "labour co operative"
+  ) return "Labour";
+  if (normalized === "conservative" || normalized === "conservative and unionist" || normalized === "conservative and unionist party") return "Conservative";
+  if (normalized === "reform uk" || normalized === "reform") return "Reform UK";
+  if (normalized === "liberal democrat" || normalized === "liberal democrats" || normalized === "lib dem" || normalized === "lib dems") return "Liberal Democrats";
+  if (normalized === "green party" || normalized === "green") return "Green Party";
+  if (normalized === "independent") return "Independent";
+  return String(value || "").trim() || "Other";
+}
+
 function getWinnerPartyColor(partyName) {
-  const normalized = normalizePartyName(partyName);
+  const canonical = canonicalPartyName(partyName);
+  const normalized = normalizePartyName(canonical);
   if (PARTY_COLORS[normalized]) return PARTY_COLORS[normalized];
   if (normalized.includes("labour")) return PARTY_COLORS.labour;
   if (normalized.includes("conservative")) return PARTY_COLORS["conservative"];

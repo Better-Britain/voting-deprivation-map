@@ -16,6 +16,8 @@
     "data:update:census:source": "node ./scripts/update-census-source.mjs",
     "data:derive:deprivation": "node ./scripts/run-deprivation-derivatives.mjs",
     "data:derive:census": "node ./scripts/run-census-derivatives.mjs",
+    "data:update:forecast": "node ./scripts/build-next-ge-forecast.mjs",
+    "data:update:spotlight": "node ./scripts/build-spotlight-focus.mjs",
     "data:update:gp": "node ./scripts/run-gp-import.mjs",
     "updates:maintenance": "node ./scripts/updates-maintenance.mjs",
     "updates:maintenance:refresh-all-current": "FORCE_REFRESH_ALL_CURRENT=1 node ./scripts/updates-maintenance.mjs",
