@@ -10,6 +10,11 @@ The map is at [https://better-britain.github.io/voting-deprivation-map/](https:/
 
 This repo ships real dataset files from `src/data` and the website reads those files directly. There is no production-side builder. Data refreshes happen in dev or CI and the resulting JSON/GeoJSON stays repo-tracked.
 
+## TODO:
+
+- the next ge forecast isnt what's missing on the github pages... the current mps are missing.
+- I have some code that does something very similar here for constituencies rendering to image tiles in /home/bobbigmac/projects/nhs-complaint-dec-2024/datasets
+
 ## Spotlight
 
 - `src/spotlight.html` shows a focused Makerfield and Greater Manchester mayoralty readout.

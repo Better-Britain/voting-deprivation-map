@@ -737,6 +737,17 @@ body {
   display: grid;
   gap: 18px;
 }
+.forecast-map-figure {
+  margin: 0;
+}
+.forecast-map-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  border: 1px solid rgba(24, 32, 29, 0.12);
+  background: #f4efe4;
+}
 .metric-card {
   padding: 14px;
   border: 1px solid var(--line);
