@@ -1,5 +1,7 @@
 import { buildConstituencyView } from "./lib/ge-adjustment.js";
 import { partyFamilyName } from "./lib/ge-adjustment.js";
+import { initBackToTopButton } from "./lib/back-to-top.js";
+import { rowMatchesSearch } from "./lib/list-search.js";
 
 const DATA_URL = new URL("./data/spotlight-focus.json", import.meta.url).href;
 const FORECAST_URL = new URL("./data/next-ge-forecast.json", import.meta.url).href;
@@ -49,11 +51,14 @@ const gmWards = document.getElementById("gm-wards");
 const makerfieldWardsSummary = document.getElementById("makerfield-wards-summary");
 const makerfieldWardsToggle = document.getElementById("makerfield-wards-toggle");
 const makerfieldWardsToggleLabel = document.getElementById("makerfield-wards-toggle-label");
+const makerfieldWardsSearch = document.getElementById("makerfield-wards-search");
 const gmWardsSummary = document.getElementById("gm-wards-summary");
 const gmWardsToggle = document.getElementById("gm-wards-toggle");
 const gmWardsToggleLabel = document.getElementById("gm-wards-toggle-label");
+const gmWardsSearch = document.getElementById("gm-wards-search");
 const makerfieldGeAdjustmentToggle = document.getElementById("makerfield-ge-adjustment-toggle");
 const makerfieldGeAdjustmentState = document.getElementById("makerfield-ge-adjustment-state");
+const backToTopButton = document.getElementById("back-to-top");
 
 let spotlightData = null;
 let forecastData = null;
@@ -61,6 +66,10 @@ let forecastViewData = null;
 let makerfieldGeAdjustedMode = true;
 let makerfieldWardsExpanded = false;
 let gmWardsExpanded = false;
+let makerfieldWardsSearchQuery = "";
+let gmWardsSearchQuery = "";
+let makerfieldWardsSort = { key: "lead", direction: "desc" };
+let gmWardsSort = { key: "lead", direction: "desc" };
 
 function formatNumber(value, digits = 0) {
   const num = Number(value);
@@ -80,23 +89,13 @@ function formatGap(value, digits = 2) {
 function formatLead(value, digits = 2) {
   const num = Number(value);
   if (!Number.isFinite(num)) return "n/a";
-  return `${Math.abs(num * 100).toFixed(digits)} percentage-point lead`;
+  return `${Math.abs(num * 100).toFixed(digits)}-point lead`;
 }
 
 function formatPercent(value, digits = 1) {
   const num = Number(value);
   if (!Number.isFinite(num)) return "n/a";
   return `${(num * 100).toFixed(digits)}%`;
-}
-
-function formatOdds(value, digits = 1) {
-  const prob = Number(value);
-  if (!Number.isFinite(prob) || prob <= 0 || prob >= 1) return "n/a";
-  const ratio = prob >= 0.5 ? prob / (1 - prob) : (1 - prob) / prob;
-  if (Math.abs(ratio - 1) < 0.15) return "evens";
-  const rounded = Math.max(0.5, Math.round(ratio * 2) / 2);
-  const display = Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(digits);
-  return prob >= 0.5 ? `${display}:1` : `1:${display}`;
 }
 
 function describeRace(gap) {
@@ -165,18 +164,36 @@ function renderTagList(container, rows, emptyMessage) {
   `;
 }
 
-function renderTable(container, rows, columns, emptyMessage) {
+function renderTable(container, rows, columns, emptyMessage, sortState, onSortChange) {
   if (!container) return;
   if (!rows.length) {
     container.innerHTML = `<p class="panel-note">${emptyMessage}</p>`;
     return;
   }
 
+  const sortedRows = sortState?.key
+    ? [...rows].sort((left, right) => {
+      const column = columns.find((item) => item.key === sortState.key);
+      const leftValue = column?.sortValue ? column.sortValue(left) : left?.[sortState.key];
+      const rightValue = column?.sortValue ? column.sortValue(right) : right?.[sortState.key];
+      const result = compareValues(leftValue, rightValue);
+      return sortState.direction === "asc" ? result : -result;
+    })
+    : rows;
+
+  const header = columns.map((column) => {
+    const active = Boolean(column.key) && sortState?.key === column.key;
+    const indicator = active ? (sortState.direction === "asc" ? "▲" : "▼") : "↕";
+    return column.key
+      ? `<th><button type="button" class="table-sort-button ${active ? "is-active" : ""}" data-sort-key="${column.key}"><span>${column.label}</span><span class="table-sort-indicator">${indicator}</span></button></th>`
+      : `<th>${column.label}</th>`;
+  }).join("");
+
   container.innerHTML = `
     <table class="simple-table forecast-table spotlight-table">
-      <thead><tr>${columns.map((column) => `<th>${column.label}</th>`).join("")}</tr></thead>
+      <thead><tr>${header}</tr></thead>
       <tbody>
-        ${rows.map((row) => `
+        ${sortedRows.map((row) => `
           <tr>
             ${columns.map((column) => `<td>${column.render(row)}</td>`).join("")}
           </tr>
@@ -184,6 +201,24 @@ function renderTable(container, rows, columns, emptyMessage) {
       </tbody>
     </table>
   `;
+
+  container.querySelectorAll(".table-sort-button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const sortKey = button.getAttribute("data-sort-key");
+      if (!sortKey || !onSortChange) return;
+      if (sortState?.key === sortKey) {
+        onSortChange({
+          key: sortKey,
+          direction: sortState.direction === "asc" ? "desc" : "asc"
+        });
+      } else {
+        onSortChange({
+          key: sortKey,
+          direction: "desc"
+        });
+      }
+    });
+  });
 }
 
 function getWardSummary(rows) {
@@ -198,13 +233,22 @@ function getWardSummary(rows) {
   return { total, holds, changes, tight };
 }
 
+function compareValues(a, b) {
+  const aNum = Number(a);
+  const bNum = Number(b);
+  const aIsNum = Number.isFinite(aNum);
+  const bIsNum = Number.isFinite(bNum);
+  if (aIsNum && bIsNum) return aNum - bNum;
+  return String(a ?? "").localeCompare(String(b ?? ""), undefined, { numeric: true, sensitivity: "base" });
+}
+
 function describePlace(place, kind) {
   const forecast = place?.forecast_party || "n/a";
   const current = kind === "mayor"
     ? `${place?.current_holder_name || "n/a"} (${place?.current_party || "n/a"})`
     : `${place?.current_member_name || "n/a"} (${place?.current_party || "n/a"})`;
   if (kind === "constituency" && Number.isFinite(Number(place?.forecast?.winner_probability))) {
-    return `${place?.place_type || "Place"} currently held by ${current}. The model points to ${forecast} at ${formatOdds(place?.forecast?.winner_probability, 1)}.`;
+    return `${place?.place_type || "Place"} currently held by ${current}. The model points to ${forecast} with a ${formatLead(place?.gap || 0, 1)}.`;
   }
   return `${place?.place_type || "Place"} currently held by ${current}. The model points to ${forecast} in a ${describeRace(place?.gap)} race.`;
 }
@@ -225,13 +269,13 @@ function placeCards(place, kind) {
       note: `${place?.seat_status || "unknown"} vs current`
     },
     {
-      label: kind === "mayor" ? "Race" : "Odds",
+      label: kind === "mayor" ? "Race" : "Lead",
       value: kind === "mayor"
         ? describeRace(place?.gap)
-        : formatOdds(place?.forecast?.winner_probability, 1),
+        : formatLead(place?.gap, 1),
       note: kind === "mayor"
         ? "very close means the gap is tiny"
-        : "simple odds for the forecast winner"
+        : "difference between the top two model scores"
     },
     {
       label: "Wards",
@@ -283,21 +327,28 @@ function populatePlace(place, kind, selectors) {
   }
   if (selectors.wards) {
     const rows = Array.isArray(place.ward_rows) ? [...place.ward_rows] : [];
-    const summary = getWardSummary(rows);
     const expanded = kind === "mayor" ? gmWardsExpanded : makerfieldWardsExpanded;
+    const searchQuery = kind === "mayor" ? gmWardsSearchQuery : makerfieldWardsSearchQuery;
+    const sortState = kind === "mayor" ? gmWardsSort : makerfieldWardsSort;
     const summaryEl = kind === "mayor" ? gmWardsSummary : makerfieldWardsSummary;
     const toggleEl = kind === "mayor" ? gmWardsToggle : makerfieldWardsToggle;
     const toggleLabelEl = kind === "mayor" ? gmWardsToggleLabel : makerfieldWardsToggleLabel;
+    const searchEl = kind === "mayor" ? gmWardsSearch : makerfieldWardsSearch;
+    const filteredRows = rows.filter((row) => rowMatchesSearch(row, searchQuery));
+    const summary = getWardSummary(filteredRows);
     if (summaryEl) {
       summaryEl.textContent = expanded
-        ? `${formatNumber(summary.total)} wards shown, sorted by lead.`
-        : `${formatNumber(summary.total)} wards total. ${formatNumber(summary.holds)} forecast holds, ${formatNumber(summary.changes)} forecast changes, and ${formatNumber(summary.tight)} tight wards. Use the button to show the full ward list.`;
+        ? `${formatNumber(summary.total)} wards shown, sorted by lead.${searchQuery ? ` Search: "${searchQuery}".` : ""}`
+        : `${formatNumber(summary.total)} wards total${searchQuery ? ` matching search "${searchQuery}"` : ""}. ${formatNumber(summary.holds)} forecast holds, ${formatNumber(summary.changes)} forecast changes, and ${formatNumber(summary.tight)} tight wards. Use the button to show the full ward list.`;
     }
     if (toggleEl) {
-      toggleEl.hidden = expanded || rows.length === 0;
+      toggleEl.hidden = filteredRows.length === 0;
     }
     if (toggleLabelEl) {
-      toggleLabelEl.textContent = `Show all ${formatNumber(summary.total)} wards`;
+      toggleLabelEl.textContent = expanded ? "Hide list" : `Show all ${formatNumber(summary.total)} wards`;
+    }
+    if (searchEl) {
+      searchEl.value = searchQuery;
     }
     if (!expanded) {
       selectors.wards.innerHTML = "";
@@ -305,33 +356,46 @@ function populatePlace(place, kind, selectors) {
     }
     renderTable(
       selectors.wards,
-      rows,
+      filteredRows,
       [
         {
+          key: "ward",
           label: "Ward",
+          sortValue: (row) => row?.ward_name || "",
           render: (row) => `<strong>${row.ward_name || "n/a"}</strong><br><span class="forecast-subtle">${row.ward_code || ""}</span>`
         },
         {
+          key: "authority",
           label: "Authority",
+          sortValue: (row) => row?.authority_name || "",
           render: (row) => row.authority_name || "n/a"
         },
         {
+          key: "current",
           label: "Current",
+          sortValue: (row) => row?.current_winner_party || "",
           render: (row) => partyBadge(row.current_winner_party)
         },
         {
+          key: "incumbent",
           label: "Incumbent",
+          sortValue: (row) => row?.incumbent_party || "",
           render: (row) => partyBadge(row.incumbent_party)
         },
         {
+          key: "forecast",
           label: "Forecast",
+          sortValue: (row) => row?.forecast_party || "",
           render: (row) => partyBadge(row.forecast_party)
         },
         {
+          key: "lead",
           label: "Lead",
+          sortValue: (row) => Number(row?.gap || 0),
           render: (row) => formatLead(row.gap || 0, 2)
         },
         {
+          key: "signals",
           label: "Signals",
           render: (row) => (Array.isArray(row.top_signals) ? row.top_signals : [])
             .slice(0, 3)
@@ -339,7 +403,16 @@ function populatePlace(place, kind, selectors) {
             .join("<br>")
         }
       ],
-      "No ward roll-up rows available."
+      "No ward roll-up rows available.",
+      sortState,
+      (nextSort) => {
+        if (kind === "mayor") {
+          gmWardsSort = nextSort;
+        } else {
+          makerfieldWardsSort = nextSort;
+        }
+        renderView();
+      }
     );
   }
 }
@@ -364,7 +437,7 @@ function buildNotes(makerfield, gm) {
     `Makerfield spans ${formatNumber(makerfield.ward_count || 0)} wards across ${formatNumber(makerfield.authority_count || 0)} authorities.`,
     `The toggle above changes only the Makerfield constituency section; the mayoralty section stays on its separate model.`,
     `Greater Manchester mayoralty is currently held by ${gm.current_holder_name || "n/a"} (${gm.current_party || "n/a"}) and the race is very close.`,
-    `Makerfield is shown in simple odds; the mayoralty section uses a plain-English close-race label because that dataset does not store full win probabilities.`,
+    `Makerfield is shown as a lead over the runner-up; the mayoralty section uses a plain-English close-race label because that dataset does not store full win probabilities.`,
     `The mayoralty forecast uses the ten Greater Manchester authorities and the ward-level census/deprivation split rather than a single centroid-based join.`
   ];
   if (!spotlightNotes) return;
@@ -387,7 +460,7 @@ function renderView() {
       {
         label: makerfieldGeAdjustedMode ? "Makerfield GE-adjusted forecast" : "Makerfield forecast",
         value: makerfield.forecast_party || "n/a",
-        note: formatOdds(makerfield?.forecast?.winner_probability, 1)
+        note: formatLead(makerfield?.gap || 0, 1)
       },
       {
         label: "Makerfield current MP",
@@ -468,19 +541,34 @@ async function main() {
 
   if (makerfieldWardsToggle) {
     makerfieldWardsToggle.addEventListener("click", () => {
-      makerfieldWardsExpanded = true;
+      makerfieldWardsExpanded = !makerfieldWardsExpanded;
       renderView();
     });
   }
 
   if (gmWardsToggle) {
     gmWardsToggle.addEventListener("click", () => {
-      gmWardsExpanded = true;
+      gmWardsExpanded = !gmWardsExpanded;
+      renderView();
+    });
+  }
+
+  if (makerfieldWardsSearch) {
+    makerfieldWardsSearch.addEventListener("input", () => {
+      makerfieldWardsSearchQuery = makerfieldWardsSearch.value.trim();
+      renderView();
+    });
+  }
+
+  if (gmWardsSearch) {
+    gmWardsSearch.addEventListener("input", () => {
+      gmWardsSearchQuery = gmWardsSearch.value.trim();
       renderView();
     });
   }
 
   renderView();
+  initBackToTopButton(backToTopButton);
 }
 
 main().catch((error) => {

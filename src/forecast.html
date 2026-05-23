@@ -40,7 +40,7 @@
       </label>
       <p class="panel-note mode-explainer">
         Local elections and general elections are not the same electorate. Turning this on applies a small current-era party correction that includes Reform UK, slightly lifts Labour and Reform relative to the raw local roll-up, and trims the parties that usually overperform in low-turnout locals.
-        It does not add new data or change the ward-to-constituency map. It is a sensitivity view, not a claim that turnout is fully solved.
+        It does not add new data or change the ward-to-constituency map. 
       </p>
     </section>
 
@@ -49,21 +49,29 @@
       <div id="forecast-metrics" class="forecast-metrics"></div>
     </section>
 
-    <section class="panel">
-      <h2>Forecast Seat Totals</h2>
-      <div id="forecast-seat-bars"></div>
-    </section>
+    <div class="forecast-seat-panels">
+      <section class="panel">
+        <h2>Forecast Seat Totals</h2>
+        <div id="forecast-seat-bars"></div>
+      </section>
 
-    <section class="panel">
-      <h2>Current Seat Split</h2>
-      <div id="current-seat-bars"></div>
-    </section>
+      <section class="panel">
+        <h2>Current Seat Split</h2>
+        <div id="current-seat-bars"></div>
+      </section>
+    </div>
 
     <section class="panel">
       <h2>Constituency Forecasts</h2>
-      <div class="selector-inline">
-        <label class="select-label" for="constituency-party-select">Party:</label>
-        <select id="constituency-party-select"></select>
+      <div class="table-control-row">
+        <div class="selector-inline">
+          <label class="select-label" for="constituency-party-select">Party:</label>
+          <select id="constituency-party-select"></select>
+        </div>
+        <div class="table-filter-inline">
+          <label class="table-filter-label" for="constituency-search">Search</label>
+          <input type="text" id="constituency-search" class="table-filter-input" placeholder="Filter constituencies">
+        </div>
       </div>
       <p class="panel-note" id="constituency-summary"></p>
       <button type="button" class="inline-toggle-button" id="constituency-table-toggle"><span id="constituency-table-toggle-label">Show all constituencies</span></button>
@@ -72,11 +80,18 @@
 
     <section class="panel">
       <h2>Ward Forecasts</h2>
-      <div class="selector-inline">
-        <label class="select-label" for="ward-party-select">Party:</label>
-        <select id="ward-party-select"></select>
+      <div class="table-control-row">
+        <div class="selector-inline">
+          <label class="select-label" for="ward-party-select">Party:</label>
+          <select id="ward-party-select"></select>
+        </div>
+        <div class="table-filter-inline">
+          <label class="table-filter-label" for="ward-search">Search</label>
+          <input type="text" id="ward-search" class="table-filter-input" placeholder="Filter wards">
+        </div>
       </div>
       <p class="panel-note" id="ward-summary"></p>
+      <button type="button" class="inline-toggle-button" id="ward-table-toggle"><span id="ward-table-toggle-label">Show all wards</span></button>
       <div id="ward-table"></div>
     </section>
 
@@ -97,6 +112,7 @@
     </footer>
   </main>
 
+  <button type="button" class="back-to-top-button" id="back-to-top" aria-label="Back to top" aria-hidden="true">Top</button>
   <script type="module" src="./forecast.js"></script>
 </body>
 </html>

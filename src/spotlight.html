@@ -52,8 +52,14 @@
       </div>
       <div class="spotlight-table-block">
         <h3>Ward roll-up</h3>
+        <div class="table-control-row">
+          <button type="button" class="inline-toggle-button" id="makerfield-wards-toggle"><span id="makerfield-wards-toggle-label">Show all wards</span></button>
+          <div class="table-filter-inline">
+            <label class="table-filter-label" for="makerfield-wards-search">Search</label>
+            <input type="text" id="makerfield-wards-search" class="table-filter-input" placeholder="Filter wards">
+          </div>
+        </div>
         <p class="panel-note" id="makerfield-wards-summary"></p>
-        <button type="button" class="inline-toggle-button" id="makerfield-wards-toggle"><span id="makerfield-wards-toggle-label">Show all wards</span></button>
         <div id="makerfield-wards"></div>
       </div>
     </section>
@@ -87,8 +93,14 @@
       </div>
       <div class="spotlight-table-block">
         <h3>Ward roll-up</h3>
+        <div class="table-control-row">
+          <button type="button" class="inline-toggle-button" id="gm-wards-toggle"><span id="gm-wards-toggle-label">Show all wards</span></button>
+          <div class="table-filter-inline">
+            <label class="table-filter-label" for="gm-wards-search">Search</label>
+            <input type="text" id="gm-wards-search" class="table-filter-input" placeholder="Filter wards">
+          </div>
+        </div>
         <p class="panel-note" id="gm-wards-summary"></p>
-        <button type="button" class="inline-toggle-button" id="gm-wards-toggle"><span id="gm-wards-toggle-label">Show all wards</span></button>
         <div id="gm-wards"></div>
       </div>
     </section>
@@ -108,6 +120,7 @@
     </footer>
   </main>
 
+  <button type="button" class="back-to-top-button" id="back-to-top" aria-label="Back to top" aria-hidden="true">Top</button>
   <script type="module" src="./spotlight.js"></script>
 </body>
 </html>
