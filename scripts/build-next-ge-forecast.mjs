@@ -20,8 +20,8 @@ const OUTPUT_PATH = path.resolve(projectRoot, "src/data/next-ge-forecast.json");
 
 const CONSTITUENCY_SERVICE_URL =
   "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Westminster_Parliamentary_Constituencies_July_2024_Boundaries_UK_BFC/FeatureServer/0/query?where=PCON24CD%20LIKE%20%27E%25%27&outFields=PCON24CD,PCON24NM&returnGeometry=true&outSR=4326&geometryPrecision=4&f=geojson";
-const CURRENT_CONSTITUENCY_SEARCH_URL =
-  "https://members-api.parliament.uk/api/Location/Constituency/Search?skip=0&take=200";
+const CURRENT_MEMBER_SEARCH_URL =
+  "https://members-api.parliament.uk/api/Members/Search?House=Commons";
 const CURRENT_CONSTITUENCY_OVERRIDES = new Map([
   [
     "makerfield",
@@ -352,7 +352,7 @@ async function fetchAllCurrentConstituencies() {
   let totalResults = Infinity;
 
   while (skip < totalResults) {
-    const url = `${CURRENT_CONSTITUENCY_SEARCH_URL}&skip=${skip}&take=${take}`;
+    const url = `${CURRENT_MEMBER_SEARCH_URL}&skip=${skip}&take=${take}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Constituency state request failed: ${response.status}`);
@@ -368,19 +368,28 @@ async function fetchAllCurrentConstituencies() {
 
   return items
     .map((item) => {
-      const constituency = item?.value || {};
-      const representation = constituency?.currentRepresentation || {};
-      const member = representation?.member?.value || null;
+      const member = item?.value || {};
+      const houseMembership = member?.latestHouseMembership || {};
+      const constituencyName = houseMembership?.membershipFrom || null;
+      const rawParty = member?.latestParty?.name || null;
+      const isCurrentCommonsMember =
+        Boolean(houseMembership?.membershipStatus?.statusIsActive) && houseMembership?.house === 1;
+
+      if (!isCurrentCommonsMember || !constituencyName) {
+        return null;
+      }
+
       return {
-        constituency_id: constituency.id,
-        constituency_name: constituency.name,
-        constituency_key: normalizeConstituencyName(constituency.name),
+        constituency_id: houseMembership?.membershipFromId || null,
+        constituency_name: constituencyName,
+        constituency_key: normalizeConstituencyName(constituencyName),
         current_member_id: member?.id || null,
         current_member_name: member?.nameDisplayAs || member?.nameFullTitle || null,
-        current_party: canonicalPartyName(member?.latestParty?.name || null)
+        current_party: canonicalPartyName(rawParty),
+        current_party_label: rawParty
       };
     })
-    .filter((row) => row.constituency_name);
+    .filter((row) => row && row.constituency_name);
 }
 
 const [wardsRaw, censusRaw, deprivationRaw, electionRaw, constituencyGeojsonRaw, currentConstituenciesRaw] = await Promise.all([
@@ -574,6 +583,7 @@ for (const feature of constituencyFeatures) {
     current_member_id: currentState?.current_member_id || null,
     current_member_name: currentState?.current_member_name || null,
     current_party: currentState?.current_party || null,
+    current_party_label: currentState?.current_party_label || null,
     forecast_party: forecast.winner || null,
     seat_status: seatStatus
   });
@@ -585,6 +595,7 @@ for (const feature of constituencyFeatures) {
     current_member_id: currentState?.current_member_id || null,
     current_member_name: currentState?.current_member_name || null,
     current_party: currentState?.current_party || null,
+    current_party_label: currentState?.current_party_label || null,
     seat_status: seatStatus,
     forecast
   });

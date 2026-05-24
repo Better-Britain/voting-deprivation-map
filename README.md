@@ -13,7 +13,7 @@ This repo ships real dataset files from `src/data` and the website reads those f
 ## TODO:
 
 - the next ge forecast isnt what's missing on the github pages... the current mps are missing.
-- I have some code that does something very similar here for constituencies rendering to image tiles in /home/bobbigmac/projects/nhs-complaint-dec-2024/datasets
+  - also apply this cut-off to the server-side generated map, and rebuild it. Rather than unknown, on that map should be 'too close to call'. Our map needs 2 versions... one for the non-GE-turnout-corrected and one for the GE-turnout-corrected, with a switch between them.
 
 ## Spotlight
 

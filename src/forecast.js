@@ -11,8 +11,13 @@ const PARTY_COLORS = {
   "Reform UK": "#12b6cf",
   "Liberal Democrats": "#faa61a",
   "Green Party": "#6ab023",
-  Independent: "#9ca3af"
+  Independent: "#9ca3af",
+  Unknown: "#c0c5cc",
+  Other: "#d7dbdf"
 };
+const CALLABLE_THRESHOLD = 0.002;
+const PARTY_BAR_LIMIT = 5;
+const PARTY_BAR_PRESERVE = new Set(["Independent", "Unknown"]);
 
 const METRIC_DEFINITIONS = [
   {
@@ -31,13 +36,13 @@ const METRIC_DEFINITIONS = [
     }
   },
   {
-    label: "Tight seats",
-    getValue: (data) => {
-      const rows = Array.isArray(data?.constituency_forecasts) ? data.constituency_forecasts : [];
-      return rows.filter((row) => Number(row?.forecast?.confidence || 0) <= 0.12).length;
+      label: "Tight seats",
+      getValue: (data) => {
+        const rows = Array.isArray(data?.constituency_forecasts) ? data.constituency_forecasts : [];
+        return rows.filter((row) => Number(row?.forecast?.confidence || 0) <= CALLABLE_THRESHOLD).length;
+      }
     }
-  }
-];
+  ];
 
 const constituencyPartySelect = document.getElementById("constituency-party-select");
 const wardPartySelect = document.getElementById("ward-party-select");
@@ -68,8 +73,6 @@ let selectedWardParty = "All";
 let geAdjustedMode = true;
 let constituencyTableExpanded = false;
 let wardTableExpanded = false;
-let forecastSeatSmallerExpanded = false;
-let currentSeatSmallerExpanded = false;
 let constituencySort = { key: "lead", direction: "desc" };
 let wardSort = { key: "lead", direction: "desc" };
 let backToTopInitialized = false;
@@ -112,18 +115,20 @@ function getSortedPartyEntries(mapLike) {
   return Object.entries(mapLike || {}).sort((a, b) => Number(b[1]) - Number(a[1]));
 }
 
-function getSeatPartyUniverse(forecastTotals, currentTotals) {
-  const currentEntries = getSortedPartyEntries(currentTotals);
-  const currentOrder = currentEntries.map(([party]) => party);
-  const forecastExtras = getSortedPartyEntries(forecastTotals)
-    .map(([party]) => party)
-    .filter((party) => !currentOrder.includes(party));
-  return [...currentOrder, ...forecastExtras];
-}
-
-function buildSeatBarEntries(totals, partyUniverse) {
-  const entries = partyUniverse.map((party) => [party, Number(totals?.[party] || 0)]);
-  return entries.sort((a, b) => Number(b[1]) - Number(a[1]));
+function collapsePartyTotalsForBar(totals, options = {}) {
+  const limit = Number.isFinite(Number(options.limit)) ? Number(options.limit) : PARTY_BAR_LIMIT;
+  const preserve = new Set(Array.isArray(options.preserve) ? options.preserve : []);
+  const entries = getSortedPartyEntries(totals).filter(([, value]) => Number(value || 0) > 0);
+  const preservedEntries = entries.filter(([party]) => preserve.has(party));
+  const rankedEntries = entries.filter(([party]) => !preserve.has(party));
+  const visibleEntries = rankedEntries.slice(0, limit);
+  const hiddenEntries = rankedEntries.slice(limit);
+  const otherTotal = hiddenEntries.reduce((sum, [, value]) => sum + Number(value || 0), 0);
+  const collapsed = [...visibleEntries, ...preservedEntries];
+  if (otherTotal > 0) {
+    collapsed.push(["Other", otherTotal]);
+  }
+  return collapsed.sort((a, b) => Number(b[1]) - Number(a[1]));
 }
 
 function compareValues(a, b) {
@@ -144,9 +149,9 @@ function renderMetrics(data) {
       .map((row) => Number(row?.forecast?.confidence || 0))
       .sort((a, b) => a - b)[Math.floor(constituencies.length / 2)]
     : null;
-  const tightSeats = constituencies.filter((row) => Number(row?.forecast?.confidence || 0) <= 0.12).length;
+  const tightSeats = constituencies.filter((row) => Number(row?.forecast?.confidence || 0) <= CALLABLE_THRESHOLD).length;
   const contestedWards = (Array.isArray(data?.ward_forecasts) ? data.ward_forecasts : []).filter(
-    (row) => Number(row?.confidence || 0) <= 0.12
+    (row) => Number(row?.confidence || 0) <= CALLABLE_THRESHOLD
   ).length;
   const holdSeats = Number(data?.summary?.constituency_holds || 0);
   const changeSeats = Number(data?.summary?.constituency_changes || 0);
@@ -190,18 +195,21 @@ function renderMetrics(data) {
 
 function renderSeatBars(data) {
   if (!forecastSeatBars) return;
-  const totals = data?.party_seat_totals || {};
-  const currentTotals = getCurrentSeatTotals(forecastData);
-  const partyUniverse = getSeatPartyUniverse(totals, currentTotals);
-  const entries = buildSeatBarEntries(totals, partyUniverse);
+  const rows = Array.isArray(data?.constituency_forecasts) ? data.constituency_forecasts : [];
+  const totals = {};
+  for (const row of rows) {
+    const isCallable = Number(row?.forecast?.confidence || 0) > CALLABLE_THRESHOLD;
+    const party = isCallable ? (row?.forecast?.winner || "Unknown") : "Unknown";
+    totals[party] = (totals[party] || 0) + 1;
+  }
+  const entries = collapsePartyTotalsForBar(totals, {
+    limit: PARTY_BAR_LIMIT,
+    preserve: ["Independent", "Unknown"]
+  });
   renderPartyBarPanel(forecastSeatBars, entries, {
-    expanded: forecastSeatSmallerExpanded,
-    toggleId: "forecast-seat-more-toggle",
-    moreId: "forecast-seat-more",
-    buttonLabel: "smaller parties",
     note: geAdjustedMode
-      ? "This is the GE-adjusted seat total, using the same party set as the current seat split so the two views compare like for like."
-      : "These are total forecast winners across all 543 constituencies, using the same party set as the current seat split.",
+      ? "This is the GE-adjusted seat total. Low-confidence constituencies are grouped as Unknown and the smaller parties are rolled into Other."
+      : "These are forecast winners across all 543 constituencies. Low-confidence constituencies are grouped as Unknown and the smaller parties are rolled into Other.",
     emptyMessage: "No forecast seat totals available."
   });
 }
@@ -209,14 +217,12 @@ function renderSeatBars(data) {
 function renderCurrentSeatBars(data) {
   if (!currentSeatBars) return;
   const totals = getCurrentSeatTotals(data);
-  const partyUniverse = getSeatPartyUniverse(data?.party_seat_totals || {}, totals);
-  const entries = buildSeatBarEntries(totals, partyUniverse);
+  const entries = collapsePartyTotalsForBar(totals, {
+    limit: PARTY_BAR_LIMIT,
+    preserve: ["Independent"]
+  });
   renderPartyBarPanel(currentSeatBars, entries, {
-    expanded: currentSeatSmallerExpanded,
-    toggleId: "current-seat-more-toggle",
-    moreId: "current-seat-more",
-    buttonLabel: "smaller parties",
-    note: "This is the current seat distribution from the existing MP data. Labour (Co-op) is shown separately because it is a distinct current label in the source data.",
+    note: "This is the current seat distribution from the existing MP data. Smaller parties are rolled into Other and Independent stays distinct.",
     emptyMessage: "No current seat split available."
   });
 }
@@ -225,7 +231,7 @@ function getCurrentSeatTotals(data) {
   const rows = Array.isArray(data?.constituency_forecasts) ? data.constituency_forecasts : [];
   const totals = {};
   for (const row of rows) {
-    const party = row?.current_party || "Unknown";
+    const party = row?.current_party_label || row?.current_party || "Unknown";
     totals[party] = (totals[party] || 0) + 1;
   }
   return totals;
@@ -233,12 +239,7 @@ function getCurrentSeatTotals(data) {
 
 function renderPartyBarPanel(container, entries, options) {
   if (!container) return;
-  const topN = 10;
   const sum = entries.reduce((acc, [, value]) => acc + Number(value || 0), 0) || 1;
-  const visible = entries.slice(0, topN);
-  const hidden = entries.slice(topN);
-  const hiddenCount = hidden.length;
-  const showHidden = Boolean(options?.expanded && hiddenCount);
   if (!entries.length) {
     container.innerHTML = `<p class="panel-note">${options?.emptyMessage || "No data available."}</p>`;
     return;
@@ -246,45 +247,21 @@ function renderPartyBarPanel(container, entries, options) {
 
   container.innerHTML = `
     <p class="panel-note">${options?.note || ""}</p>
-    <p class="panel-note">Showing the top ${formatNumber(Math.min(topN, entries.length))} parties by seats. All rows are included in the total.</p>
     <div class="seat-bars seat-bars--single">
-      ${visible.map(([party, value]) => renderStackedSegment(party, value, sum, false, options)).join("")}
-      ${showHidden ? hidden.map(([party, value]) => renderStackedSegment(party, value, sum, true, options)).join("") : ""}
+      ${entries.map(([party, value]) => renderStackedSegment(party, value, sum, options)).join("")}
     </div>
-    ${hiddenCount ? `
-      <button type="button" class="inline-toggle-button party-bar-toggle" id="${options.toggleId}" aria-expanded="${showHidden ? "true" : "false"}">
-        ${showHidden ? "Hide smaller parties" : `Show ${formatNumber(hiddenCount)} smaller parties`}
-      </button>
-    ` : ""}
   `;
-
-  const toggle = container.querySelector(`#${options.toggleId}`);
-  const moreSegments = container.querySelectorAll(`[data-hidden-group="${options?.moreId || ""}"]`);
-  if (toggle && hiddenCount) {
-    toggle.addEventListener("click", () => {
-      const next = toggle.getAttribute("aria-expanded") !== "true";
-      toggle.setAttribute("aria-expanded", next ? "true" : "false");
-      toggle.textContent = next
-        ? "Hide smaller parties"
-        : `Show ${formatNumber(hiddenCount)} smaller parties`;
-      moreSegments.forEach((segment) => {
-        segment.hidden = !next;
-      });
-    });
-  }
 }
 
-function renderStackedSegment(party, value, sum, hidden, options) {
+function renderStackedSegment(party, value, sum, options) {
   const width = (Number(value || 0) / sum) * 100;
   return `
     <button
       type="button"
       class="seat-segment"
-      data-hidden-group="${options?.moreId || ""}"
       aria-label="${party}: ${formatNumber(value)} seats, ${formatPercent(Number(value || 0) / sum, 1)} of the total"
       title="${party}: ${formatNumber(value)} seats"
       style="width:${width}%; background:${partyColor(party)}"
-      ${hidden ? "hidden" : ""}
     >
       <span class="seat-segment-label">${party}</span>
       <span class="seat-segment-count">${formatNumber(value)}</span>
@@ -413,7 +390,7 @@ function renderConstituencyTable() {
         label: "Current MP",
         sortValue: (row) => row?.current_member_name || row?.current_party || "",
         render: (row) => {
-          const party = row?.current_party || "n/a";
+          const party = row?.current_party_label || row?.current_party || "n/a";
           const member = row?.current_member_name || party;
           return `<strong>${member}</strong><br><span class="forecast-party" style="--forecast-party:${partyColor(party)}">${party}</span>`;
         }
@@ -433,7 +410,7 @@ function renderConstituencyTable() {
             return `<span class="delta-positive">Hold</span>`;
           }
           if (row?.seat_status === "change") {
-            return `<span class="delta-negative">Change from ${row?.current_party || "unknown"}</span>`;
+            return `<span class="delta-negative">Change from ${row?.current_party_label || row?.current_party || "unknown"}</span>`;
           }
           return `<span class="delta-neutral">Unknown</span>`;
         }

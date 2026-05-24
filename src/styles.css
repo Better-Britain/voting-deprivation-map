@@ -740,6 +740,10 @@ body {
 .forecast-map-figure {
   margin: 0;
 }
+.forecast-map-panel {
+  width: min(100%, 860px);
+  margin-inline: auto;
+}
 .forecast-map-image {
   display: block;
   width: 100%;

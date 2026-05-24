@@ -8,6 +8,7 @@
     "preview": "vite preview --config vite.config.mjs",
     "forecast:map:png": "node ./scripts/render-next-ge-forecast-map.mjs",
     "report:reform-label-traps": "node ./scripts/build-reform-label-trap-report.mjs",
+    "data:update:current-mps": "node ./scripts/update-current-mp-data.mjs",
     "data:update:wards": "node ./scripts/update-wards-gm.mjs",
     "data:update:councils": "node ./scripts/update-councils-gm.mjs",
     "data:update:election:current": "node ./scripts/update-ward-election-current-gm.mjs",
