@@ -336,21 +336,24 @@ function populatePlace(place, kind, selectors) {
     const searchEl = kind === "mayor" ? gmWardsSearch : makerfieldWardsSearch;
     const filteredRows = rows.filter((row) => rowMatchesSearch(row, searchQuery));
     const summary = getWardSummary(filteredRows);
+    const hasActiveFilter = searchQuery.length > 0;
     if (summaryEl) {
-      summaryEl.textContent = expanded
-        ? `${formatNumber(summary.total)} wards shown, sorted by lead.${searchQuery ? ` Search: "${searchQuery}".` : ""}`
-        : `${formatNumber(summary.total)} wards total${searchQuery ? ` matching search "${searchQuery}"` : ""}. ${formatNumber(summary.holds)} forecast holds, ${formatNumber(summary.changes)} forecast changes, and ${formatNumber(summary.tight)} tight wards. Use the button to show the full ward list.`;
+      summaryEl.textContent = hasActiveFilter
+        ? `${formatNumber(summary.total)} wards match search "${searchQuery}". Showing the matching set.`
+        : expanded
+          ? `${formatNumber(summary.total)} wards shown, sorted by lead.`
+          : `${formatNumber(summary.total)} wards total. ${formatNumber(summary.holds)} forecast holds, ${formatNumber(summary.changes)} forecast changes, and ${formatNumber(summary.tight)} tight wards. Use the button to show the full ward list.`;
     }
     if (toggleEl) {
       toggleEl.hidden = filteredRows.length === 0;
     }
     if (toggleLabelEl) {
-      toggleLabelEl.textContent = expanded ? "Hide list" : `Show all ${formatNumber(summary.total)} wards`;
+      toggleLabelEl.textContent = expanded ? "Hide list" : `Show all ${formatNumber(rows.length)} wards`;
     }
     if (searchEl) {
       searchEl.value = searchQuery;
     }
-    if (!expanded) {
+    if (!hasActiveFilter && !expanded) {
       selectors.wards.innerHTML = "";
       return;
     }

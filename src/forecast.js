@@ -2,6 +2,7 @@ import { buildConstituencyView } from "./lib/ge-adjustment.js";
 import { partyFamilyName } from "./lib/ge-adjustment.js";
 import { initBackToTopButton } from "./lib/back-to-top.js";
 import { rowMatchesSearch } from "./lib/list-search.js";
+import { FORECAST_TOO_CLOSE_THRESHOLD, TOO_CLOSE_TO_CALL_LABEL } from "./lib/forecast-thresholds.js";
 
 const FORECAST_URL = new URL("./data/next-ge-forecast.json", import.meta.url).href;
 
@@ -15,9 +16,20 @@ const PARTY_COLORS = {
   Unknown: "#c0c5cc",
   Other: "#d7dbdf"
 };
-const CALLABLE_THRESHOLD = 0.002;
 const PARTY_BAR_LIMIT = 5;
 const PARTY_BAR_PRESERVE = new Set(["Independent", "Unknown"]);
+const FORECAST_MAP_MODES = {
+  raw: {
+    src: "./images/forecast-projection-map-raw.png",
+    alt: "Projected constituency outcome map from the raw local-election roll-up",
+    label: "Raw local"
+  },
+  geAdjusted: {
+    src: "./images/forecast-projection-map-ge-adjusted.png",
+    alt: "Projected constituency outcome map with the GE turnout correction applied",
+    label: "GE-adjusted"
+  }
+};
 
 const METRIC_DEFINITIONS = [
   {
@@ -39,7 +51,7 @@ const METRIC_DEFINITIONS = [
       label: "Tight seats",
       getValue: (data) => {
         const rows = Array.isArray(data?.constituency_forecasts) ? data.constituency_forecasts : [];
-        return rows.filter((row) => Number(row?.forecast?.confidence || 0) <= CALLABLE_THRESHOLD).length;
+        return rows.filter((row) => Number(row?.forecast?.confidence || 0) <= FORECAST_TOO_CLOSE_THRESHOLD).length;
       }
     }
   ];
@@ -61,6 +73,8 @@ const forecastSeatBars = document.getElementById("forecast-seat-bars");
 const currentSeatBars = document.getElementById("current-seat-bars");
 const forecastAssumptions = document.getElementById("forecast-assumptions");
 const forecastUpdated = document.getElementById("forecast-updated");
+const forecastMapImage = document.getElementById("forecast-map-image");
+const forecastMapState = document.getElementById("forecast-map-state");
 const modelNotes = document.getElementById("model-notes");
 const geAdjustmentToggle = document.getElementById("ge-adjustment-toggle");
 const geAdjustmentState = document.getElementById("ge-adjustment-state");
@@ -149,9 +163,9 @@ function renderMetrics(data) {
       .map((row) => Number(row?.forecast?.confidence || 0))
       .sort((a, b) => a - b)[Math.floor(constituencies.length / 2)]
     : null;
-  const tightSeats = constituencies.filter((row) => Number(row?.forecast?.confidence || 0) <= CALLABLE_THRESHOLD).length;
+  const tightSeats = constituencies.filter((row) => Number(row?.forecast?.confidence || 0) <= FORECAST_TOO_CLOSE_THRESHOLD).length;
   const contestedWards = (Array.isArray(data?.ward_forecasts) ? data.ward_forecasts : []).filter(
-    (row) => Number(row?.confidence || 0) <= CALLABLE_THRESHOLD
+    (row) => Number(row?.confidence || 0) <= FORECAST_TOO_CLOSE_THRESHOLD
   ).length;
   const holdSeats = Number(data?.summary?.constituency_holds || 0);
   const changeSeats = Number(data?.summary?.constituency_changes || 0);
@@ -175,7 +189,7 @@ function renderMetrics(data) {
     {
       label: "Tight constituencies",
       value: formatNumber(tightSeats),
-      note: "confidence <= 0.12"
+      note: `confidence <= ${FORECAST_TOO_CLOSE_THRESHOLD.toFixed(3)}`
     },
     {
       label: "Median constituency lead",
@@ -198,18 +212,18 @@ function renderSeatBars(data) {
   const rows = Array.isArray(data?.constituency_forecasts) ? data.constituency_forecasts : [];
   const totals = {};
   for (const row of rows) {
-    const isCallable = Number(row?.forecast?.confidence || 0) > CALLABLE_THRESHOLD;
-    const party = isCallable ? (row?.forecast?.winner || "Unknown") : "Unknown";
+    const isCallable = Number(row?.forecast?.confidence || 0) > FORECAST_TOO_CLOSE_THRESHOLD;
+    const party = isCallable ? (row?.forecast?.winner || "Unknown") : TOO_CLOSE_TO_CALL_LABEL;
     totals[party] = (totals[party] || 0) + 1;
   }
   const entries = collapsePartyTotalsForBar(totals, {
     limit: PARTY_BAR_LIMIT,
-    preserve: ["Independent", "Unknown"]
+    preserve: ["Independent", TOO_CLOSE_TO_CALL_LABEL]
   });
   renderPartyBarPanel(forecastSeatBars, entries, {
     note: geAdjustedMode
-      ? "This is the GE-adjusted seat total. Low-confidence constituencies are grouped as Unknown and the smaller parties are rolled into Other."
-      : "These are forecast winners across all 543 constituencies. Low-confidence constituencies are grouped as Unknown and the smaller parties are rolled into Other.",
+      ? `This is the GE-adjusted seat total. Low-confidence constituencies are grouped as ${TOO_CLOSE_TO_CALL_LABEL} and the smaller parties are rolled into Other.`
+      : `These are forecast winners across all 543 constituencies. Low-confidence constituencies are grouped as ${TOO_CLOSE_TO_CALL_LABEL} and the smaller parties are rolled into Other.`,
     emptyMessage: "No forecast seat totals available."
   });
 }
@@ -356,22 +370,26 @@ function getWardRows() {
 }
 
 function renderConstituencyTable() {
+  const allRows = Array.isArray(forecastViewData?.constituency_forecasts) ? [...forecastViewData.constituency_forecasts] : [];
   const rows = getConstituencyRows();
+  const hasActiveFilter = selectedConstituencyParty !== "All" || constituencySearchQuery.length > 0;
   const holdCount = rows.filter((row) => row?.seat_status === "hold").length;
   const changeCount = rows.filter((row) => row?.seat_status === "change").length;
-  const tightCount = rows.filter((row) => Number(row?.forecast?.confidence || 0) <= 0.12).length;
-  constituencySummary.textContent = constituencyTableExpanded
-    ? `${formatNumber(rows.length)} constituencies shown, sorted by lead.${geAdjustedMode ? " GE-adjusted view." : " Raw local view."}`
-    : `${formatNumber(rows.length)} constituencies match the current filter${constituencySearchQuery ? ` and search "${constituencySearchQuery}"` : ""}. ${formatNumber(holdCount)} holds, ${formatNumber(changeCount)} changes, and ${formatNumber(tightCount)} tight seats. Use the button to show the full constituency list.`;
+  const tightCount = rows.filter((row) => Number(row?.forecast?.confidence || 0) <= FORECAST_TOO_CLOSE_THRESHOLD).length;
+  constituencySummary.textContent = hasActiveFilter
+    ? `${formatNumber(rows.length)} constituencies match the current filter${constituencySearchQuery ? ` and search "${constituencySearchQuery}"` : ""}. Showing the matching set.`
+    : constituencyTableExpanded
+      ? `${formatNumber(rows.length)} constituencies shown, sorted by lead.${geAdjustedMode ? " GE-adjusted view." : " Raw local view."}`
+      : `${formatNumber(rows.length)} constituencies match the current filter${constituencySearchQuery ? ` and search "${constituencySearchQuery}"` : ""}. ${formatNumber(holdCount)} holds, ${formatNumber(changeCount)} changes, and ${formatNumber(tightCount)} tight seats. Use the button to show the full constituency list.`;
   if (constituencyTableToggle) {
     constituencyTableToggle.hidden = rows.length === 0;
   }
   if (constituencyTableToggleLabel) {
     constituencyTableToggleLabel.textContent = constituencyTableExpanded
       ? "Hide list"
-      : `Show all ${formatNumber(rows.length)} constituencies`;
+      : `Show all ${formatNumber(allRows.length)} constituencies`;
   }
-  if (!constituencyTableExpanded) {
+  if (!hasActiveFilter && !constituencyTableExpanded) {
     if (constituencyTable) constituencyTable.innerHTML = "";
     return;
   }
@@ -412,7 +430,7 @@ function renderConstituencyTable() {
           if (row?.seat_status === "change") {
             return `<span class="delta-negative">Change from ${row?.current_party_label || row?.current_party || "unknown"}</span>`;
           }
-          return `<span class="delta-neutral">Unknown</span>`;
+          return `<span class="delta-neutral">${TOO_CLOSE_TO_CALL_LABEL}</span>`;
         }
       },
       {
@@ -454,22 +472,26 @@ function renderConstituencyTable() {
 }
 
 function renderWardTable() {
+  const allRows = Array.isArray(forecastData?.ward_forecasts) ? [...forecastData.ward_forecasts] : [];
   const rows = getWardRows();
+  const hasActiveFilter = selectedWardParty !== "All" || wardSearchQuery.length > 0;
   const holdCount = rows.filter((row) => row?.current_winner_party && row?.winner && partyFamilyName(row.current_winner_party) === partyFamilyName(row.winner)).length;
   const changeCount = rows.length - holdCount;
-  const tightCount = rows.filter((row) => Number(row?.confidence || 0) <= 0.12).length;
-  wardSummary.textContent = wardTableExpanded
-    ? `${formatNumber(rows.length)} wards shown, sorted by lead.`
-    : `${formatNumber(rows.length)} wards match the current filter${wardSearchQuery ? ` and search "${wardSearchQuery}"` : ""}. ${formatNumber(holdCount)} holds, ${formatNumber(changeCount)} changes, and ${formatNumber(tightCount)} tight wards. Use the button to show the full ward list.`;
+  const tightCount = rows.filter((row) => Number(row?.confidence || 0) <= FORECAST_TOO_CLOSE_THRESHOLD).length;
+  wardSummary.textContent = hasActiveFilter
+    ? `${formatNumber(rows.length)} wards match the current filter${wardSearchQuery ? ` and search "${wardSearchQuery}"` : ""}. Showing the matching set.`
+    : wardTableExpanded
+      ? `${formatNumber(rows.length)} wards shown, sorted by lead.`
+      : `${formatNumber(rows.length)} wards match the current filter${wardSearchQuery ? ` and search "${wardSearchQuery}"` : ""}. ${formatNumber(holdCount)} holds, ${formatNumber(changeCount)} changes, and ${formatNumber(tightCount)} tight wards. Use the button to show the full ward list.`;
   if (wardTableToggle) {
     wardTableToggle.hidden = rows.length === 0;
   }
   if (wardTableToggleLabel) {
     wardTableToggleLabel.textContent = wardTableExpanded
       ? "Hide list"
-      : `Show all ${formatNumber(rows.length)} wards`;
+      : `Show all ${formatNumber(allRows.length)} wards`;
   }
-  if (!wardTableExpanded) {
+  if (!hasActiveFilter && !wardTableExpanded) {
     if (wardTable) wardTable.innerHTML = "";
     return;
   }
@@ -618,9 +640,22 @@ function updateGeAdjustmentState() {
   }
 }
 
+function updateForecastMap() {
+  if (!forecastMapImage) return;
+  const modeKey = geAdjustedMode ? "geAdjusted" : "raw";
+  const mapMode = FORECAST_MAP_MODES[modeKey];
+  if (!mapMode) return;
+  forecastMapImage.src = mapMode.src;
+  forecastMapImage.alt = mapMode.alt;
+  if (forecastMapState) {
+    forecastMapState.textContent = `${mapMode.label} map. Grey seats are ${TOO_CLOSE_TO_CALL_LABEL}.`;
+  }
+}
+
 function updateForecastView() {
   forecastViewData = buildConstituencyView(forecastData, geAdjustedMode);
   updateGeAdjustmentState();
+  updateForecastMap();
   renderMetrics(forecastViewData);
   renderSeatBars(forecastViewData);
   renderCurrentSeatBars(forecastData);

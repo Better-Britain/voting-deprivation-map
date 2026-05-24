@@ -486,6 +486,17 @@ body {
 .table-filter-input::placeholder {
   color: rgba(24, 32, 29, 0.45);
 }
+.table-filter-select {
+  min-width: 220px;
+  max-width: 360px;
+  width: min(360px, 100%);
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  padding: 8px 11px;
+  background: #fffdf8;
+  color: var(--ink);
+  font: 700 13px/1.2 var(--font-ui);
+}
 #grouped-deprivation-select,
 #ward-deprivation-filter-select,
 #census-party-select {

@@ -2,13 +2,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
+import { buildConstituencyView } from "./lib/ge-adjustment.mjs";
+import { FORECAST_TOO_CLOSE_THRESHOLD, TOO_CLOSE_TO_CALL_LABEL } from "./lib/forecast-thresholds.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
 
 const FORECAST_PATH = path.resolve(projectRoot, "src/data/next-ge-forecast.json");
 const LOCAL_CONSTITUENCY_CACHE_PATH = path.resolve(projectRoot, "forecast/cache/england-constituencies.geojson");
-const OUTPUT_PATH = path.resolve(projectRoot, "public/images/forecast-projection-map.png");
+const RAW_OUTPUT_PATH = path.resolve(projectRoot, "public/images/forecast-projection-map-raw.png");
+const GE_ADJUSTED_OUTPUT_PATH = path.resolve(projectRoot, "public/images/forecast-projection-map-ge-adjusted.png");
+const LEGACY_OUTPUT_PATH = path.resolve(projectRoot, "public/images/forecast-projection-map.png");
 
 const CONSTITUENCY_SERVICE_URL =
   "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Westminster_Parliamentary_Constituencies_July_2024_Boundaries_UK_BFC/FeatureServer/0/query?where=PCON24CD%20LIKE%20%27E%25%27&outFields=PCON24CD,PCON24NM&returnGeometry=true&outSR=4326&geometryPrecision=3&f=geojson";
@@ -152,7 +156,7 @@ function buildProjection(features) {
   function project(lon, lat) {
     const [x, y] = mercatorProject(lon, lat);
     const screenX = ((x - minX) * scale) + pad + extraX;
-    const screenY = ((maxY - y) * scale) + pad + extraY;
+    const screenY = ((y - minY) * scale) + pad + extraY;
     return [screenX, screenY];
   }
 
@@ -179,25 +183,37 @@ function getConstituencyCode(feature) {
   ).trim();
 }
 
-async function main() {
-  const forecast = await readJsonFile(FORECAST_PATH);
-  const geojson = await loadConstituencyGeojson();
-  const features = (Array.isArray(geojson?.features) ? geojson.features : [])
-    .filter((feature) => getConstituencyCode(feature).startsWith("E"))
-    .filter((feature) => feature?.geometry);
+function buildLegendBox(modeLabel) {
+  return `
+    <g transform="translate(42 42)">
+      <rect x="0" y="0" width="360" height="112" rx="3" ry="3" fill="rgba(255, 252, 246, 0.96)" stroke="rgba(24, 32, 29, 0.16)" stroke-width="2"></rect>
+      <text x="18" y="28" fill="#18201d" font-family="Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="24" font-weight="800">${escapeHtml(modeLabel)}</text>
+      <text x="18" y="52" fill="rgba(24, 32, 29, 0.74)" font-family="Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="16" font-weight="600">Grey seats = ${escapeHtml(TOO_CLOSE_TO_CALL_LABEL)}</text>
+      <rect x="18" y="68" width="20" height="20" rx="3" ry="3" fill="#d1d5db" stroke="rgba(24, 32, 29, 0.18)" stroke-width="1.5"></rect>
+      <text x="48" y="84" fill="rgba(24, 32, 29, 0.72)" font-family="Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="600">Low-confidence constituencies</text>
+    </g>
+  `;
+}
 
-  const projection = buildProjection(features);
-  const forecastRows = new Map(
-    (Array.isArray(forecast?.constituency_forecasts) ? forecast.constituency_forecasts : [])
-      .map((row) => [String(row?.constituency_code || ""), row])
-  );
+function buildSvg({ projection, mapPaths, modeLabel }) {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${projection.width}" height="${projection.height}" viewBox="0 0 ${projection.width} ${projection.height}" role="img" aria-label="Projected constituency outcome map">
+      <rect width="100%" height="100%" fill="#f4efe4"></rect>
+      ${buildLegendBox(modeLabel)}
+      <g>${mapPaths.join("")}</g>
+      <rect x="0" y="0" width="${projection.width}" height="${projection.height}" fill="none" stroke="#d4cbbd" stroke-width="4"></rect>
+    </svg>
+  `;
+}
 
+function buildMapPaths(features, projection, forecastRows) {
   const mapPaths = [];
   for (const feature of features) {
     const code = getConstituencyCode(feature);
     const row = forecastRows.get(code) || null;
-    const winner = row?.forecast?.winner || null;
-    const fill = winner ? partyFill(winner) : "#d1d5db";
+    const confidence = Number(row?.forecast?.confidence || 0);
+    const winner = confidence > FORECAST_TOO_CLOSE_THRESHOLD ? (row?.forecast?.winner || null) : TOO_CLOSE_TO_CALL_LABEL;
+    const fill = winner && winner !== TOO_CLOSE_TO_CALL_LABEL ? partyFill(winner) : "#d1d5db";
     const pathData = geometryToPathData(feature.geometry, projection.project);
     if (!pathData) continue;
     mapPaths.push(`
@@ -213,16 +229,12 @@ async function main() {
       ></path>
     `);
   }
+  return mapPaths;
+}
 
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${projection.width}" height="${projection.height}" viewBox="0 0 ${projection.width} ${projection.height}" role="img" aria-label="Projected constituency outcome map">
-      <rect width="100%" height="100%" fill="#f4efe4"></rect>
-      <g>${mapPaths.join("")}</g>
-      <rect x="0" y="0" width="${projection.width}" height="${projection.height}" fill="none" stroke="#d4cbbd" stroke-width="4"></rect>
-    </svg>
-  `;
-
-  await fs.mkdir(path.dirname(OUTPUT_PATH), { recursive: true });
+async function renderVariant({ projection, features, forecastRows, outputPath, modeLabel }) {
+  const mapPaths = buildMapPaths(features, projection, forecastRows);
+  const svg = buildSvg({ projection, mapPaths, modeLabel });
 
   const browser = await chromium.launch({ headless: true });
   try {
@@ -257,19 +269,56 @@ async function main() {
       </html>
     `);
     await page.screenshot({
-      path: OUTPUT_PATH,
+      path: outputPath,
       omitBackground: false
     });
   } finally {
     await browser.close();
   }
+}
 
-  const projectedSeats = Object.entries(forecast?.party_seat_totals || {})
+async function main() {
+  const forecast = await readJsonFile(FORECAST_PATH);
+  const geojson = await loadConstituencyGeojson();
+  const features = (Array.isArray(geojson?.features) ? geojson.features : [])
+    .filter((feature) => getConstituencyCode(feature).startsWith("E"))
+    .filter((feature) => feature?.geometry);
+
+  const projection = buildProjection(features);
+  const rawRows = new Map(
+    (Array.isArray(forecast?.constituency_forecasts) ? forecast.constituency_forecasts : [])
+      .map((row) => [String(row?.constituency_code || ""), row])
+  );
+  const geAdjustedForecast = buildConstituencyView(forecast, true);
+  const geAdjustedRows = new Map(
+    (Array.isArray(geAdjustedForecast?.constituency_forecasts) ? geAdjustedForecast.constituency_forecasts : [])
+      .map((row) => [String(row?.constituency_code || ""), row])
+  );
+
+  await fs.mkdir(path.dirname(RAW_OUTPUT_PATH), { recursive: true });
+  await renderVariant({
+    projection,
+    features,
+    forecastRows: rawRows,
+    outputPath: RAW_OUTPUT_PATH,
+    modeLabel: "Raw local"
+  });
+  await renderVariant({
+    projection,
+    features,
+    forecastRows: geAdjustedRows,
+    outputPath: GE_ADJUSTED_OUTPUT_PATH,
+    modeLabel: "GE-adjusted"
+  });
+  await fs.copyFile(GE_ADJUSTED_OUTPUT_PATH, LEGACY_OUTPUT_PATH);
+
+  const projectedSeats = Object.entries(geAdjustedForecast?.party_seat_totals || {})
     .sort((a, b) => Number(b[1]) - Number(a[1]))
     .map(([party, seats]) => `${party} ${safeNumber(seats, 0)}`)
     .join(", ");
-  console.log(`Rendered forecast map PNG at ${OUTPUT_PATH}`);
-  console.log(`Seat totals: ${projectedSeats}`);
+  console.log(`Rendered forecast map PNGs at ${RAW_OUTPUT_PATH} and ${GE_ADJUSTED_OUTPUT_PATH}`);
+  console.log(`Updated legacy map alias at ${LEGACY_OUTPUT_PATH}`);
+  console.log(`GE-adjusted seat totals: ${projectedSeats}`);
 }
 
 await main();
