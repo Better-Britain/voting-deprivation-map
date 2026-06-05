@@ -10,6 +10,8 @@ The map is at [https://better-britain.github.io/voting-deprivation-map/](https:/
 
 This repo ships real dataset files from `src/data` and the website reads those files directly. There is no production-side builder. Data refreshes happen in dev or CI and the resulting JSON/GeoJSON stays repo-tracked.
 
+Automated `yarn updates:maintenance` runs in GitHub Actions are disabled because this project is complete and the upstream endpoints changed. The Pages workflow now deploys the committed data only.
+
 ## TODO:
 
 - the next ge forecast isnt what's missing on the github pages... the current mps are missing.

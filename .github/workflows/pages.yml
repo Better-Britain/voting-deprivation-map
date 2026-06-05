@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       update_data:
-        description: Run updates:maintenance before building
+        description: Kept for compatibility; updates:maintenance is disabled
         type: boolean
-        default: true
+        default: false
 
   schedule:
     # Daily, UTC. Avoid top-of-hour because GitHub scheduled jobs can be delayed there.
@@ -47,7 +47,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Update source data
-        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.update_data)
+        if: ${{ false }}
         run: yarn updates:maintenance
 
       - name: Build
